@@ -47,11 +47,11 @@ function LoadMon(obMon) {
 }
 
 function randomStat(min, max){
-	return Math.ceil(rand() * (max - min) + min);
+	return Math.ceil(global.rand() * (max - min) + min);
 }
 
 function sendMsg(sMsg) {
-	bWnd[iWnd].Wnd.SendMessage(obConf.Pref.msgFormat[0] + "*" + sMsg + obConf.Pref.msgFormat[1]);
+	global.bWnd[global.iWnd].Wnd.SendMessage(obConf.Pref.msgFormat[0] + "*" + sMsg + obConf.Pref.msgFormat[1]);
 }
 
 function displayHP(Mon) {
@@ -70,26 +70,26 @@ function displayType(aType) {
 function changeTurn(Turn, offMon, defMon) {
 	//Debug.Trace("mon that just attacked was player "+Turn);
 	if (defMon.HPCur > 0 && offMon.HPCur > 0) {
-		bWnd[iWnd].Turn = (Turn === 1 ? 2 : 1);
-		//Debug.Trace("switching to player "+bWnd[iWnd].Turn);
+		global.bWnd[global.iWnd].Turn = (Turn === 1 ? 2 : 1);
+		//Debug.Trace("switching to player "+global.bWnd[global.iWnd].Turn);
 		if (defMon.Status.Recharge === 1) {
 			defMon.Status.Recharge = 0;
-			bWnd[iWnd].Turn = (bWnd[iWnd].Turn === 1 ? 2 : 1);
-			//Debug.Trace("that player is recharging, switch back to player "+bWnd[iWnd].Turn);
+			global.bWnd[global.iWnd].Turn = (global.bWnd[global.iWnd].Turn === 1 ? 2 : 1);
+			//Debug.Trace("that player is recharging, switch back to player "+global.bWnd[global.iWnd].Turn);
 			sendMsg(obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, defMon.Name));
 		}
 	}
 	else {
 		if (offMon.HPCur <= 0) { //check the attackers's HP first, if both are 0, the defender wins
-			var loser = bWnd[iWnd].Player[Turn].Name;
-			var winner = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
+			var loser = global.bWnd[global.iWnd].Player[Turn].Name;
+			var winner = global.bWnd[global.iWnd].Player[Turn === 1 ? 2 : 1].Name;
 		}
 		else {
-			var loser = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
-			var winner = bWnd[iWnd].Player[Turn].Name;
+			var loser = global.bWnd[global.iWnd].Player[Turn === 1 ? 2 : 1].Name;
+			var winner = global.bWnd[global.iWnd].Player[Turn].Name;
 		}
 		sendMsg(obTrans.GetMessages().GetString("BattleEnd").replace(/PLAYER1_NAME/, winner).replace(/PLAYER2_NAME/, loser));
-		bWnd.splice(iWnd, 1);
+		global.bWnd.splice(global.iWnd, 1);
 		if (winner === Messenger.MyName) {
 			settings.UpdateRecord("win");
 		}

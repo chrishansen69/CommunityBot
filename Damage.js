@@ -12,20 +12,20 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
 		oAtk.Acc = obMoveDB[oAtk.Name].Acc;
 		oAtk.Pwr = obMoveDB[oAtk.Name].Pwr;
 		oAtk.Type = obMoveDB[oAtk.Name].Type;
-		oAtk.Failed = (oAtk.Acc === -1) ? false : (oAtk.Acc / 100 < rand() ? true : false);
+		oAtk.Failed = (oAtk.Acc === -1) ? false : (oAtk.Acc / 100 < global.rand() ? true : false);
 	}
 	else { //for unlisted attacks, effects are randomized
 		oAtk.Eff = "u" + occRate(defMon, obConf.OccRate.strip, "Def") * 100;
 		oAtk.Eff += "d";
-		oAtk.Eff += "s0" + Math.floor(rand() * 7) + occRate(offMon, obConf.OccRate.status, "Spc") * 100;
-		var i = Math.floor(rand() * 2);
-		oAtk.Eff += "m" + i + Math.floor(rand() * 4) + occRate(offMon, obConf.OccRate.mod, "Spc") * 100 + (i === 0 ? "-" : "+") + 1;
+		oAtk.Eff += "s0" + Math.floor(global.rand() * 7) + occRate(offMon, obConf.OccRate.status, "Spc") * 100;
+		var i = Math.floor(global.rand() * 2);
+		oAtk.Eff += "m" + i + Math.floor(global.rand() * 4) + occRate(offMon, obConf.OccRate.mod, "Spc") * 100 + (i === 0 ? "-" : "+") + 1;
 		oAtk.Eff += "f" + occRate(offMon, obConf.OccRate.flinch, "Atk") * 100;
-		if(occRate(defMon, obConf.OccRate.recoil, "HPMax") > rand()){oAtk.Eff += "r010";}
+		if(occRate(defMon, obConf.OccRate.recoil, "HPMax") > global.rand()){oAtk.Eff += "r010";}
 		oAtk.Acc = occRate(defMon, obConf.OccRate.miss, "Spe") * 100;
 		oAtk.Pwr = damageCalc.Power();
-		oAtk.Type = offMon.Type[(offMon.Type[1] ? Math.floor(rand() * 2) : 0)];
-		oAtk.Failed = oAtk.Acc / 100 > rand() ? true : false;
+		oAtk.Type = offMon.Type[(offMon.Type[1] ? Math.floor(global.rand() * 2) : 0)];
+		oAtk.Failed = oAtk.Acc / 100 > global.rand() ? true : false;
 		//you may think, why divide the rates by 100 if I'm just going to multiply by 100 later
 		//it's like that because MoveDB moves are written with integers and I don't want to go back and change 'em all
 		//decimals do work though, but only randomly generated moves may have them
@@ -49,7 +49,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
 					if(oAtk.Pwr === undefined) {
 						oAtk.Pwr = damageCalc.Power();
 					}
-					oAtk.Dmg = Math.floor((((0.84 * oAtk.Pwr * (offMon.Atk * statMod.Get(offMon, 0)) * damageCalc.Mod1(offMon) / (defMon.Def * statMod.Get(defMon, 1))) + 2) * damageCalc.Crit(offMon) * (rand() * 39 + 85) / 100) * damageCalc.STAB(offMon.Type, oAtk.Type) * damageCalc.Type(oAtk.Type, defMon.Type) * obConf.Pref.dmgMod);
+					oAtk.Dmg = Math.floor((((0.84 * oAtk.Pwr * (offMon.Atk * statMod.Get(offMon, 0)) * damageCalc.Mod1(offMon) / (defMon.Def * statMod.Get(defMon, 1))) + 2) * damageCalc.Crit(offMon) * (global.rand() * 39 + 85) / 100) * damageCalc.STAB(offMon.Type, oAtk.Type) * damageCalc.Type(oAtk.Type, defMon.Type) * obConf.Pref.dmgMod);
 					if(oAtk.Pwr === -1) {
 						oAtk.Dmg = defMon.HPMax;
 					}
@@ -60,21 +60,21 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
 					Debug.Trac
 						oAtk.Dmg = parseInt(a[i].substr(1));
 					}
-					if(isNaN(CHEAT) === false) {
-						oAtk.Dmg = CHEAT;
-						CHEAT = undefined;
+					if(isNaN(global.CHEAT) === false) {
+						oAtk.Dmg = global.CHEAT;
+						global.CHEAT = undefined;
 					}
 					defMon.HPCur - oAtk.Dmg < 0 ? defMon.HPCur = 0 : defMon.HPCur -= oAtk.Dmg;
-					sendMsg(msgCrit + msgEffect + obTrans.GetMessages().GetString("AtkDamage").replace(/MON_NAME/, offMon.Name).replace(/ATTACK_NAME/, oAtk.Name).replace(/NUMBER/, oAtk.Dmg));
+					sendMsg(global.msgCrit + global.msgEffect + obTrans.GetMessages().GetString("AtkDamage").replace(/MON_NAME/, offMon.Name).replace(/ATTACK_NAME/, oAtk.Name).replace(/NUMBER/, oAtk.Dmg));
 					displayHP(defMon);
 					break;
 				case "m":
-					if(parseFloat(a[i].slice(3).match(/^.*[\+\-]/gi)[0].replace(/[\+\-]/gi, "")) / 100 > rand()) {
+					if(parseFloat(a[i].slice(3).match(/^.*[\+\-]/gi)[0].replace(/[\+\-]/gi, "")) / 100 > global.rand()) {
 						statMod.Set.Relative((a[i].charAt(1) === "0" ? defMon : offMon), parseInt(a[i].charAt(2), 10), parseInt(a[i].match(/[\+\-].*/)[0], 10));
 					}
 					break;
 				case "s":
-					if(parseFloat(a[i].slice(3)) / 100 > rand()) {
+					if(parseFloat(a[i].slice(3)) / 100 > global.rand()) {
 						status.Set(a[i].charAt(1) === "0" ? defMon : offMon, parseInt(a[i].charAt(2), 10));
 					}
 					break;
@@ -85,7 +85,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
 					displayHP(offMon);
 					break;
 				case "c":
-					if(parseFloat(a[i].slice(1)) / 100 > rand()) {
+					if(parseFloat(a[i].slice(1)) / 100 > global.rand()) {
 						sendMsg(obTrans.GetMessages().GetString("StatusCured").replace(/MON_NAME/, offMon.Name));
 					}
 					break;
@@ -99,13 +99,13 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
 					offMon.Status.Recharge = 1;
 					break;
 				case "f":
-					if(parseFloat(a[i].slice(1)) / 100 > rand()) {
+					if(parseFloat(a[i].slice(1)) / 100 > global.rand()) {
 						sendMsg(obTrans.GetMessages().GetString("AtkFlinch").replace(/MON_NAME/, defMon.Name));
-						changeTurn(bWnd[iWnd].Turn, offMon, defMon);
+						changeTurn(global.bWnd[global.iWnd].Turn, offMon, defMon);
 					}
 					break;
 				case "u":
-					if(parseFloat(a[i].slice(1)) / 100 > rand()) {
+					if(parseFloat(a[i].slice(1)) / 100 > global.rand()) {
 						unequipItem(defMon);
 					}
 					break;
@@ -114,7 +114,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
 		}
 	}
 	status.EndCheck(offMon);
-	changeTurn(bWnd[iWnd].Turn, offMon, defMon);
+	changeTurn(global.bWnd[global.iWnd].Turn, offMon, defMon);
 }
 
 function healMon(oMon) {
@@ -127,17 +127,17 @@ function healMon(oMon) {
 		}
 		else {
 			if(oMon.Status.ID === -1) {
-				var intHeal = Math.ceil((oMon.Spc * statMod.Get(oMon, 3)) / obConf.Stat.SpcMax * rand() * oMon.HPMax / 10 + oMon.HPMax / 16);
-				if(!isNaN(CHEAT)) {
-					intHeal = CHEAT;
-					CHEAT = undefined;
+				var intHeal = Math.ceil((oMon.Spc * statMod.Get(oMon, 3)) / obConf.Stat.SpcMax * global.rand() * oMon.HPMax / 10 + oMon.HPMax / 16);
+				if(!isNaN(global.CHEAT)) {
+					intHeal = global.CHEAT;
+					global.CHEAT = undefined;
 				}
 				oMon.HPCur + intHeal > oMon.HPMax ? oMon.HPCur = oMon.HPMax : oMon.HPCur += intHeal;
 				sendMsg(obTrans.GetMessages().GetString("HealSuccess").replace(/MON_NAME/, oMon.Name).replace(/NUMBER/, intHeal));
 				displayHP(oMon);
 			}
 			else {
-				if(occRate(oMon, obConf.OccRate.cure, "Spc") > rand()) {
+				if(occRate(oMon, obConf.OccRate.cure, "Spc") > global.rand()) {
 					sendMsg(obTrans.GetMessages().GetString("StatusCured").replace(/MON_NAME/, oMon.Name));
 					oMon.Status.ID = -1;
 				}
@@ -146,7 +146,7 @@ function healMon(oMon) {
 				}
 			}
 			status.EndCheck(oMon);
-			changeTurn(bWnd[iWnd].Turn, oMon, bWnd[iWnd].Player[bWnd[iWnd].Turn === 1 ? 2 : 1].Mon);
+			changeTurn(global.bWnd[global.iWnd].Turn, oMon, global.bWnd[global.iWnd].Player[global.bWnd[global.iWnd].Turn === 1 ? 2 : 1].Mon);
 		}
 	}
 }
@@ -183,19 +183,19 @@ function occRate(oMon, decOcc, strStat) {
 
 var damageCalc = {
 	Type: function (iMoveType, aDefType) {
-		msgEffect = "";
+		global.msgEffect = "";
 		if(obConf.Pref.typesOn === true) {
 			var t = aTypeMatchup[aDefType[0]][iMoveType] * (aDefType[1] !== undefined ? aTypeMatchup[aDefType[1]][iMoveType] : 1);
 			t = t === 0 ? 0.5 : t; //types that would negate dmg are changed to 1/2
-			if (t > 1) {msgEffect = obTrans.GetMessages().GetString("TypeVeryEff") + "\n";}
-			else if (t < 1) {msgEffect = obTrans.GetMessages().GetString("TypeNotEff") + "\n";}
-			// else if(t === 0){msgEffect = obTrans.GetMessages().GetString("TypeNoEff") + "\n";}
+			if (t > 1) {global.msgEffect = obTrans.GetMessages().GetString("TypeVeryEff") + "\n";}
+			else if (t < 1) {global.msgEffect = obTrans.GetMessages().GetString("TypeNotEff") + "\n";}
+			// else if(t === 0){global.msgEffect = obTrans.GetMessages().GetString("TypeNoEff") + "\n";}
 			return t;
 		}
 		else {return 1;}
 	},
 	Power: function () {
-		var p = rand();
+		var p = global.rand();
 		//like Magnitude in the games
 		// if(p >= .95) {return 150;}
 		// else if(p >= .85 && p < .95) {return 110;}
@@ -214,12 +214,12 @@ var damageCalc = {
 		else {return 15;}
 	},
 	Crit: function (Mon) {
-		if(occRate(Mon, obConf.OccRate.crit, "Spe") > rand()) {
-			msgCrit = obTrans.GetMessages().GetString("AtkCrit") + "\n";
+		if(occRate(Mon, obConf.OccRate.crit, "Spe") > global.rand()) {
+			global.msgCrit = obTrans.GetMessages().GetString("AtkCrit") + "\n";
 			return 2;
 		}
 		else {
-			msgCrit = "";
+			global.msgCrit = "";
 			return 1;
 		}
 	},

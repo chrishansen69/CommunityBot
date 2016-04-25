@@ -651,20 +651,20 @@ case "KYUREM":return [14,5];
 case "KELDEO":return [2,6];
 case "MELOETTA":return [0,10];
 case "GENESECT":return [11,16];
-case "ARCEUS": return [Math.floor(rand()*17)];
+case "ARCEUS": return [Math.floor(global.rand()*17)];
 default:
  if(obConf.Pref.mustBePokemonOn===true){return -1;}
  else{
-	if(rand() > .5){
-		type0 = Math.floor(rand()*17);
-		type1 = Math.floor(rand()*17);
+	if(global.rand() > .5){
+		type0 = Math.floor(global.rand()*17);
+		type1 = Math.floor(global.rand()*17);
 		while(type0 === type1){
-			type1 = Math.floor(rand()*17);
+			type1 = Math.floor(global.rand()*17);
 		}
 		return [type0, type1];
 	}
 	else{
-		return [Math.floor(rand()*17)];
+		return [Math.floor(global.rand()*17)];
 	}
  }
 }

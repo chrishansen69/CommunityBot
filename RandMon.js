@@ -1,5 +1,5 @@
 function randomPokemon(){
-switch(Math.ceil(rand()*649)){
+switch(Math.ceil(global.rand()*649)){
 case 1:return "Bulbasaur";
 case 2:return "Ivysaur";
 case 3:return "Venusaur";

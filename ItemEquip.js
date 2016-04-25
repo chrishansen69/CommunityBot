@@ -29,7 +29,7 @@ function useItem(Player, itemName, itemEff) {
 		}
 	}
 	status.EndCheck(oMon);
-	changeTurn(bWnd[iWnd].Turn, oMon, bWnd[iWnd].Player[bWnd[iWnd].Turn === 1 ? 2 : 1].Mon);
+	changeTurn(global.bWnd[global.iWnd].Turn, oMon, global.bWnd[global.iWnd].Player[global.bWnd[global.iWnd].Turn === 1 ? 2 : 1].Mon);
 }
 
 function equipItem(oMon, itemName, itemEff, itemMsg) {
@@ -56,7 +56,7 @@ function equipItem(oMon, itemName, itemEff, itemMsg) {
 				}
 			}
 		}
-		changeTurn(bWnd[iWnd].Turn, oMon, bWnd[iWnd].Player[bWnd[iWnd].Turn === 1 ? 2 : 1].Mon);
+		changeTurn(global.bWnd[global.iWnd].Turn, oMon, global.bWnd[global.iWnd].Player[global.bWnd[global.iWnd].Turn === 1 ? 2 : 1].Mon);
 	}
 	else {
 		sendMsg(obTrans.GetMessages().GetString("AlreadyEquipped"));

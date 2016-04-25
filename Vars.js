@@ -1,17 +1,17 @@
-var CHEAT;
-var rand;
-var bWnd=[];
-var iWnd;
-var msgCrit;
-var msgEffect;
+global.CHEAT = 0;
+global.rand = null;
+global.bWnd=[];
+global.iWnd = 0;
+global.msgCrit= "";
+global.msgEffect= "";
 
-var obTrans;
-var obConf;
-var obCmds;
-var obMoveDB;
-var obMonParty;
-var obEquipDB;
-var obItemDB;
+obTrans;
+obConf;
+obCmds;
+obMoveDB;
+obMonParty;
+obEquipDB;
+obItemDB;
 
 var aTypeMatchup = [
 	[1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],

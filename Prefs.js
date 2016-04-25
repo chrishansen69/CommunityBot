@@ -25,11 +25,11 @@ var settings = {
 		obConf.Pref.enabled = true;
 		obTrans = new Translation(obConf.Pref.lang);
 		obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
-		bWnd = [];
+		global.bWnd = [];
 		//seed = "Sun Sep 30 19:32:52 CDT 2012";
 		seed = new Date();
 		Debug.Trace("Seed: "+seed);
-		rand = new Alea(seed);
+		global.rand = new Alea(seed);
 		Debug.Trace("Script loaded.");
 		settings.Debug(obConf.Pref);
 	},

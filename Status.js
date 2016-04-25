@@ -19,7 +19,7 @@ var status = {
 			switch (Mon.Status.ID) {
 			case 0:
 				//Sleeping
-				if (rand() < 0.5) {
+				if (global.rand() < 0.5) {
 					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
@@ -30,7 +30,7 @@ var status = {
 				}
 			case 3:
 				//Paralyzed
-				if (rand() < 0.5) {
+				if (global.rand() < 0.5) {
 					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
@@ -41,7 +41,7 @@ var status = {
 				}
 			case 4:
 				//Frozen
-				if (rand() < 0.5) {
+				if (global.rand() < 0.5) {
 					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
@@ -52,7 +52,7 @@ var status = {
 				}
 			case 5:
 				//Confused
-				if (rand() < 0.5) {
+				if (global.rand() < 0.5) {
 					Mon.HPCur -= Math.floor(Mon.HPMax / 16);
 					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					displayHP(Mon);
@@ -65,7 +65,7 @@ var status = {
 				}
 			case 6:
 				//Infatuated
-				if (rand() < .3333) {
+				if (global.rand() < .3333) {
 					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
