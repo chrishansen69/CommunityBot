@@ -80,7 +80,7 @@ var settings = {
 	},
 	Backup: function () {
 		try {
-			var fso = new ActiveXObject("Scripting.FileSystemObject");
+			var fso = w32Factory("Scripting.FileSystemObject");
 			fso.CopyFolder(MsgPlus.ScriptFilesPath + "\\config", MsgPlus.ScriptFilesPath + "\\configbackup");
 			Debug.Trace("Settings backup'd.");
 		}
@@ -90,7 +90,7 @@ var settings = {
 	},
 	Restore: function () {
 		try {
-			var fso = new ActiveXObject("Scripting.FileSystemObject");
+			var fso = w32Factory("Scripting.FileSystemObject");
 			fso.CopyFolder(MsgPlus.ScriptFilesPath + "\\configbackup", MsgPlus.ScriptFilesPath + "\\config");
 			Debug.Trace("Settings restored.");
 		}

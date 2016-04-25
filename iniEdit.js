@@ -17,7 +17,7 @@ var iniIntf = {
 	
 	ToObject: function (sIniName) {
 	//The following ToObject code was taken and modified from http://mpscripts.net/code.php?id=12
-		var fso = new ActiveXObject("Scripting.FileSystemObject");
+		var fso = w32Factory("Scripting.FileSystemObject");
 		var data = fso.GetFile(MsgPlus.ScriptFilesPath + "\\config\\" + sIniName + ".ini").OpenAsTextStream(1, - 1).ReadAll();
 		var ob = {};
 		data = data.replace(/^;(.*)$\r\n/gm, "");

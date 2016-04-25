@@ -9,7 +9,7 @@
 
 var Translation = function(type) {
 	type = type + ".xml";
-	this.xml = new ActiveXObject("Microsoft.XMLDOM");
+	this.xml = w32Factory("Microsoft.XMLDOM");
 	if (type.indexOf('.xml') === -1){ this.translationFile = type + ".xml"; }
 	else { this.translationFile = type; }
 	this.LoadTranslation();
@@ -41,7 +41,7 @@ Translation.prototype = {
 	},
 	
 	"TranslationList" : function(){
-		var fso = new ActiveXObject('Scripting.FileSystemObject');
+		var fso = w32Factory('Scripting.FileSystemObject');
 		var returns = [];
 		for(var enume = new Enumerator(fso.GetFolder(this.LanguageFolder).Files);!enume.atEnd();enume.moveNext()){
 		
@@ -52,7 +52,7 @@ Translation.prototype = {
 	
 	"TranslateFile" : function(xmlFile){
 		var filePath = xmlFile;
-		var inter = new ActiveXObject("Microsoft.XMLDOM");
+		var inter = w32Factory("Microsoft.XMLDOM");
 		inter.load(filePath);
 		
 		var windows = this.xml.selectNodes("//Window");
