@@ -3,12 +3,12 @@
 # These files are text and should be normalized (Convert crlf => lf)
 *.php text
 *.css text
-*.js text
+*.js text diff=astextplain
 *.htm text
 *.html text
 *.xml text
 *.txt text
-*.ini text
+*.ini text diff=astextplain
 *.inc text
 .htaccess text
 
