@@ -4,6 +4,5 @@ function OnWndAboutEvent_CtrlClicked(aboutWnd,ControlId){
  }
 }
 function openPage(sLink) {
-	shell = new ActiveXObject("WScript.Shell");
-	shell.run(sLink);
+	console.log("Unsupported function openPage");
 }
