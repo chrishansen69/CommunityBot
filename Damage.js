@@ -185,7 +185,7 @@ var damageCalc = {
 	Type: function (iMoveType, aDefType) {
 		global.msgEffect = "";
 		if(global.obConf.Pref.typesOn === true) {
-			var t = aTypeMatchup[aDefType[0]][iMoveType] * (aDefType[1] !== undefined ? aTypeMatchup[aDefType[1]][iMoveType] : 1);
+			var t = global.aTypeMatchup[aDefType[0]][iMoveType] * (aDefType[1] !== undefined ? global.aTypeMatchup[aDefType[1]][iMoveType] : 1);
 			t = t === 0 ? 0.5 : t; //types that would negate dmg are changed to 1/2
 			if (t > 1) {global.msgEffect = global.obTrans.GetMessages().GetString("TypeVeryEff") + "\n";}
 			else if (t < 1) {global.msgEffect = global.obTrans.GetMessages().GetString("TypeNotEff") + "\n";}

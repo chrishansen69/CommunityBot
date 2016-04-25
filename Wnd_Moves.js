@@ -67,7 +67,7 @@ function OnWndMovesEvent_LstViewDblClicked(PlusWnd, ControlId, ItemIdx) {
 }
 
 function loadEditMoveWnd(PlusWnd, sMoveName) {
-	for(i = 0; i < aTypeMatchup.length; i++) {
+	for(i = 0; i < global.aTypeMatchup.length; i++) {
 		PlusWnd.Combo_AddItem("CbType", global.obTrans.Types().GetString(i));
 	}
 	if(global.obMoveDB[sMoveName] !== undefined) {

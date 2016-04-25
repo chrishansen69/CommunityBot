@@ -20,7 +20,7 @@ function loadMonWnd(monWnd) {
 
 function loadEditMonWnd(PlusWnd, sMonName) {
 	PlusWnd.Combo_AddItem("CbType1", "-", - 1);
-	for(i = 0; i < aTypeMatchup.length; i++) {
+	for(i = 0; i < global.aTypeMatchup.length; i++) {
 		PlusWnd.Combo_AddItem("CbType0", global.obTrans.Types().GetString(i));
 		PlusWnd.Combo_AddItem("CbType1", global.obTrans.Types().GetString(i));
 	}
