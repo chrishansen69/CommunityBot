@@ -16,6 +16,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "discord.js": "^6.0.0"
+    "win32ole": "^0.1.0"
   },
   "main": "bot.js"
 }
