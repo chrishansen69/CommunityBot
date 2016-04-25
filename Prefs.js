@@ -22,43 +22,43 @@ var settings = {
 		for (f in settings.LoadFile) {
 			settings.LoadFile[f]();
 		}
-		obConf.Pref.enabled = true;
-		obTrans = new Translation(obConf.Pref.lang);
-		obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
+		global.obConf.Pref.enabled = true;
+		global.obTrans = new Translation(global.obConf.Pref.lang);
+		global.obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
 		global.bWnd = [];
 		//seed = "Sun Sep 30 19:32:52 CDT 2012";
 		seed = new Date();
 		Debug.Trace("Seed: "+seed);
 		global.rand = new Alea(seed);
 		Debug.Trace("Script loaded.");
-		settings.Debug(obConf.Pref);
+		settings.Debug(global.obConf.Pref);
 	},
 	LoadFile: {
 		Conf: function () {
-			obConf = iniIntf.ToObject("settings");
-			obConf.Pref.msgFormat = iniIntf.ReadIni("settings", "Pref", "msgFormat", "$MSG").split("$MSG");
-			//obConf.Pref.msgFormat = ["[c=3]","[\/c]"];
+			global.obConf = iniIntf.ToObject("settings");
+			global.obConf.Pref.msgFormat = iniIntf.ReadIni("settings", "Pref", "msgFormat", "$MSG").split("$MSG");
+			//global.obConf.Pref.msgFormat = ["[c=3]","[\/c]"];
 		},
 		Cmd: function () {
-			obCmds = iniIntf.ToObject("settings").Commands;
+			global.obCmds = iniIntf.ToObject("settings").Commands;
 		},
 		Equip: function () {
-			obEquipDB = iniIntf.ToObject("equipDB");
+			global.obEquipDB = iniIntf.ToObject("equipDB");
 		},
 		Item: function () {
-			obItemDB = iniIntf.ToObject("itemDB");
+			global.obItemDB = iniIntf.ToObject("itemDB");
 		},
 		Move: function () {
-			obMoveDB = iniIntf.ToObject("moveDB");
+			global.obMoveDB = iniIntf.ToObject("moveDB");
 		},
 		Mon: function () {
-			obMonParty = iniIntf.ToObject("monParty");
-			for (p in obMonParty) {
-				if (typeof (obMonParty[p].Type) === "string" && obMonParty[p].Type.split(",").length > 1) {
-					obMonParty[p].Type = [parseInt(obMonParty[p].Type.split(",")[0]), parseInt(obMonParty[p].Type.split(",")[1])];
+			global.obMonParty = iniIntf.ToObject("monParty");
+			for (p in global.obMonParty) {
+				if (typeof (global.obMonParty[p].Type) === "string" && global.obMonParty[p].Type.split(",").length > 1) {
+					global.obMonParty[p].Type = [parseInt(global.obMonParty[p].Type.split(",")[0]), parseInt(global.obMonParty[p].Type.split(",")[1])];
 				}
 				else {
-					obMonParty[p].Type = [obMonParty[p].Type];
+					global.obMonParty[p].Type = [global.obMonParty[p].Type];
 				}
 			}
 		}
@@ -99,17 +99,17 @@ var settings = {
 		}
 	},
 	SetLanguage: function (str) {
-		obTrans = new Translation(str);
-		obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
+		global.obTrans = new Translation(str);
+		global.obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
 		settings.Save("Pref", "lang", str);
 	},
 	UpdateRecord: function (prop) {
-		obConf.Record[prop] += 1;
-		iniIntf.WriteIni("settings", "record", prop, obConf.Record[prop]);
+		global.obConf.Record[prop] += 1;
+		iniIntf.WriteIni("settings", "record", prop, global.obConf.Record[prop]);
 	},
-	Debug: function (ob) {
-		for(var p in ob) {
-			Debug.Trace(p + ": " + ob[p]);
+	Debug: function (global.ob) {
+		for(var p in global.ob) {
+			Debug.Trace(p + ": " + global.ob[p]);
 		}
 	}
 };

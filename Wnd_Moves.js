@@ -6,12 +6,12 @@ function loadMoveWnd(moveWnd) {
 	}
 	//(Re)populate list
 	i = 0;
-	for(sName in obMoveDB) {
+	for(sName in global.obMoveDB) {
 		moveWnd.LstView_AddItem("LvMoves", sName);
-		moveWnd.LstView_SetItemText("LvMoves", i, 1, obTrans.Types().GetString(obMoveDB[sName].Type));
-		moveWnd.LstView_SetItemText("LvMoves", i, 2, obMoveDB[sName].Pwr);
-		moveWnd.LstView_SetItemText("LvMoves", i, 3, obMoveDB[sName].Acc);
-		moveWnd.LstView_SetItemText("LvMoves", i, 4, obMoveDB[sName].Eff);
+		moveWnd.LstView_SetItemText("LvMoves", i, 1, global.obTrans.Types().GetString(global.obMoveDB[sName].Type));
+		moveWnd.LstView_SetItemText("LvMoves", i, 2, global.obMoveDB[sName].Pwr);
+		moveWnd.LstView_SetItemText("LvMoves", i, 3, global.obMoveDB[sName].Acc);
+		moveWnd.LstView_SetItemText("LvMoves", i, 4, global.obMoveDB[sName].Eff);
 		i++;
 	}
 }
@@ -45,7 +45,7 @@ function OnWndMovesEvent_CtrlClicked(moveWnd, ControlId) {
 		for(i = 0; i <= moveWnd.LstView_GetCount("LvMons"); i++) {
 			if(moveWnd.LstView_GetSelectedState("LvMons", i) === true) {
 				name = moveWnd.LstView_GetItemText("LvMons", i, 0);
-				iniIntf.WriteIni("moveDB", name, "Enabled", (obMoveDB[name].Enabled === false) ? true : false);
+				iniIntf.WriteIni("moveDB", name, "Enabled", (global.obMoveDB[name].Enabled === false) ? true : false);
 				settings.LoadFile.Move();
 				loadMoveWnd(moveWnd);
 				break;
@@ -57,7 +57,7 @@ function OnWndMovesEvent_CtrlClicked(moveWnd, ControlId) {
 
 function OnWndMovesEvent_LstViewRClicked(PlusWnd, ControlId, ItemIdx) {
 	sName = PlusWnd.LstView_GetItemText(ControlId, ItemIdx, 0);
-	iniIntf.WriteIni("moveDB", sName, "Enabled", (obMoveDB[sName].Enabled === false) ? true : false);
+	iniIntf.WriteIni("moveDB", sName, "Enabled", (global.obMoveDB[sName].Enabled === false) ? true : false);
 	settings.LoadFile.Move();
 	loadMoveWnd(moveWnd);
 }
@@ -68,13 +68,13 @@ function OnWndMovesEvent_LstViewDblClicked(PlusWnd, ControlId, ItemIdx) {
 
 function loadEditMoveWnd(PlusWnd, sMoveName) {
 	for(i = 0; i < aTypeMatchup.length; i++) {
-		PlusWnd.Combo_AddItem("CbType", obTrans.Types().GetString(i));
+		PlusWnd.Combo_AddItem("CbType", global.obTrans.Types().GetString(i));
 	}
-	if(obMoveDB[sMoveName] !== undefined) {
-		PlusWnd.Combo_SetCurSel("CbType", obMoveDB[sMoveName].Type);
+	if(global.obMoveDB[sMoveName] !== undefined) {
+		PlusWnd.Combo_SetCurSel("CbType", global.obMoveDB[sMoveName].Type);
 		PlusWnd.SetControlText("EdtName", sMoveName);
 		for(v in a = ["Acc", "Pwr", "Eff"]) {
-			PlusWnd.SetControlText("Edt" + a[v], obMoveDB[sMoveName][a[v]]);
+			PlusWnd.SetControlText("Edt" + a[v], global.obMoveDB[sMoveName][a[v]]);
 		}
 	} else {
 		PlusWnd.Combo_SetCurSel("CbType", 0);

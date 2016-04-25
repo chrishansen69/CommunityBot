@@ -29,10 +29,10 @@ var statMod = {
 			}
 			if(i < 0) {
 				i = -i;
-				sendMsg(obTrans.GetMessages().GetString("StatAbsDecr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
+				sendMsg(global.obTrans.GetMessages().GetString("StatAbsDecr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 			else if(i > 0) {
-				sendMsg(obTrans.GetMessages().GetString("StatAbsIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
+				sendMsg(global.obTrans.GetMessages().GetString("StatAbsIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 		},
 		Relative: function (Mon, stat, i) {
@@ -56,10 +56,10 @@ var statMod = {
 			}
 			if(i < 0) {
 				i = -i;
-				sendMsg(obTrans.GetMessages().GetString("StatRelDecr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
+				sendMsg(global.obTrans.GetMessages().GetString("StatRelDecr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 			else if(i > 0) {
-				sendMsg(obTrans.GetMessages().GetString("StatRelIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
+				sendMsg(global.obTrans.GetMessages().GetString("StatRelIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 		},
 		Percent: function (Mon, stat, i) {
@@ -83,10 +83,10 @@ var statMod = {
 			}
 			if(i < 0) {
 				i = -i;
-				sendMsg(obTrans.GetMessages().GetString("StatPerDecr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
+				sendMsg(global.obTrans.GetMessages().GetString("StatPerDecr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 			else if(i > 0) {
-				sendMsg(obTrans.GetMessages().GetString("StatPerIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
+				sendMsg(global.obTrans.GetMessages().GetString("StatPerIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 		}
 	}

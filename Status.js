@@ -2,17 +2,17 @@ var status = {
 	Set: function (Mon, ID) {
 		if (Mon.Status.ID === -1) {
 			if (Mon.Equip.Eff.match("i" + ID) !== null || Mon.Equip.Eff.match("i-1") !== null) {
-				sendMsg(obTrans.GetMessages().GetString("StsImmune").replace(/MON_NAME/, Mon.Name));
+				sendMsg(global.obTrans.GetMessages().GetString("StsImmune").replace(/MON_NAME/, Mon.Name));
 			}
 			else {
-				sendMsg(obTrans.GetMessages().GetString("StsGive" + ID).replace(/MON_NAME/, Mon.Name));
+				sendMsg(global.obTrans.GetMessages().GetString("StsGive" + ID).replace(/MON_NAME/, Mon.Name));
 				Mon.Status.ID = ID;
 			}
 		}
 	},
 	StartCheck: function (Mon) {
 		if (Mon.Status.Recharge === 1) {
-			sendMsg(obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, Mon.Name));
+			sendMsg(global.obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, Mon.Name));
 			return 0;
 		}
 		if (Mon.Status.ID > -1) {
@@ -20,33 +20,33 @@ var status = {
 			case 0:
 				//Sleeping
 				if (global.rand() < 0.5) {
-					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
 				else {
-					sendMsg(obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					Mon.Status.ID = -1;
 					return 1;
 				}
 			case 3:
 				//Paralyzed
 				if (global.rand() < 0.5) {
-					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
 				else {
-					sendMsg(obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					Mon.Status.ID = -1;
 					return 1;
 				}
 			case 4:
 				//Frozen
 				if (global.rand() < 0.5) {
-					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
 				else {
-					sendMsg(obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					Mon.Status.ID = -1;
 					return 1;
 				}
@@ -54,19 +54,19 @@ var status = {
 				//Confused
 				if (global.rand() < 0.5) {
 					Mon.HPCur -= Math.floor(Mon.HPMax / 16);
-					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					displayHP(Mon);
 					return 0;
 				}
 				else {
-					sendMsg(obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkCure" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					Mon.Status.ID = -1;
 					return 1;
 				}
 			case 6:
 				//Infatuated
 				if (global.rand() < .3333) {
-					sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
+					sendMsg(global.obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
 					return 0;
 				}
 				else {
@@ -83,12 +83,12 @@ var status = {
 			switch (Mon.Status.ID) {
 			case 1:
 				Mon.HPCur -= Math.floor(Mon.HPMax / 16);
-				sendMsg(obTrans.GetMessages().GetString("StsEndBrn").replace(/MON_NAME/, Mon.Name));
+				sendMsg(global.obTrans.GetMessages().GetString("StsEndBrn").replace(/MON_NAME/, Mon.Name));
 				displayHP(Mon);
 				break;
 			case 2:
 				Mon.HPCur -= Math.floor(Mon.HPMax / 16);
-				sendMsg(obTrans.GetMessages().GetString("StsEndPsn").replace(/MON_NAME/, Mon.Name));
+				sendMsg(global.obTrans.GetMessages().GetString("StsEndPsn").replace(/MON_NAME/, Mon.Name));
 				displayHP(Mon);
 				break;
 			}

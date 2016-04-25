@@ -71,40 +71,40 @@ function OnWndConfigEvent_CtrlClicked(confWnd, ControlId) {
 
 function loadPrefsWnd(confWnd) {
 
-	confWnd.SetControlText("EdtFormatting", obConf.Pref.msgFormat[0] + "$MSG" + obConf.Pref.msgFormat[1]);
+	confWnd.SetControlText("EdtFormatting", global.obConf.Pref.msgFormat[0] + "$MSG" + global.obConf.Pref.msgFormat[1]);
 	
-	confWnd.Button_SetCheckState("ChkHeal", obConf.Pref.healOn);
-	confWnd.Button_SetCheckState("ChkQuit", obConf.Pref.quitOn);
-	confWnd.Button_SetCheckState("ChkReturn", obConf.Pref.returnOn);
-	confWnd.Button_SetCheckState("ChkTypes", obConf.Pref.typesOn);
-	confWnd.Button_SetCheckState("ChkMoveDB",obConf.Pref.moveDBOn);
-	confWnd.Button_SetCheckState("ChkItem", obConf.Pref.itemOn);
-	confWnd.Button_SetCheckState("ChkEquip", obConf.Pref.equipOn);
-	confWnd.Button_SetCheckState("ChkCustomGo", obConf.Pref.customGoOn);
-	confWnd.Button_SetCheckState("ChkDisplayTypes", obConf.Pref.displayTypesOn);
-	confWnd.Button_SetCheckState("ChkMustBePokemon", obConf.Pref.mustBePokemonOn);
-	confWnd.Button_SetCheckState("ChkMoveDBOnly", obConf.Pref.moveDBOnlyOn);
+	confWnd.Button_SetCheckState("ChkHeal", global.obConf.Pref.healOn);
+	confWnd.Button_SetCheckState("ChkQuit", global.obConf.Pref.quitOn);
+	confWnd.Button_SetCheckState("ChkReturn", global.obConf.Pref.returnOn);
+	confWnd.Button_SetCheckState("ChkTypes", global.obConf.Pref.typesOn);
+	confWnd.Button_SetCheckState("ChkMoveDB",global.obConf.Pref.moveDBOn);
+	confWnd.Button_SetCheckState("ChkItem", global.obConf.Pref.itemOn);
+	confWnd.Button_SetCheckState("ChkEquip", global.obConf.Pref.equipOn);
+	confWnd.Button_SetCheckState("ChkCustomGo", global.obConf.Pref.customGoOn);
+	confWnd.Button_SetCheckState("ChkDisplayTypes", global.obConf.Pref.displayTypesOn);
+	confWnd.Button_SetCheckState("ChkMustBePokemon", global.obConf.Pref.mustBePokemonOn);
+	confWnd.Button_SetCheckState("ChkMoveDBOnly", global.obConf.Pref.moveDBOnlyOn);
 	
-	confWnd.SetControlText("EdtstatOcc", obConf.OccRate.status * 100);
-	confWnd.SetControlText("EdtmodOcc", obConf.OccRate.mod * 100);
-	confWnd.SetControlText("EdtflinchOcc", obConf.OccRate.flinch * 100);
-	confWnd.SetControlText("EdtcritOcc", obConf.OccRate.crit * 100);
-	confWnd.SetControlText("EdtrecoilOcc", obConf.OccRate.recoil * 100);
-	confWnd.SetControlText("EdtmissOcc", obConf.OccRate.miss * 100);
-	confWnd.SetControlText("EdtcureOcc", obConf.OccRate.cure * 100);
-	confWnd.SetControlText("EdtstripOcc", obConf.OccRate.strip * 100);
-	confWnd.SetControlText("EdtrecoilOcc", obConf.OccRate.recoil * 100);
+	confWnd.SetControlText("EdtstatOcc", global.obConf.OccRate.status * 100);
+	confWnd.SetControlText("EdtmodOcc", global.obConf.OccRate.mod * 100);
+	confWnd.SetControlText("EdtflinchOcc", global.obConf.OccRate.flinch * 100);
+	confWnd.SetControlText("EdtcritOcc", global.obConf.OccRate.crit * 100);
+	confWnd.SetControlText("EdtrecoilOcc", global.obConf.OccRate.recoil * 100);
+	confWnd.SetControlText("EdtmissOcc", global.obConf.OccRate.miss * 100);
+	confWnd.SetControlText("EdtcureOcc", global.obConf.OccRate.cure * 100);
+	confWnd.SetControlText("EdtstripOcc", global.obConf.OccRate.strip * 100);
+	confWnd.SetControlText("EdtrecoilOcc", global.obConf.OccRate.recoil * 100);
 	
-	confWnd.SetControlText("EdtHPMin", obConf.Stat.HPMin);
-	confWnd.SetControlText("EdtHPMax", obConf.Stat.HPMax);
-	confWnd.SetControlText("EdtAtkMin", obConf.Stat.AtkMin);
-	confWnd.SetControlText("EdtAtkMax", obConf.Stat.AtkMax);
-	confWnd.SetControlText("EdtDefMin", obConf.Stat.DefMin);
-	confWnd.SetControlText("EdtDefMax", obConf.Stat.DefMax);
-	confWnd.SetControlText("EdtSpeMin", obConf.Stat.SpeMin);
-	confWnd.SetControlText("EdtSpeMax", obConf.Stat.SpeMax);
-	confWnd.SetControlText("EdtSpcMin", obConf.Stat.SpcMin);
-	confWnd.SetControlText("EdtSpcMax", obConf.Stat.SpcMax);
+	confWnd.SetControlText("EdtHPMin", global.obConf.Stat.HPMin);
+	confWnd.SetControlText("EdtHPMax", global.obConf.Stat.HPMax);
+	confWnd.SetControlText("EdtAtkMin", global.obConf.Stat.AtkMin);
+	confWnd.SetControlText("EdtAtkMax", global.obConf.Stat.AtkMax);
+	confWnd.SetControlText("EdtDefMin", global.obConf.Stat.DefMin);
+	confWnd.SetControlText("EdtDefMax", global.obConf.Stat.DefMax);
+	confWnd.SetControlText("EdtSpeMin", global.obConf.Stat.SpeMin);
+	confWnd.SetControlText("EdtSpeMax", global.obConf.Stat.SpeMax);
+	confWnd.SetControlText("EdtSpcMin", global.obConf.Stat.SpcMin);
+	confWnd.SetControlText("EdtSpcMax", global.obConf.Stat.SpcMax);
 }
 
 function saveConfig(confWnd) {

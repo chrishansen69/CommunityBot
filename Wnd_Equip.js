@@ -6,10 +6,10 @@ function loadEquipWnd(equipWnd) {
 	}
 	//(Re)populate list
 	i = 0;
-	for(sName in obEquipDB) {
+	for(sName in global.obEquipDB) {
 		equipWnd.LstView_AddItem("LvEquip", sName);
-		equipWnd.LstView_SetItemText("LvEquip", i, 1, obEquipDB[sName].Desc);
-		equipWnd.LstView_SetItemText("LvEquip", i, 2, obEquipDB[sName].Enabled);
+		equipWnd.LstView_SetItemText("LvEquip", i, 1, global.obEquipDB[sName].Desc);
+		equipWnd.LstView_SetItemText("LvEquip", i, 2, global.obEquipDB[sName].Enabled);
 		i++;
 	}
 }
@@ -20,13 +20,13 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
 		addEquipWnd = MsgPlus.CreateWnd("XMLWindows.xml", "WndAddEquip");
 		//Populate dropdown menus
 		for(var i = -2; i <= 6; i++) {
-			addEquipWnd.Combo_AddItem("CbSts", obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
+			addEquipWnd.Combo_AddItem("CbSts", global.obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
 		}
 		for(var i = -2; i <= -1; i++) {
-			addEquipWnd.Combo_AddItem("CbImm", obTrans.GetWindow("WndAddEquip").GetString("CbImm" + i), i);
+			addEquipWnd.Combo_AddItem("CbImm", global.obTrans.GetWindow("WndAddEquip").GetString("CbImm" + i), i);
 		}
 		for(var i = 0; i <= 6; i++) {
-			addEquipWnd.Combo_AddItem("CbImm", obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
+			addEquipWnd.Combo_AddItem("CbImm", global.obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
 		}
 		addEquipWnd.Combo_SetCurSel("CbSts", 0);
 		addEquipWnd.Combo_SetCurSel("CbImm", 0);
@@ -47,7 +47,7 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
 		for(var i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
 			if(equipWnd.LstView_GetSelectedState("LvEquip", i) === true) {
 				name = equipWnd.LstView_GetItemText("LvEquip", i, 0);
-				iniIntf.WriteIni("equipDB", name, "Enabled", (obEquipDB[name].Enabled === false) ? true : false);
+				iniIntf.WriteIni("equipDB", name, "Enabled", (global.obEquipDB[name].Enabled === false) ? true : false);
 				settings.LoadFile.Equip();
 				loadEquipWnd(equipWnd);
 				break;
@@ -96,7 +96,7 @@ function OnWndAddEquipEvent_CtrlClicked(addEquipWnd, ControlId) {
 
 function OnWndEquipEvent_LstViewRClicked(PlusWnd, ControlId, ItemIdx) {
 	sName = PlusWnd.LstView_GetItemText(ControlId, ItemIdx, 0);
-	iniIntf.WriteIni("equipDB", sName, "Enabled", (obEquipDB[sName].Enabled === false) ? true : false);
+	iniIntf.WriteIni("equipDB", sName, "Enabled", (global.obEquipDB[sName].Enabled === false) ? true : false);
 	settings.LoadFile.Equip();
 	loadEquipWnd(equipWnd);
 }

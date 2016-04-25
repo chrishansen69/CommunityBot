@@ -5,13 +5,15 @@ global.iWnd = 0;
 global.msgCrit= "";
 global.msgEffect= "";
 
-obTrans;
-obConf;
-obCmds;
-obMoveDB;
-obMonParty;
-obEquipDB;
-obItemDB;
+/*
+global.obTrans = {};
+global.obConf = {};
+global.obCmds = {};
+global.obMoveDB = {};
+global.obMonParty = {};
+global.obEquipDB = {};
+global.obItemDB = {};
+*/
 
 var aTypeMatchup = [
 	[1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],

@@ -5,10 +5,10 @@ function loadShopWnd(shopWnd) {
 	}
 	//(Re)populate list
 	i = 0;
-	for(sName in obItemDB) {
+	for(sName in global.obItemDB) {
 		shopWnd.LstView_AddItem("LvItems", sName);
-		shopWnd.LstView_SetItemText("LvItems", i, 1, obItemDB[sName].Desc);
-		shopWnd.LstView_SetItemText("LvItems", i, 2, obItemDB[sName].Enabled);
+		shopWnd.LstView_SetItemText("LvItems", i, 1, global.obItemDB[sName].Desc);
+		shopWnd.LstView_SetItemText("LvItems", i, 2, global.obItemDB[sName].Enabled);
 		i++;
 	}
 }
@@ -19,10 +19,10 @@ function OnWndShopEvent_CtrlClicked(shopWnd, ControlId) {
 		addItemWnd = MsgPlus.CreateWnd("XMLWindows.xml", "WndAddItem");
 		//Populate dropdown menus
 		for(i = -2; i <= 6; i++) {
-			addItemWnd.Combo_AddItem("CbSts", obTrans.GetWindow("WndAddItem").GetString("CbSts" + i), i);
+			addItemWnd.Combo_AddItem("CbSts", global.obTrans.GetWindow("WndAddItem").GetString("CbSts" + i), i);
 		}
 		for(i = 0; i <= 2; i++) {
-			addItemWnd.Combo_AddItem("CbResHP", obTrans.GetWindow("WndAddItem").GetString("CbHP" + i), i);
+			addItemWnd.Combo_AddItem("CbResHP", global.obTrans.GetWindow("WndAddItem").GetString("CbHP" + i), i);
 		}
 		addItemWnd.Combo_SetCurSel("CbSts", 0);
 		addItemWnd.Combo_SetCurSel("CbResHP", 0);
@@ -43,7 +43,7 @@ function OnWndShopEvent_CtrlClicked(shopWnd, ControlId) {
 		for(i = 0; i <= shopWnd.LstView_GetCount("LvItems"); i++) {
 			if(shopWnd.LstView_GetSelectedState("LvItems", i) === true) {
 				name = shopWnd.LstView_GetItemText("LvItems", i, 0);
-				iniIntf.WriteIni("itemDB", name, "Enabled", (obItemDB[name].Enabled === false) ? true : false);
+				iniIntf.WriteIni("itemDB", name, "Enabled", (global.obItemDB[name].Enabled === false) ? true : false);
 				settings.LoadFile.Item();
 				loadShopWnd(shopWnd);
 				break;
@@ -98,7 +98,7 @@ function OnWndAddItemEvent_CtrlClicked(addItemWnd, ControlId) {
 
 function OnWndShopEvent_LstViewRClicked(PlusWnd, ControlId, ItemIdx) {
 	sName = PlusWnd.LstView_GetItemText(ControlId, ItemIdx, 0);
-	iniIntf.WriteIni("itemDB", sName, "Enabled", (obItemDB[sName].Enabled === false) ? true : false);
+	iniIntf.WriteIni("itemDB", sName, "Enabled", (global.obItemDB[sName].Enabled === false) ? true : false);
 	settings.LoadFile.Item();
 	loadShopWnd(shopWnd);
 }

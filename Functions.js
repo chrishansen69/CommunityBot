@@ -2,11 +2,11 @@
 
 function CreateMon(strName) {
 	this.Name = strName === "" ? randomPokemon().toUpperCase() : strName.toUpperCase();
-	this.Atk = randomStat(obConf.Stat.AtkMin, obConf.Stat.AtkMax);
-	this.Def = randomStat(obConf.Stat.DefMin, obConf.Stat.DefMax);
-	this.Spe = randomStat(obConf.Stat.SpeMin, obConf.Stat.SpeMax);
-	this.Spc = randomStat(obConf.Stat.SpcMin, obConf.Stat.SpcMax);
-	this.HPMax = randomStat(obConf.Stat.HPMin, obConf.Stat.HPMax);
+	this.Atk = randomStat(global.obConf.Stat.AtkMin, global.obConf.Stat.AtkMax);
+	this.Def = randomStat(global.obConf.Stat.DefMin, global.obConf.Stat.DefMax);
+	this.Spe = randomStat(global.obConf.Stat.SpeMin, global.obConf.Stat.SpeMax);
+	this.Spc = randomStat(global.obConf.Stat.SpcMin, global.obConf.Stat.SpcMax);
+	this.HPMax = randomStat(global.obConf.Stat.HPMin, global.obConf.Stat.HPMax);
 	this.HPCur = this.HPMax;
 	this.Type = PokemonTypes(this.Name);
 	this.Mod = [0, 0, 0, 0];
@@ -20,24 +20,24 @@ function CreateMon(strName) {
 	};
 }
 
-function LoadMon(obMon) {
-	this.Name = obMon.Name.toUpperCase();;
-	this.Atk = parseInt(obMon.Atk);
-	this.Def = parseInt(obMon.Def);
-	this.Spe = parseInt(obMon.Spe);
-	this.Spc = parseInt(obMon.Spc);
-	this.HPMax = parseInt(obMon.HPMax);
-	if(this.Atk === 0){this.Atk = randomStat(obConf.Stat.AtkMin, obConf.Stat.AtkMax);}
-	if(this.Def === 0){this.Def = randomStat(obConf.Stat.DefMin, obConf.Stat.DefMax);}
-	if(this.Spe === 0){this.Spe = randomStat(obConf.Stat.SpeMin, obConf.Stat.SpeMax);}
-	if(this.Spc === 0){this.Spc = randomStat(obConf.Stat.SpcMin, obConf.Stat.SpcMax);}
-	if(this.HPMax === 0){this.HPMax = randomStat(obConf.Stat.HPMin, obConf.Stat.HPMax);}
-	//this.HPCur = parseInt(obMon.HPCur,10);
+function LoadMon(global.obMon) {
+	this.Name = global.obMon.Name.toUpperCase();;
+	this.Atk = parseInt(global.obMon.Atk);
+	this.Def = parseInt(global.obMon.Def);
+	this.Spe = parseInt(global.obMon.Spe);
+	this.Spc = parseInt(global.obMon.Spc);
+	this.HPMax = parseInt(global.obMon.HPMax);
+	if(this.Atk === 0){this.Atk = randomStat(global.obConf.Stat.AtkMin, global.obConf.Stat.AtkMax);}
+	if(this.Def === 0){this.Def = randomStat(global.obConf.Stat.DefMin, global.obConf.Stat.DefMax);}
+	if(this.Spe === 0){this.Spe = randomStat(global.obConf.Stat.SpeMin, global.obConf.Stat.SpeMax);}
+	if(this.Spc === 0){this.Spc = randomStat(global.obConf.Stat.SpcMin, global.obConf.Stat.SpcMax);}
+	if(this.HPMax === 0){this.HPMax = randomStat(global.obConf.Stat.HPMin, global.obConf.Stat.HPMax);}
+	//this.HPCur = parseInt(global.obMon.HPCur,10);
 	this.HPCur = this.HPMax;
-	this.Type = obMon.Type;
+	this.Type = global.obMon.Type;
 	this.Mod = [0, 0, 0, 0];
 	this.Status = {
-		"ID": parseInt(obMon.Status),
+		"ID": parseInt(global.obMon.Status),
 		"Recharge": 0
 	};
 	this.Equip = {
@@ -51,7 +51,7 @@ function randomStat(min, max){
 }
 
 function sendMsg(sMsg) {
-	global.bWnd[global.iWnd].Wnd.SendMessage(obConf.Pref.msgFormat[0] + "*" + sMsg + obConf.Pref.msgFormat[1]);
+	global.bWnd[global.iWnd].Wnd.SendMessage(global.obConf.Pref.msgFormat[0] + "*" + sMsg + global.obConf.Pref.msgFormat[1]);
 }
 
 function displayHP(Mon) {
@@ -59,8 +59,8 @@ function displayHP(Mon) {
 }
 
 function displayType(aType) {
-	if (obConf.Pref.displayTypesOn === true) {
-		return (obTrans.Types().GetString(aType[0]) + (aType[1] !== undefined ? ("," + obTrans.Types().GetString(aType[1])) : "")).toUpperCase();
+	if (global.obConf.Pref.displayTypesOn === true) {
+		return (global.obTrans.Types().GetString(aType[0]) + (aType[1] !== undefined ? ("," + global.obTrans.Types().GetString(aType[1])) : "")).toUpperCase();
 	}
 	else {
 		return "???";
@@ -76,7 +76,7 @@ function changeTurn(Turn, offMon, defMon) {
 			defMon.Status.Recharge = 0;
 			global.bWnd[global.iWnd].Turn = (global.bWnd[global.iWnd].Turn === 1 ? 2 : 1);
 			//Debug.Trace("that player is recharging, switch back to player "+global.bWnd[global.iWnd].Turn);
-			sendMsg(obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, defMon.Name));
+			sendMsg(global.obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, defMon.Name));
 		}
 	}
 	else {
@@ -88,7 +88,7 @@ function changeTurn(Turn, offMon, defMon) {
 			var loser = global.bWnd[global.iWnd].Player[Turn === 1 ? 2 : 1].Name;
 			var winner = global.bWnd[global.iWnd].Player[Turn].Name;
 		}
-		sendMsg(obTrans.GetMessages().GetString("BattleEnd").replace(/PLAYER1_NAME/, winner).replace(/PLAYER2_NAME/, loser));
+		sendMsg(global.obTrans.GetMessages().GetString("BattleEnd").replace(/PLAYER1_NAME/, winner).replace(/PLAYER2_NAME/, loser));
 		global.bWnd.splice(global.iWnd, 1);
 		if (winner === Messenger.MyName) {
 			settings.UpdateRecord("win");
@@ -100,7 +100,7 @@ function changeTurn(Turn, offMon, defMon) {
 }
 
 function notYourTurn() {
-	sendMsg(obTrans.GetMessages().GetString("NotYourTurn"));
+	sendMsg(global.obTrans.GetMessages().GetString("NotYourTurn"));
 }
 
 function sanitizeStr(str) {

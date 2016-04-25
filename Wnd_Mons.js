@@ -5,15 +5,15 @@ function loadMonWnd(monWnd) {
 	}
 	//(Re)populate list
 	i = 0;
-	for(sName in obMonParty) {
-		monWnd.LstView_AddItem("LvMons", obMonParty[sName].Name); 
-		monWnd.LstView_SetItemText("LvMons", i, 1, obTrans.Types().GetString(obMonParty[sName].Type[0]) + (obMonParty[sName].Type[1] === undefined ? "" : ("," + obTrans.Types().GetString(obMonParty[sName].Type[1]))));
-		monWnd.LstView_SetItemText("LvMons", i, 2, obMonParty[sName].HPCur + "\/" + obMonParty[sName].HPMax);
-		monWnd.LstView_SetItemText("LvMons", i, 3, obMonParty[sName].Atk);
-		monWnd.LstView_SetItemText("LvMons", i, 4, obMonParty[sName].Def);
-		monWnd.LstView_SetItemText("LvMons", i, 5, obMonParty[sName].Spe);
-		monWnd.LstView_SetItemText("LvMons", i, 6, obMonParty[sName].Spc);
-		monWnd.LstView_SetItemText("LvMons", i, 7, obMonParty[sName].Enabled);
+	for(sName in global.obMonParty) {
+		monWnd.LstView_AddItem("LvMons", global.obMonParty[sName].Name); 
+		monWnd.LstView_SetItemText("LvMons", i, 1, global.obTrans.Types().GetString(global.obMonParty[sName].Type[0]) + (global.obMonParty[sName].Type[1] === undefined ? "" : ("," + global.obTrans.Types().GetString(global.obMonParty[sName].Type[1]))));
+		monWnd.LstView_SetItemText("LvMons", i, 2, global.obMonParty[sName].HPCur + "\/" + global.obMonParty[sName].HPMax);
+		monWnd.LstView_SetItemText("LvMons", i, 3, global.obMonParty[sName].Atk);
+		monWnd.LstView_SetItemText("LvMons", i, 4, global.obMonParty[sName].Def);
+		monWnd.LstView_SetItemText("LvMons", i, 5, global.obMonParty[sName].Spe);
+		monWnd.LstView_SetItemText("LvMons", i, 6, global.obMonParty[sName].Spc);
+		monWnd.LstView_SetItemText("LvMons", i, 7, global.obMonParty[sName].Enabled);
 		i++;
 	}
 }
@@ -21,14 +21,14 @@ function loadMonWnd(monWnd) {
 function loadEditMonWnd(PlusWnd, sMonName) {
 	PlusWnd.Combo_AddItem("CbType1", "-", - 1);
 	for(i = 0; i < aTypeMatchup.length; i++) {
-		PlusWnd.Combo_AddItem("CbType0", obTrans.Types().GetString(i));
-		PlusWnd.Combo_AddItem("CbType1", obTrans.Types().GetString(i));
+		PlusWnd.Combo_AddItem("CbType0", global.obTrans.Types().GetString(i));
+		PlusWnd.Combo_AddItem("CbType1", global.obTrans.Types().GetString(i));
 	}
-	if(obMonParty[sMonName] !== undefined) {
-		PlusWnd.Combo_SetCurSel("CbType0", obMonParty[sMonName].Type[0]);
-		PlusWnd.Combo_SetCurSel("CbType1", (obMonParty[sMonName].Type[1] === undefined ? 0 : obMonParty[sMonName].Type[1] + 1));
+	if(global.obMonParty[sMonName] !== undefined) {
+		PlusWnd.Combo_SetCurSel("CbType0", global.obMonParty[sMonName].Type[0]);
+		PlusWnd.Combo_SetCurSel("CbType1", (global.obMonParty[sMonName].Type[1] === undefined ? 0 : global.obMonParty[sMonName].Type[1] + 1));
 		for(v in a = ["Name", "Atk", "Def", "Spe", "Spc", "HPMax"]) {
-			PlusWnd.SetControlText("Edt" + a[v], obMonParty[sMonName][a[v]]);
+			PlusWnd.SetControlText("Edt" + a[v], global.obMonParty[sMonName][a[v]]);
 		}
 	} else {
 		PlusWnd.Combo_SetCurSel("CbType0", 0);
@@ -66,7 +66,7 @@ function OnWndMonsEvent_CtrlClicked(monWnd, ControlId) {
 		for(i = 0; i <= monWnd.LstView_GetCount("LvMons"); i++) {
 			if(monWnd.LstView_GetSelectedState("LvMons", i) === true) {
 				name = monWnd.LstView_GetItemText("LvMons", i, 0);
-				iniIntf.WriteIni("monParty", name, "Enabled", (obMonParty[name].Enabled === false) ? true : false);
+				iniIntf.WriteIni("monParty", name, "Enabled", (global.obMonParty[name].Enabled === false) ? true : false);
 				settings.LoadFile.Mon();
 				loadMonWnd(monWnd);
 				break;
@@ -106,7 +106,7 @@ function OnWndEditMonEvent_CtrlClicked(PlusWnd, ControlId) {
 //right click toggles enabled state
 function OnWndMonsEvent_LstViewRClicked(PlusWnd, ControlId, ItemIdx) {
 	sName = PlusWnd.LstView_GetItemText(ControlId, ItemIdx, 0);
-	iniIntf.WriteIni("monParty", sName, "Enabled", (obMonParty[sName].Enabled === false) ? true : false);
+	iniIntf.WriteIni("monParty", sName, "Enabled", (global.obMonParty[sName].Enabled === false) ? true : false);
 	settings.LoadFile.Mon();
 	loadMonWnd(monWnd);
 }

@@ -19,14 +19,14 @@ var iniIntf = {
 	//The following ToObject code was taken and modified from http://mpscripts.net/code.php?id=12
 		var fso = w32Factory("Scripting.FileSystemObject");
 		var data = fso.GetFile(MsgPlus.ScriptFilesPath + "\\config\\" + sIniName + ".ini").OpenAsTextStream(1, - 1).ReadAll();
-		var ob = {};
+		var global.ob = {};
 		data = data.replace(/^;(.*)$\r\n/gm, "");
 		var sectionNames = data.match(/^\[(.*?)\]/gm);
 		var sections = data.split(/^\[.*?\]/gm);
 		if (sectionNames !== null) {
 			for (i = 0; i < sections.length; i++) {
 				sectionName = sectionNames[i].replace(/[\[\]]/g, "");
-				ob[sectionName] = {};
+				global.ob[sectionName] = {};
 				var v = sections[i].match(/^(.*?)=(.*?)$/gm);
 				if (v) {
 					for (var x = 0; x < v.length; x++) {
@@ -40,11 +40,11 @@ var iniIntf = {
 						else if (isFinite(sp[1]) === true) {
 							sp[1] = parseFloat(sp[1]);
 						}
-						ob[sectionName][sp[0]] = sp[1];
+						global.ob[sectionName][sp[0]] = sp[1];
 					}
 				}
 			}
 		}
-		return ob;
+		return global.ob;
 	}
 };

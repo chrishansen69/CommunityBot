@@ -653,7 +653,7 @@ case "MELOETTA":return [0,10];
 case "GENESECT":return [11,16];
 case "ARCEUS": return [Math.floor(global.rand()*17)];
 default:
- if(obConf.Pref.mustBePokemonOn===true){return -1;}
+ if(global.obConf.Pref.mustBePokemonOn===true){return -1;}
  else{
 	if(global.rand() > .5){
 		type0 = Math.floor(global.rand()*17);

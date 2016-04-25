@@ -6,10 +6,10 @@ function loadCmdWnd(cmdWnd) {
 	//(Re)populate list
 	var i = 0;
 	var a = ["ichal", "go", "bhelp", "qq", "return", "use", "heal", "item", "equip", "unequip"];
-	for(var p in obCmds) {
+	for(var p in global.obCmds) {
 		cmdWnd.LstView_AddItem("LvCommands", p);
 		cmdWnd.LstView_SetItemText("LvCommands", i, 1, a[i]);
-		cmdWnd.LstView_SetItemText("LvCommands", i, 2, obCmds[p]);
+		cmdWnd.LstView_SetItemText("LvCommands", i, 2, global.obCmds[p]);
 		i++;
 	}
 }
