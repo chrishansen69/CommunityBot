@@ -2,7 +2,6 @@
 
 const Discord = require('discord.js');
 const fs = require('fs');
-const trigger = "=";
 
 try {
 	require('./config.json');
@@ -11,6 +10,8 @@ try {
 	fs.writeFileSync('./config.json', fs.readFileSync('./config-base.json'));
 }
 const config = require('./config.json');
+
+const trigger = config.trigger;
 
 let commands = require('./cmd.js').commands;
 let bot = new Discord.Client();
