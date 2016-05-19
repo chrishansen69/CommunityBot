@@ -30,14 +30,14 @@ exports.commands = {
       if (voter.indexOf(msg.author) != -1) { return; }
       voter.push(msg.author);
       var vote = suffix.split(" ")[0]
-      if (vote == "+") { upvote += 1; }
-      if (vote == "-") { downvote += 1; }
+      if (vote == "+" || vote == "y" || vote == "yes") { upvote += 1; }
+      else if (vote == "-" || vote == "n" || vote == "no") { downvote += 1; }
     }
   },
   "votestatus": {
     process: function(bot, msg) {
       var msgArray = [];
-      if (votebool == true) {bot.sendMessage(msg.channel, "There **Is** a vote in progress. Error reading topic string.")}
+      if (votebool == true) {bot.sendMessage(msg.channel, "There **is** a vote in progress. Error reading topic string.")}
         else {
           bot.sendMessage(msg.channel, "There is currently **not** a vote in progress.")
         }
