@@ -37,4 +37,11 @@ bot.on("message", function (message) {
 	}
 });
 
+module.exports = bot;
+
+const plugins = require('./plugins.js');
+if (config.plugins && config.plugins.length > 0) {
+	plugins(config.plugins);
+}
+
 bot.login(config.email, config.password);
