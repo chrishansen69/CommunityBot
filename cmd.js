@@ -1,21 +1,22 @@
 'use strict';
 
-    let upvote = 0;
-     let downvote = 0;
-      let voter = [];
-      let votebool = false;
-      let topicstring = "";
+let upvote = 0;
+let downvote = 0;
+let voter = [];
+let votebool = false;
+let topicstring = "";
 
 const config = require('./config.json');
+const bot = require('./bot.js');
 
 exports.commands = {
   "ping": {
-    process: function(bot, message) {
+    process: function(message) {
       bot.sendMessage(message.channel, "PONG");
     }
   },
   "newvote": {
-    process: function (bot, msg, suffix) {
+    process: function(msg, suffix) {
       if (!suffix) { bot.sendMessage(msg.channel, "Include a suffix please!"); return; }
       if (votebool == true) { bot.sendMessage(msg, "Theres already a vote pending!"); return; }
       topicstring = suffix;
@@ -24,7 +25,7 @@ exports.commands = {
     }
   },
   "vote": {
-    process: function (bot, msg, suffix) {
+    process: function(msg, suffix) {
       if (!suffix) { bot.sendMessage(msg, "Gotta vote for something!"); return; }
       if (votebool == false) { bot.sendMessage(msg, "There is not a vote in progress. Start one with the 'newvote' command."); return; }
       if (voter.indexOf(msg.author) != -1) { return; }
@@ -35,7 +36,7 @@ exports.commands = {
     }
   },
   "votestatus": {
-    process: function(bot, msg) {
+    process: function(msg) {
       var msgArray = [];
       if (votebool == true) {bot.sendMessage(msg.channel, "There **is** a vote in progress. Error reading topic string.")}
         else {
@@ -44,7 +45,7 @@ exports.commands = {
     }
   },
   "endvote": {
-    process: function (bot, msg, suffix) {
+    process: function(msg, suffix) {
       bot.sendMessage(msg, "**Results of last vote:**\nTopic: `" + topicstring + "`\nVotes for: `" + upvote + "`\nVotes against: `" + downvote + "`");
       upvote = 0;
       downvote = 0;
@@ -54,34 +55,34 @@ exports.commands = {
     }
   },
   "ping": {
-    process: function(bot, message) {
+    process: function(message) {
       bot.sendMessage(message.channel, "PONG");
     }
   },
   "pong": {
-    process: function(bot, message) {
+    process: function(message) {
       bot.sendMessage(message.channel, "PING");
     }
   },
   "setgame": {
-    process: function(bot, msg, suffix) {
+    process: function(msg, suffix) {
       bot.setStatus('online', "Prefix: = Playing: " + suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
     }
   },
   "setgame-idle": {
-    process: function(bot, msg, suffix) {
+    process: function(msg, suffix) {
       bot.setStatus('idle', "Prefix: = Playing: " + suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
     }
   },
   "johncena": {
-    process: function(bot, msg, suffix) {
+    process: function(msg, suffix) {
       bot.sendMessage(msg.channel, " **AND HIS NAME IS** https://www.youtube.com/watch?v=4k1xY7v8dDQ");
     }
   },
   "join": {
-    process: function(bot, message, suffix) {
+    process: function(message, suffix) {
       let query = suffix;
       let sender = message.author.username;
       if (!query) {
@@ -105,12 +106,12 @@ exports.commands = {
     }
   },
   "hello": {
-    process: function(bot, message) {
-      bot.sendMessage(message.channel, "Hello there! I am CommunityBot, a bot made entirely by the community! Check out my innards here: https://github.com/OneMansGlory/CommunityBot.git. You can check out what I can do with my help command!")
+    process: function(message) {
+      bot.sendMessage(message.channel, "Hello there! I am CommunityBot, a bot made entirely by the community! Check out my innards here: https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!")
     }
   },
   "eval": {
-    process: function(bot, message, suffix) {
+    process: function(message, suffix) {
       let evalWhitelist = require('./evalwhitelist.json');
       if (evalWhitelist.indexOf(message.sender.id) > -1) {
         try {
@@ -130,8 +131,22 @@ exports.commands = {
     }
   },
   "help": {
-    process: function(bot, message) {
+    process: function(message) {
       bot.sendMessage(message.channel, "Currently, I am in prealpha stages, and all I can do is respond to ping, pong, hello, and help.")
     }
+  },
+  "spam": {
+    process: function(message) {
+      bot.sendMessage(message.channel, ":warning: keep it in the #spam fam :warning:")
+    }
+  },
+  "permtest": {
+	process: function(message) {
+		if (message.channel.permissionsOf(message.sender).hasPermission("kickMembers")) {
+			bot.sendMessage(message.channel, ":warning: " + message.sender.name + " has permission to kick users");
+		} else {
+			bot.sendMessage(message.channel, ":warning: " + message.sender.name + " does **not** have permission to kick users");
+		}
+	}
   }
 };

@@ -13,8 +13,10 @@ const config = require('./config.json');
 
 const trigger = config.trigger;
 
-let commands = require('./cmd.js').commands;
 let bot = new Discord.Client();
+module.exports = bot;
+
+let commands = require('./cmd.js').commands;
 
 bot.on("ready", function () {
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels.");
@@ -34,11 +36,9 @@ bot.on("message", function (message) {
 	if (msg[0] === trigger) {
 		let command = msg.toLowerCase().split(" ")[0].substring(1);
 		let suffix = msg.substring(command.length + 2);
-		if (commands[command]) commands[command].process(bot, message, suffix);
+		if (commands[command]) commands[command].process(message, suffix);
 	}
 });
-
-module.exports = bot;
 
 const plugins = require('./plugins.js');
 if (config.plugins && config.plugins.length > 0) {
