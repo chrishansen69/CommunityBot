@@ -152,12 +152,12 @@ exports.commands = {
   },
   "help": {
     process: function(message) {
-      bot.sendMessage(message.channel, "Currently, I am in prealpha stages, and all I can do is respond to ping, pong, hello, and help.")
+      bot.sendMessage(message.channel, "Currently, I am in prealpha stages, and all I can do is respond to ping, pong, hello, and help.");
     }
   },
   "spam": {
     process: function(message) {
-      bot.sendMessage(message.channel, ":warning: keep it in the #spam fam :warning:")
+      bot.sendMessage(message.channel, ":warning: keep it in the #spam fam :warning:");
     }
   },
   "permtest": {
