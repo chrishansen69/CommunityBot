@@ -9,6 +9,7 @@ let topicstring = "";
 const config = require('./config.json');
 const bot = require('./bot.js');
 const utility = require('./utility.js');
+const jsonfile = require('jsonfile');
 
 const ElizaBot = require('./ELIZA.js');
 let eliza = null;
@@ -438,12 +439,17 @@ exports.commands = {
     process: function(message, suffix) {
 	  let index = suffix.indexOf(" | ");
 	  if (index !== -1) {
+		  // register command
 		  let cmd = suffix.substr(0, index);
 		  let execute = suffix.substr(index + (" | ".length));
-		  utility.registerCommand(cmd, new Function("message", "suffix", "bot", execute));
-		  bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+		  utility.registerEval(cmd, execute);
 		  
-		  // TODO store to config
+		  // store to config
+		  config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
+		  jsonfile.writeFileSync('./config.json', config, {spaces: 2});
+		  
+		  // done
+		  bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
 	  } else {
 		  bot.sendMessage(message.channel, "Invalid syntax");
 	  }

@@ -25,6 +25,16 @@ module.exports = {
 		}
 	},
 	/**
+	 * convenience method for custom chat commands
+	 * includes fun parameters
+	 * 
+	 * cmd: the command trigger (String)
+	 * execute: code to eval (String)
+	 */
+	registerEval: function (cmd, execute) {
+		commands[cmd] = new Function("message", "suffix", "bot", execute);
+	},
+	/**
 	 * returns registered bot commands
 	 */
 	getCommands: function() {

@@ -56,9 +56,10 @@ const loadPlugins = require('./plugins.js');
 if (config.plugins && config.plugins.length > 0) {
 	loadPlugins(config.plugins);
 }
+// load user commands from saved
 if (config.customCommands) {
 	for (let i of config.customCommands) {
-		utility.registerCommand(i.name, i.action);
+		utility.registerEval(i.name, i.action);
 	}
 }
 
