@@ -328,13 +328,13 @@ exports.commands = {
   },
   "setgame": {
     process: function(msg, suffix) {
-      bot.setStatus('online', "Prefix: = Playing: " + suffix);
+      bot.setStatus('online', suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
     }
   },
   "setgame-idle": {
     process: function(msg, suffix) {
-      bot.setStatus('idle', "Prefix: = Playing: " + suffix);
+      bot.setStatus('idle', suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
     }
   },
