@@ -9,6 +9,9 @@ let topicstring = "";
 const config = require('./config.json');
 const bot = require('./bot.js');
 
+const ElizaBot = require('./ELIZA.js');
+let eliza = null;
+
 exports.commands = {
   "ping": {
     process: function(message) {
@@ -128,6 +131,23 @@ exports.commands = {
       } else {
         bot.sendMessage(message, "No permission!");
       }
+    }
+  },
+  "eliza": {
+    process: function(message, suffix) {
+		console.log(suffix);
+		if (eliza === null) {
+			eliza = new ElizaBot();
+			let initial = eliza.getInitial();
+			bot.sendMessage(message.channel, initial);
+		} else {
+			let reply = eliza.transform(suffix);
+			bot.sendMessage(message.channel, reply);
+			
+			if (eliza.quit) {
+				eliza = null;
+			}
+		}
     }
   },
   "help": {
