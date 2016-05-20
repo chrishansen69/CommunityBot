@@ -8,6 +8,7 @@ let topicstring = "";
 
 const config = require('./config.json');
 const bot = require('./bot.js');
+const utility = require('./utility.js');
 
 const ElizaBot = require('./ELIZA.js');
 let eliza = null;
@@ -433,4 +434,19 @@ exports.commands = {
       bot.sendMessage(message.channel, EXCUSES[Math.round(Math.random() * EXCUSES.length)]);
     }
   },
+  "createcmd": {
+    process: function(message, suffix) {
+	  let index = suffix.indexOf(" | ");
+	  if (index !== -1) {
+		  let cmd = suffix.substr(0, index);
+		  let execute = suffix.substr(index + (" | ".length));
+		  utility.registerCommand(cmd, new Function("message", "suffix", "bot", execute));
+		  bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+		  
+		  // TODO store to config
+	  } else {
+		  bot.sendMessage(message.channel, "Invalid syntax");
+	  }
+    }
+  }
 };

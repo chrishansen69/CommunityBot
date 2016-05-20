@@ -3,6 +3,8 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 
+// LOAD CONFIG
+
 try {
 	require('./config.json');
 } catch (e) {
@@ -10,11 +12,16 @@ try {
 	fs.writeFileSync('./config.json', fs.readFileSync('./config-base.json'));
 }
 const config = require('./config.json');
-
 const trigger = config.trigger;
+
+// INITIALIZE BOT
 
 let bot = new Discord.Client();
 module.exports = bot;
+
+const utility = require('./utility.js');
+
+// ADD HANDLERS
 
 let commands = require('./cmd.js').commands;
 
@@ -36,13 +43,23 @@ bot.on("message", function (message) {
 	if (msg[0] === trigger) {
 		let command = msg.toLowerCase().split(" ")[0].substring(1);
 		let suffix = msg.substring(command.length + 2);
-		if (commands[command]) commands[command].process(message, suffix);
+		if (commands[command]) { // original commands
+			commands[command].process(message, suffix);
+		} else if (utility.getCommands()[command]) { // custom commands registered through utility.js
+			console.log('found ' + command);
+			utility.getCommands()[command](message, suffix, bot); //bot is last, for cleans
+		}
 	}
 });
 
-const plugins = require('./plugins.js');
+const loadPlugins = require('./plugins.js');
 if (config.plugins && config.plugins.length > 0) {
-	plugins(config.plugins);
+	loadPlugins(config.plugins);
+}
+if (config.customCommands) {
+	for (let i of config.customCommands) {
+		utility.registerCommand(i.name, i.action);
+	}
 }
 
 bot.login(config.email, config.password);
