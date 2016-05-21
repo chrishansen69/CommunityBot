@@ -368,31 +368,35 @@ module.exports = {
     },
     "join": {
       process: function(message, suffix) {
-        let query = suffix;
-        let sender = message.author.username;
-        if (!query) {
-          bot.sendMessage(message.channel, "Please specify an invite link.");
-          return;
-        }
-        let invite = message.content.split(" ")[1];
-        bot.joinServer(invite, function(error, server) {
-          if (error) {
-            bot.sendMessage(message.channel, "Something went wrong. Error code: " + error);
-          } else {
-            bot.sendMessage(message.channel, "Great! I just joined: " + server);
-            let messageArray = [];
-            messageArray.push("Hi! I'm **" + bot.user.username + "**. I was invited to this server by " + message.author + ".");
-            messageArray.push("You can use `" + trigger + "help` to see what I can do.");
-            messageArray.push("If you don't want me here, please use the " + AuthDetails.discordjs_trigger + "leave command to get me out.");
-            bot.sendMessage(server.defaultChannel, messageArray);
-            console.log("Joined server: " + server)
+        if (config.token) { // join through oAuth
+          bot.sendMessage(msg.channel, "Apologies, but I am now a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
+        } else { // join normally
+          let query = suffix;
+          let sender = message.author.username;
+          if (!query) {
+            bot.sendMessage(message.channel, "Please specify an invite link.");
+            return;
           }
-        });
+          let invite = message.content.split(" ")[1];
+          bot.joinServer(invite, function(error, server) {
+            if (error) {
+              bot.sendMessage(message.channel, "Something went wrong. Error code: " + error);
+            } else {
+              bot.sendMessage(message.channel, "Great! I just joined: " + server);
+              let messageArray = [];
+              messageArray.push("Hi! I'm **" + bot.user.username + "**. I was invited to this server by " + message.author + ".");
+              messageArray.push("You can use `" + trigger + "help` to see what I can do.");
+              messageArray.push("If you don't want me here, please use the " + AuthDetails.discordjs_trigger + "leave command to get me out.");
+              bot.sendMessage(server.defaultChannel, messageArray);
+              console.log("Joined server: " + server)
+            }
+          });
+        }
       }
     },
     "hello": {
       process: function(message) {
-        bot.sendMessage(message.channel, "Hello there! I am CommunityBot, a bot made entirely by the community! Check out my innards here: https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!")
+        bot.sendMessage(message.channel, "Hello Expand Dong. I'm a bot made by rafa1231518, based on https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!")
       }
     },
     "eval": {
@@ -402,16 +406,16 @@ module.exports = {
           try {
             bot.sendMessage(message, eval(suffix));
           } catch (err) {
-                      let array = [];
+            let array = [];
             array.push("*Eval failed.*");
-                      array.push('```');
-                      array.push(err);
+            array.push('```');
+            array.push(err);
             array.push(err.stack);
-                      array.push('```');
-                      bot.sendMessage(message, array);
+            array.push('```');
+            bot.sendMessage(message, array);
           }
         } else {
-          bot.sendMessage(message, "No permission!");
+          bot.sendMessage(message, "You don't have permission to use this command!");
         }
       }
     },

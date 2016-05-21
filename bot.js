@@ -68,4 +68,7 @@ if (config.customCommands) {
 	}
 }
 
-bot.login(config.email, config.password);
+if (config.token)
+  bot.loginWithToken(config.token); // login with token
+else
+  bot.login(config.email, config.password); // login with regular email/password
