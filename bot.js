@@ -52,7 +52,7 @@ bot.on("message", function (message) { // MAIN MESSAGE HANDLER
 			commands[command].process(message, suffix);
 		} else if (utility.getCommands()[command]) { // custom commands registered through utility.js
 			console.log('found ' + command);
-			utility.getCommands()[command](message, suffix, bot); //bot is last, for cleans
+      utility.getCommands()[command](message, suffix, bot); //bot is last, for cleans
 		}
 	}
 });
