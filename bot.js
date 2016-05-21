@@ -23,7 +23,8 @@ const utility = require('./utility.js');
 
 // ADD HANDLERS
 
-let commands = require('./cmd.js').commands;
+const cmds = require('./cmd.js');
+const commands = require('./cmd.js').commands;
 
 bot.on("ready", function () {
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels.");
@@ -38,7 +39,11 @@ bot.on("error", function (error) {
 	console.log("Caught error: " + error);
 });
 
-bot.on("message", function (message) {
+bot.on("message", function (message) { // MAIN MESSAGE HANDLER
+  if (cmds.r9kEnabled()) { // r9k mode (deletes non-unique messages)
+    cmds.r9k(message);
+  }
+  
 	let msg = message.content;
 	if (msg[0] === trigger) {
 		let command = msg.toLowerCase().split(" ")[0].substring(1);
