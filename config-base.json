@@ -1,4 +1,9 @@
 {
   "email" : "foo@bar.net",
-  "password" : "foo"
+  "password" : "foo",
+  "plugins": [],
+  "trigger": "=",
+  "customCommands": [],
+  "r9kEnabled": {},
+  "r9kMessages": {}
 }
