@@ -40,7 +40,7 @@ bot.on("error", function (error) {
 });
 
 bot.on("message", function (message) { // MAIN MESSAGE HANDLER
-  if (cmds.r9kEnabled()) { // r9k mode (deletes non-unique messages)
+  if (cmds.r9kEnabled(message.channel)) { // r9k mode (deletes non-unique messages)
     cmds.r9k(message);
   }
   
