@@ -453,7 +453,11 @@ module.exports = {
     },
     "help": {
       process: function(message) {
-        bot.sendMessage(message.channel, "Currently, I am in prealpha stages, and all I can do is respond to ping, pong, hello, and help.");
+        let response = ["Here are my commands: ", ""];
+        for (let i of module.exports.commands) {
+          response.push(config.trigger + i);
+        }
+        bot.sendMessage(message.channel, response);
       }
     },
     "spam": {
