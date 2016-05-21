@@ -278,7 +278,7 @@ process.on('exit', function() { // save r9kMessages (and possibly other settings
   jsonfile.writeFileSync('./config.json', config, {spaces: 2});
 });
 
-exports = {
+module.exports = {
   r9kEnabled: function() {
     return config.r9kEnabled;
   },
@@ -473,13 +473,18 @@ exports = {
     },
     "r9k": {
       process: function(message, suffix) {
-        if (suffix == "on" && !config.r9kEnabled) {
+        let id = msg.channel.id; // unique-ish channel id
+        
+        if (!config.r9kMessages[id]) // make channel slot if not exists
+          config.r9kMessages[id] = [];
+        
+        if (suffix == "on" && !config.r9kEnabled) { //enable
           config.r9kEnabled = true;
           bot.sendMessage(message.channel, "Enabled R9K mode");
-        } else if (suffix == "off" && config.r9kEnabled) {
+        } else if (suffix == "off" && config.r9kEnabled) { //disable
           config.r9kEnabled = false;
           bot.sendMessage(message.channel, "Disabled R9K mode");
-        } else {
+        } else { //toggle
           config.r9kEnabled = !config.r9kEnabled;
           bot.sendMessage(message.channel, (config.r9kEnabled ? "Enabled" : "Disabled") + " R9K mode");
         }

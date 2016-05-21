@@ -24,7 +24,7 @@ const utility = require('./utility.js');
 // ADD HANDLERS
 
 const cmds = require('./cmd.js');
-const commands = require('./cmd.js').commands;
+const commands = cmds.commands;
 
 bot.on("ready", function () {
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels.");
