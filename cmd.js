@@ -282,11 +282,13 @@ module.exports = {
   r9kEnabled: function() {
     return config.r9kEnabled;
   },
-  r9k: function(msg) {
-    if (config.r9kMessages.includes(msg.cleanContent.trim())) {
+  r9k: function(msg) { // r9k mode
+    let id = msg.channel.id; // unique-ish channel id
+    
+    if (config.r9kMessages[id].indexOf(msg.cleanContent.trim()) !== -1) { // if message is not unique
       bot.deleteMessage(msg);
-    } else {
-      config.r9kMessages[config.r9kMessages.length] = msg.cleanContent.trim();
+    } else { // if message is unique, add it to the config
+      config.r9kMessages[id][config.r9kMessages.length] = msg.cleanContent.trim();
     }
   },
   commands: {
