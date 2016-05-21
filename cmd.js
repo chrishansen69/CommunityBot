@@ -423,19 +423,21 @@ module.exports = {
     },
     "eliza": {
       process: function(message, suffix) {
-          console.log(suffix);
-          if (eliza === null) {
-              eliza = new ElizaBot();
-              let initial = eliza.getInitial();
-              bot.sendMessage(message.channel, initial);
-          } else {
-              let reply = eliza.transform(suffix);
-              bot.sendMessage(message.channel, reply);
-              
-              if (eliza.quit) {
-                  eliza = null;
-              }
-          }
+        console.log(suffix);
+        if (eliza === null) {
+            eliza = new ElizaBot();
+            let initial = eliza.getInitial();
+            bot.sendMessage(message.channel, initial);
+        } else {
+            let reply = eliza.transform(suffix);
+            bot.sendMessage(message.channel, reply);
+            
+            if (eliza.quit) {
+                eliza = null;
+            }
+        }
+      }
+    },
     "cleverbot": {
       process: function(message, suffix) {
         console.log(suffix);
@@ -461,11 +463,11 @@ module.exports = {
     },
     "permtest": {
       process: function(message) {
-          if (message.channel.permissionsOf(message.sender).hasPermission("kickMembers")) {
-              bot.sendMessage(message.channel, ":warning: " + message.sender.name + " has permission to kick users");
-          } else {
-              bot.sendMessage(message.channel, ":warning: " + message.sender.name + " does **not** have permission to kick users");
-          }
+        if (message.channel.permissionsOf(message.sender).hasPermission("kickMembers")) {
+            bot.sendMessage(message.channel, ":warning: " + message.sender.name + " has permission to kick users");
+        } else {
+            bot.sendMessage(message.channel, ":warning: " + message.sender.name + " does **not** have permission to kick users");
+        }
       }
     },
     "excuse": {
