@@ -6,6 +6,7 @@ const utility = require('./utility.js');
 const jsonfile = require('jsonfile');
 
 const ElizaBot = require('./ELIZA.js');
+const Cleverbot = require('cleverbot-node');
 
 const EXCUSES = [
     "clock speed", "solar flares", "electromagnetic radiation from satellite debris",
@@ -273,6 +274,7 @@ let votebool = false;
 let topicstring = "";
 
 let eliza = null;
+let cleverbot = null;
 
 process.on('exit', function() { // save r9kMessages (and possibly other settings) on exit
   jsonfile.writeFileSync('./config.json', config, {spaces: 2});
@@ -434,6 +436,17 @@ module.exports = {
                   eliza = null;
               }
           }
+    "cleverbot": {
+      process: function(message, suffix) {
+        console.log(suffix);
+        if (cleverbot === null) {
+            cleverbot = new Cleverbot();
+        }
+        Cleverbot.prepare(function(){
+          cleverbot.write(suffix, function (response) {
+               bot.sendMessage(message.channel, response.message);
+          });
+        });        
       }
     },
     "help": {
