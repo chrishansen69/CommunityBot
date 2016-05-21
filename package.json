@@ -21,7 +21,8 @@
     "chalk": "^1.1.1",
     "jsonfile": "^2.2.3",
     "request": "^2.67.0",
-    "semver-compare": "^1.0.0"
+    "semver-compare": "^1.0.0",
+	"cleverbot-node": "fojas/cleverbot-node"
   },
   "main": "bot.js"
 }
