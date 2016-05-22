@@ -144,7 +144,7 @@ function extractYouTubeID(url, channelID) {
     }
 }
 
-function addCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function addCommand(_message, message) { let messagec = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Get the URL from the message (it should be the first element after the command)
     const url = message.split(' ')[0];
 
@@ -219,7 +219,7 @@ function addCommand(_message) { let message = _message.content; let serverID = _
     });
 }
 
-function removeCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function removeCommand(_message, message) { let messagec = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     const url = message.split(' ')[0];
 
     if (url.length < 1) {
@@ -239,7 +239,7 @@ function removeCommand(_message) { let message = _message.content; let serverID 
     bot.sendMessage(channelID, 'Successfully removed from the playlist.');
 }
 
-function skipCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function skipCommand(_message, message) { let messagec = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if the bot is in a voice channel
     if (voiceChannelID) {
         if (usersWantToSkip.indexOf(userID) === -1) {
@@ -365,7 +365,7 @@ function enterCommand(_message, suffix) { let message = _message.content; let se
     });
 }
 
-function playCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function playCommand(_message, message) { let messagec = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     if (!voiceChannelID) {
         bot.sendMessage(channelID, 'The bot is not in a voice channel.');
     } else if (playlist.length <= 0) {
@@ -385,7 +385,7 @@ function stopCommand() {
     });
 }
 
-function currentCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function currentCommand(_message, message) { let messagec = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if a song is playing
     if (currentSong) {
         bot.sendMessage(channelID, 'Currently playing: ' + currentSong.url);
@@ -394,7 +394,7 @@ function currentCommand(_message) { let message = _message.content; let serverID
     }
 }
 
-function playlistCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function playlistCommand(_message, message) { let messagec = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if there are songs on the playlist
     if (playlist.length < 1) {
         bot.sendMessage(channelID, 'There are currently no entries on the playlist.');
