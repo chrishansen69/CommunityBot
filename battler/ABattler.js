@@ -5,6 +5,10 @@ var bot = require('../bot.js');
 
 /*jslint bitwise: true */
 
+// TODO
+// w32Factory
+// Interop.
+
 //'use strict';
 function Alea() {
   return (function (args) {
@@ -88,7 +92,7 @@ function Mash() {
 // Origin: sender.name
 // Message: message.content
 // MsgKind: unused
-function OnEvent_ChatWndReceiveMessage(ChatWnd, Origin, Message, MsgKind) { // TODO - Missing polyfill
+function OnEvent_ChatWndReceiveMessage(ChatWnd, Origin, Message) { // TODO - Missing polyfill
 
   if (obConf.Pref.enabled === false) {
     return;
