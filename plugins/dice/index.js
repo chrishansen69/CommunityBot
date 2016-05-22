@@ -1,35 +1,25 @@
 // Discord Bot API
-import bot from '../../modules/bot';
+const bot = require('../../bot.js');
 
-function rollCommand(user, userID, channelID, message) {
+function rollCommand(_message, message) {
     message = message.split(' ');
-    if (message.length < 1 || message[0].length < 1 || isNaN(message[0])) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'You have to define the amount of faces.',
-        });
 
-        return false;
-    }
-
-    const faces = Number(message[0]);
+    const faces = Number(message[0]) || 100;
     const result = Math.floor(Math.random() * faces) + 1;
 
-    bot.sendMessage({
-        to: channelID,
-        message: user + ' rolled a ' + result,
-    });
+    bot.sendMessage(_message.channel, 'Rolling `1-' + faces + '`: ' + _message.sender.mention() + ' rolled a ' + result);
 }
 
-let plugin = {
+module.exports = {
     name: 'dice',
     defaultCommandPrefix: 'dice',
     commands: {
         roll: {
             fn: rollCommand,
             description: 'Rolls a dice',
+            synonyms: [
+              'dice'
+            ]
         },
     },
 };
-
-export default plugin;
