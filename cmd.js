@@ -5,10 +5,11 @@
 // - Command descriptions
 // - Save setgame output
 
-const config = require('./config.json');
+//const config = require('./config.json');
 
 const bot = require('./bot.js');
 const utility = require('./utility.js');
+const getConfig = utility.getConfig;
 const jsonfile = require('jsonfile');
 
 const ElizaBot = require('./ELIZA.js');
@@ -287,15 +288,16 @@ let eliza = null;
 let cleverbot = null;
 
 process.on('exit', function() { // save r9kMessages (and possibly other settings) on exit
-  jsonfile.writeFileSync('./config.json', config, {spaces: 2});
+  utility.saveConfig();
 });
 
 exports.r9kEnabled = function(channel) {
-  return config.r9kEnabled[channel.id];
+  return getConfig().r9kEnabled[channel.id];
 };
 exports.r9k = function(msg) { // r9k mode
+  const config = getConfig();
   let id = msg.channel.id; // unique-ish channel id
-    console.info(config.r9kMessages);
+  console.info(config.r9kMessages);
   
   if (config.r9kMessages[id].indexOf(msg.cleanContent.trim()) !== -1) { // if message is not unique
     console.log("deleting " + msg.content);
@@ -380,6 +382,7 @@ exports.commands = {
   },
   "join": {
     process: function(message, suffix) {
+      const config = getConfig();
       if (config.token) { // join through oAuth
         bot.sendMessage(msg.channel, "Apologies, but I am now a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
       } else { // join normally
@@ -462,6 +465,7 @@ exports.commands = {
   },
   "help": {
     process: function(message) {
+      const config = getConfig();
       let response = ["Here are my commands: ", ""];
       Object.keys(module.exports.commands).forEach(function (element) {
         response.push(config.trigger + element);
@@ -492,6 +496,8 @@ exports.commands = {
     process: function(message, suffix) {
       let index = suffix.indexOf(" | ");
       if (index !== -1) {
+          const config = getConfig();
+          
           // register command
           let cmd = suffix.substr(0, index);
           let execute = suffix.substr(index + (" | ".length));
@@ -499,7 +505,7 @@ exports.commands = {
           
           // store to config
           config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
-          jsonfile.writeFileSync('./config.json', config, {spaces: 2});
+          utility.saveConfig();
           
           // done
           bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
@@ -511,6 +517,7 @@ exports.commands = {
   "r9k": {
     process: function(message, suffix) {
       let id = message.channel.id; // unique-ish channel id
+      const config = getConfig();
       
       if (!config.r9kMessages[id]) // make channel slot if not exists
         config.r9kMessages[id] = [];
@@ -529,6 +536,7 @@ exports.commands = {
   },
   "setavatar": {
     process: function(message, suffix) {
+      const config = getConfig();
       const path = suffix.split(' ')[0];
       const channelID = message.channel;
       

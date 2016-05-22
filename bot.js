@@ -11,7 +11,7 @@ try {
 	console.log("config.json not found. Copying from config-base.json...");
 	fs.writeFileSync('./config.json', fs.readFileSync('./config-base.json'));
 }
-const config = require('./config.json');
+const config = utility.getConfig();
 const trigger = config.trigger;
 
 // INITIALIZE BOT

@@ -3,6 +3,7 @@
 const bot = require('./bot.js');
 const jsonfile = require('jsonfile');
 const chalk = require('chalk');
+const config = require('./config.json');
 
 let ops = require('./ops.json');
 
@@ -68,5 +69,11 @@ module.exports = {
     }
     
     return false;
+  },
+  getConfig: function() {
+    return config;
+  },
+  saveConfig: function() {
+    jsonfile.writeFileSync('./config.json', config, {spaces: 2});
   }
 };
