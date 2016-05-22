@@ -1,5 +1,5 @@
 // Discord Bot API
-import configModule from '../../modules/config';
+const getConfig = require('../../utility.js').getConfig;
 //import bot from '../../modules/bot';
 //import events from '../../modules/events';
 
@@ -20,7 +20,7 @@ const fetchVideoInfo = require('youtube-info');
 const YoutubeMp3Downloader = require('youtube-mp3-downloader');
 
 let YD = new YoutubeMp3Downloader({
-    outputPath: configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
+    outputPath: getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
     queueParallelism: 5,
 });
 
@@ -70,7 +70,7 @@ function playLoop(channelID) {
             game: nextSong.title,
         });
 
-        const announceSongs = configModule.get().plugins['music-bot'].announceSongs === false ? false : true;
+        const announceSongs = getConfig()['music-bot'].announceSongs === false ? false : true;
         if (announceSongs) {
             bot.sendMessage({
                 to: channelID,
@@ -146,7 +146,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
         }
 
         // Check length of video
-        let maxLength = configModule.get().plugins['music-bot'].maxLength;
+        let maxLength = getConfig()['music-bot'].maxLength;
         if (maxLength && isNaN(maxLength)) {
             console.log(chalk.styles.red.open + 'The max length of a song defined in your "config.json" is invalid. Therefore the download of ' + chalk.styles.red.close + videoInfo.url + chalk.styles.red.open + ' will be stopped.' + chalk.styles.red.close);
             bot.sendMessage({
@@ -171,7 +171,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
         }
 
         // Create download directory
-        mkdirp(configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
+        mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
             if (error) {
                 console.error(error);
                 bot.sendMessage({
@@ -182,7 +182,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
             }
 
             // Check if already downloaded
-            fs.access((configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
+            fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
                 if (error) {
                     bot.sendMessage({
                         to: channelID,
@@ -201,7 +201,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
                         youtubeID: videoInfo.videoId,
                         url: videoInfo.url,
                         title: videoInfo.title,
-                        file: configModule.get().plugins['music-bot'].library + '/youtube/' + videoInfo.videoId + '.mp3',
+                        file: getConfig()['music-bot'].library + '/youtube/' + videoInfo.videoId + '.mp3',
                     });
 
                     bot.sendMessage({
@@ -247,7 +247,7 @@ function skipCommand(_message) { let message = _message.content; let user = _mes
             usersWantToSkip.push(userID);
         }
 
-        const skipLimit = configModule.get().plugins['music-bot'].skipLimit ? configModule.get().plugins['music-bot'].skipLimit : 1;
+        const skipLimit = getConfig()['music-bot'].skipLimit ? getConfig()['music-bot'].skipLimit : 1;
         if (usersWantToSkip.length >= skipLimit) {
             bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
                 stream.stopAudioFile();
@@ -317,8 +317,8 @@ function enter(message, isID, callback) {
 }
 
 bot.onfunction('ready', () {
-    if (configModule.get().plugins['music-bot'].autoJoinVoiceChannel && configModule.get().plugins['music-bot'].autoJoinVoiceChannel.length > 0) {
-        enterfunction(configModule.get().plugins['music-bot'].autoJoinVoiceChannel, false, () {
+    if (getConfig()['music-bot'].autoJoinVoiceChannel && getConfig()['music-bot'].autoJoinVoiceChannel.length > 0) {
+        enterfunction(getConfig()['music-bot'].autoJoinVoiceChannel, false, () {
             console.log(chalk.red('The voice channel defined in autoJoinVoiceChannel could not be found.'));
         });
     }
