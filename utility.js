@@ -1,6 +1,9 @@
 "use strict";
 
 const bot = require('./bot.js');
+const jsonfile = require('jsonfile');
+const chalk = require('chalk');
+
 let ops = require('./ops.json');
 
 let commands = {};
@@ -52,6 +55,7 @@ module.exports = {
     
     ops.push(user.id);
     jsonfile.writeFileSync('./ops.json', ops, {spaces: 2});
+    console.log(chalk.red('Opped user ' + user.name));
     return true;
   },
   deop: function(opped) {
@@ -59,10 +63,10 @@ module.exports = {
     if (index !== -1) {
       ops.splice(index, 1);
       jsonfile.writeFileSync('./ops.json', ops, {spaces: 2});
+      console.log(chalk.red('De-opped user ' + user.name));
       return true;
     }
     
-    bot.sendMessage(message.channel, opped.name + ' is not an operator');
     return false;
   }
 };
