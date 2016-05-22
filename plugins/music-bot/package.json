@@ -11,7 +11,7 @@
     "play",
     "stream"
   ],
-  "license": "GNU GPL v3",
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/simonknittel/discord-bot-api"
@@ -23,6 +23,7 @@
   "dependencies": {
     "mkdirp": "^0.5.1",
     "youtube-info": "^1.1.0",
-    "youtube-mp3-downloader": "^0.4.2"
+    "youtube-mp3-downloader": "^0.4.2",
+	"continuation-local-storage": "~3"
   }
 }
