@@ -1,27 +1,26 @@
 // Discord Bot API
 import configModule from '../../modules/config';
-//import bot from '../../modules/bot';
-//import events from '../../modules/events';
+import bot from '../../modules/bot';
+import events from '../../modules/events';
 
 // Other
-//import fetchVideoInfo from 'youtube-info';
-//import YoutubeMp3Downloader from 'youtube-mp3-downloader';
-//import mkdirp from 'mkdirp';
-//import fs from 'fs';
-//import chalk from 'chalk';
-//import os from 'os';
-
-const bot = require('../../bot.js');
-const chalk = require('chalk');
-const os = require('os');
-const fs = require('fs');
-const mkdirp = require('mkdirp');
-const fetchVideoInfo = require('youtube-info');
-const YoutubeMp3Downloader = require('youtube-mp3-downloader');
+import fetchVideoInfo from 'youtube-info';
+import YoutubeMp3Downloader from 'youtube-mp3-downloader';
+import mkdirp from 'mkdirp';
+import fs from 'fs';
+import chalk from 'chalk';
+import os from 'os';
 
 let YD = new YoutubeMp3Downloader({
     outputPath: configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
     queueParallelism: 5,
+});
+
+events.on('config reloaded', () => {
+    YD = new YoutubeMp3Downloader({
+        outputPath: configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
+        queueParallelism: 5,
+    });
 });
 
 let playlist = []; // All requested songs will be saved in this array
@@ -30,7 +29,7 @@ let currentSong = null; // The current song will be saved in this variable
 let downloadQueue = {};
 let usersWantToSkip = []; // The id of the users that want to skip the current song will be stored in this array
 
-YD.on('finished', function(data) {
+YD.on('finished', data => {
     // Add the song to the playlist
     playlist.push({
         youtubeID: data.videoId,
@@ -45,7 +44,7 @@ YD.on('finished', function(data) {
     delete downloadQueue['yt:' + data.videoId];
 });
 
-YD.on('error', function(error) {
+YD.on('error', error => {
     console.error(error);
     // bot.sendMessage({
     //     to: downloadQueue['yt:' + error.videoId].channelID,
@@ -78,12 +77,12 @@ function playLoop(channelID) {
             });
         }
 
-        bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
+        bot.getAudioContext({channel: voiceChannelID, stereo: true}, stream => {
             stream.playAudioFile(currentSong.file);
-            stream.oncefunction('fileEnd', () {
+            stream.once('fileEnd', () => {
                 if (currentSong) {
                     // Hack required because the event fileEnd does not trigger when the file ends ...
-                    setTimeoutfunction(() {
+                    setTimeout(() => {
                         currentSong = null;
                         bot.setPresence({
                             game: null,
@@ -115,7 +114,7 @@ function extractYouTubeID(url, channelID) {
     }
 }
 
-function addCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function addCommand(user, userID, channelID, message) {
     // Get the URL from the message (it should be the first element after the command)
     const url = message.split(' ')[0];
 
@@ -135,7 +134,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
     }
 
     // Fetch meta data from YouTube video
-    fetchVideoInfofunction(youtubeID, (error, videoInfo) {
+    fetchVideoInfo(youtubeID, (error, videoInfo) => {
         if (error) {
             console.error(error, youtubeID);
             bot.sendMessage({
@@ -171,7 +170,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
         }
 
         // Create download directory
-        mkdirp(configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
+        mkdirp(configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), error => {
             if (error) {
                 console.error(error);
                 bot.sendMessage({
@@ -182,7 +181,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
             }
 
             // Check if already downloaded
-            fs.access((configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
+            fs.access((configModule.get().plugins['music-bot'].library ? configModule.get().plugins['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, error => {
                 if (error) {
                     bot.sendMessage({
                         to: channelID,
@@ -214,7 +213,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
     });
 }
 
-function removeCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function removeCommand(user, userID, channelID, message) {
     const url = message.split(' ')[0];
 
     if (url.length < 1) {
@@ -232,7 +231,7 @@ function removeCommand(_message) { let message = _message.content; let user = _m
         return false;
     }
 
-    playlist = playlist.filter(function(element) element.youtubeID !== youtubeID);
+    playlist = playlist.filter(element => element.youtubeID !== youtubeID);
 
     bot.sendMessage({
         to: channelID,
@@ -240,7 +239,7 @@ function removeCommand(_message) { let message = _message.content; let user = _m
     });
 }
 
-function skipCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function skipCommand(user, userID, channelID) {
     // Check if the bot is in a voice channel
     if (voiceChannelID) {
         if (usersWantToSkip.indexOf(userID) === -1) {
@@ -249,14 +248,14 @@ function skipCommand(_message) { let message = _message.content; let user = _mes
 
         const skipLimit = configModule.get().plugins['music-bot'].skipLimit ? configModule.get().plugins['music-bot'].skipLimit : 1;
         if (usersWantToSkip.length >= skipLimit) {
-            bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
+            bot.getAudioContext({channel: voiceChannelID, stereo: true}, stream => {
                 stream.stopAudioFile();
                 currentSong = null;
                 bot.setPresence({
                     game: null,
                 });
 
-                setTimeoutfunction(() {
+                setTimeout(() => {
                     playLoop(channelID);
                 }, 2000);
             });
@@ -299,7 +298,7 @@ function enter(message, isID, callback) {
 
     let notFound = true;
     // Look for the ID of the requested channel
-    Object.keysfunction(bot.servers[configModule.get().serverID].channels).forEach((id) {
+    Object.keys(bot.servers[configModule.get().serverID].channels).forEach((id) => {
         const channel = bot.servers[configModule.get().serverID].channels[id];
 
         if (channel.name === message && channel.type === 'voice') {
@@ -316,15 +315,15 @@ function enter(message, isID, callback) {
     }
 }
 
-bot.onfunction('ready', () {
+bot.on('ready', () => {
     if (configModule.get().plugins['music-bot'].autoJoinVoiceChannel && configModule.get().plugins['music-bot'].autoJoinVoiceChannel.length > 0) {
-        enterfunction(configModule.get().plugins['music-bot'].autoJoinVoiceChannel, false, () {
+        enter(configModule.get().plugins['music-bot'].autoJoinVoiceChannel, false, () => {
             console.log(chalk.red('The voice channel defined in autoJoinVoiceChannel could not be found.'));
         });
     }
 });
 
-function enterCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function enterCommand(user, userID, channelID, message) {
     let isID = false;
     if (
         message.length < 1
@@ -340,7 +339,7 @@ function enterCommand(_message) { let message = _message.content; let user = _me
         return false;
     }
 
-    enterfunction(message, isID, () {
+    enter(message, isID, () => {
         bot.sendMessage({
             to: channelID,
             message: 'There is no channel named ' + message + '.',
@@ -348,7 +347,7 @@ function enterCommand(_message) { let message = _message.content; let user = _me
     });
 }
 
-function playCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function playCommand(user, userID, channelID) {
     if (!voiceChannelID) {
         bot.sendMessage({
             to: channelID,
@@ -365,7 +364,8 @@ function playCommand(_message) { let message = _message.content; let user = _mes
 }
 
 function stopCommand() {
-    bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
+    events.emit('stop music');
+    bot.getAudioContext({channel: voiceChannelID, stereo: true}, stream => {
         stream.stopAudioFile();
         currentSong = null;
         bot.setPresence({
@@ -374,7 +374,7 @@ function stopCommand() {
     });
 }
 
-function currentCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function currentCommand(user, userID, channelID) {
     // Check if a song is playing
     if (currentSong) {
         bot.sendMessage({
@@ -389,7 +389,7 @@ function currentCommand(_message) { let message = _message.content; let user = _
     }
 }
 
-function playlistCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function playlistCommand(user, userID, channelID) {
     // Check if there are songs on the playlist
     if (playlist.length < 1) {
         bot.sendMessage({
@@ -409,7 +409,7 @@ function playlistCommand(_message) { let message = _message.content; let user = 
     }
 }
 
-module.exports = {
+let plugin = {
     name: 'music-bot',
     defaultCommandPrefix: 'music',
     commands: {
@@ -459,3 +459,5 @@ module.exports = {
         },
     },
 };
+
+export default plugin;
