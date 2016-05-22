@@ -634,7 +634,7 @@ exports.commands = {
       bot.sendMessage(message.channel, 'Your ID: \'' + message.sender.id + '\'');
     }
   },
-  shut: {
+  "shut": {
     process: function(message, suffix) {
       bot.sendMessage(message.channel, 'https://i.ytimg.com/vi/wQYob6dpTTk/hqdefault.jpg');
       
@@ -659,6 +659,10 @@ exports.commands = {
           }, 500);
         }, 500);
       }, 500);
+    }
+  },
+  "gabe": {
+    process: function(message, suffix) {
     }
   }
 };
