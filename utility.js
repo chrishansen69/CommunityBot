@@ -1,6 +1,8 @@
 "use strict";
 
 const bot = require('./bot.js');
+let ops = require('./ops.json');
+
 let commands = {};
 
 module.exports = {

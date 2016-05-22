@@ -3,14 +3,20 @@
 // - Permissions
 // - More evalwhitelist.json stuff
 // - Command descriptions
+// - Save setgame output
 
 const config = require('./config.json');
+
 const bot = require('./bot.js');
 const utility = require('./utility.js');
 const jsonfile = require('jsonfile');
 
 const ElizaBot = require('./ELIZA.js');
 const Cleverbot = require('cleverbot-node');
+
+const chalk = require('chalk');
+const request = require('request');
+const fs = require('fs');
 
 const EXCUSES = [
     "clock speed", "solar flares", "electromagnetic radiation from satellite debris",
@@ -407,8 +413,7 @@ exports.commands = {
   },
   "eval": {
     process: function(message, suffix) {
-      let evalWhitelist = require('./evalwhitelist.json');
-      if (evalWhitelist.indexOf(message.sender.id) > -1) {
+      if (ops.indexOf(message.sender.id) > -1) {
         try {
           bot.sendMessage(message, eval(suffix));
         } catch (err) {
@@ -559,6 +564,57 @@ exports.commands = {
           setAvatar(fs.readFileSync(path, 'base64'), channelID);
         }
       });
+    }
+  },
+  "kill": {
+    process: function() {
+      bot.disconnect();
+
+      console.log(chalk.yellow('The bot was stopped through the kill command.'));
+      console.log(''); // Empty line
+      process.exit();
+    }
+  },
+  "op": {
+    process: function(message, suffix) {
+      let opped;
+      if (message.mentions.length > 0) { // get by mention
+        opped = message.mentions[0];
+      } else { // get by name
+        const name = suffix.split(' ')[0];
+        
+        opped = message.channel.server.members.get("name", name);
+        if (opped === null) {
+          bot.sendMessage(message.channel, 'Could not find user ' + name + '!');
+          return;
+        }
+      }
+      
+      if (!utility.op(opped))
+        bot.sendMessage(message.channel, opped.name + ' is already an operator');
+      else
+        bot.sendMessage(message.channel, 'Opped user ' + opped.name);
+    }
+  },
+  "deop": {
+    process: function(message, suffix) {
+      let opped;
+      if (message.mentions.length > 0) { // get by mention
+        opped = message.mentions[0];
+      } else { // get by name
+        const name = suffix.split(' ')[0];
+        
+        opped = message.channel.server.members.get("name", name);
+        if (opped === null) {
+          bot.sendMessage(message.channel, 'Could not find user ' + name + '!');
+          return;
+        }
+      }
+      
+      if (utility.deop(opped))
+        bot.sendMessage(message.channel, 'De-opped user ' + opped.name);
+      else
+        bot.sendMessage(message.channel, opped.name + ' is not an operator');
     }
   }
 };
