@@ -480,47 +480,47 @@ module.exports = {
     name: 'music-bot',
     defaultCommandPrefix: 'music',
     commands: {
-        add: {
+        "music add": {
             fn: addCommand,
             description: 'Adds a song to the playlist',
             synonyms: [
                 'new',
             ],
         },
-        remove: {
+        "music remove": {
             fn: removeCommand,
             description: 'Removes a song from the playlist',
         },
-        skip: {
+        "music skip": {
             fn: skipCommand,
             description: 'Skips the current song',
         },
-        enter: {
+        "music enter": {
             fn: enterCommand,
             description: 'Let the bot enter a voice channel',
             synonyms: [
-                'join',
+                'music join',
             ],
         },
-        play: {
+        "music play": {
             fn: playCommand,
             description: 'Starts the playlist',
             synonyms: [
-                'start',
+                'music start',
             ],
         },
-        stop: {
+        "music stop": {
             fn: stopCommand,
             description: 'Stops the playlist',
         },
-        current: {
+        "music current": {
             fn: currentCommand,
             description: 'Displays the current song',
             synonyms: [
-                'now',
+                'music now',
             ],
         },
-        playlist: {
+        "music playlist": {
             fn: playlistCommand,
             description: 'Displays all songs on the playlist',
         },
