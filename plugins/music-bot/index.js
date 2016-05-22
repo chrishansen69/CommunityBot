@@ -326,15 +326,12 @@ function leave(serverID) {
     // Leaves every voice channel.
     // It's needed to loop over all channels, because after a reconnect the previous voice channel is unknown
 
-    Object.keys(bot.servers[serverID].channels).forEach(function(voiceChannelID) {
-      if (bot.servers[serverID].channels[voiceChannelID] !== undefined) {
-        if (bot.servers[serverID].channels[voiceChannelID].type === 'voice') {
-            bot.leaveVoiceChannel(voiceChannelID);
-        }
-      } else {
-        console.info(bot.servers[serverID].channels);
+    const channels = bot.servers[serverID].channels;
+    for (let i = 0; i < channels.length; i++) {
+      if (channels[i].type === 'voice') {
+          bot.leaveVoiceChannel(channels[i].id);
       }
-    });
+    }
 }
 
 function enter(_message, message, isID, callback) {
@@ -353,31 +350,29 @@ function enter(_message, message, isID, callback) {
     // Look for the ID of the requested channel
     
     if (serverID === null) {
-      Object.keys(bot.servers).forEach(function(_id) {
-        if (bot.servers[_id] !== undefined && bot.servers[_id].channels !== undefined) {
-          Object.keys(bot.servers[_id].channels).forEach(function(id) {
-            const channel = bot.servers[_id].channels[id];
+      for (let _id = 0; _id < bot.servers.length; _id++) {
+        for (let id = 0; id < bot.servers[_id].channels.length; id++) {
+          const channel = bot.servers[_id].channels[id];
 
-            if (channel !== undefined && channel.name === message && channel.type === 'voice') {
-              voiceChannelID = id;
-              notFound = false;
-              serverID = _id;
-              return;
-            }
-          });
+          if (channel !== undefined && channel.name === message && channel.type === 'voice') {
+            voiceChannelID = channel.id;
+            notFound = false;
+            serverID = _id;
+            return;
+          }
         }
         if (!notFound) return;
-      });
+      }
     } else {
-      Object.keys(bot.servers[serverID].channels).forEach(function(id) {
-          const channel = bot.servers[serverID].channels[id];
+      for (let id = 0; id < bot.servers[serverID].channels.length; id++) {
+        const channel = bot.servers[serverID].channels[id];
 
-          if (channel.name === message && channel.type === 'voice') {
-              voiceChannelID = id;
-              notFound = false;
-              return;
-          }
-      });
+        if (channel.name === message && channel.type === 'voice') {
+            voiceChannelID = channel.id;
+            notFound = false;
+            return;
+        }
+      }
     }
 
     if (notFound) {
