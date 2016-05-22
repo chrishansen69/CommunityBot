@@ -454,9 +454,9 @@ module.exports = {
     "help": {
       process: function(message) {
         let response = ["Here are my commands: ", ""];
-        for (let i of module.exports.commands) {
-          response.push(config.trigger + i);
-        }
+        Object.keys(module.exports.commands).forEach(function (element) {
+          response.push(config.trigger + element);
+        });
         bot.sendMessage(message.channel, response);
       }
     },
