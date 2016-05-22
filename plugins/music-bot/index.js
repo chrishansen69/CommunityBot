@@ -118,7 +118,7 @@ function playLoop(channelID) {
             stream.oncefunction('fileEnd', function() {
                 if (currentSong) {
                     // Hack required because the event fileEnd does not trigger when the file ends ...
-                    setTimeoutfunction(function() {
+                    setTimeout(function() {
                         currentSong = null;
                         bot.setPresence({
                             game: null,
@@ -161,7 +161,7 @@ function addCommand(_message) { let message = _message.content; let serverID = _
     }
 
     // Fetch meta data from YouTube video
-    fetchVideoInfofunction(youtubeID, function(error, videoInfo) {
+    fetchVideoInfo(youtubeID, function(error, videoInfo) {
         if (error) {
             console.error(error, youtubeID);
             bot.sendMessage(channelID, 'This seems to be an invalid link.');
@@ -234,7 +234,7 @@ function removeCommand(_message) { let message = _message.content; let serverID 
         return false;
     }
 
-    playlist = playlist.filter(function(element) { element.youtubeID !== youtubeID });
+    playlist = playlist.filter(function(element) { return element.youtubeID !== youtubeID; });
 
     bot.sendMessage(channelID, 'Successfully removed from the playlist.');
 }
@@ -255,7 +255,7 @@ function skipCommand(_message) { let message = _message.content; let serverID = 
                     game: null,
                 });
 
-                setTimeoutfunction(function() {
+                setTimeout(function() {
                     playLoop(channelID);
                 }, 2000);
             });
@@ -350,8 +350,8 @@ bot.on('ready', function() {
 function enterCommand(_message, suffix) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     let isID = false;
     if (
-        suffix.length < 1
-        && bot.servers[serverID].members[userID].voice_channel_id
+        suffix.length < 1 &&
+        bot.servers[serverID].members[userID].voice_channel_id
     ) {
         isID = true;
         suffix = bot.servers[serverID].members[userID].voice_channel_id;
