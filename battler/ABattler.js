@@ -1,6 +1,8 @@
 // From http://baagoe.com/en/RandomMusings/javascript/
 // Johannes Baagøe <baagoe@baagoe.com>, 2010
 
+var bot = require('../bot.js');
+
 /*jslint bitwise: true */
 
 //'use strict';
@@ -82,6 +84,10 @@ function Mash() {
 //Version 5.02, <2012 October 22>.
 // http://apotah.zxq.net/battler/
 
+// ChatWnd: channel
+// Origin: sender.name
+// Message: message.content
+// MsgKind: unused
 function OnEvent_ChatWndReceiveMessage(ChatWnd, Origin, Message, MsgKind) { // TODO - Missing polyfill
 
   if (obConf.Pref.enabled === false) {
@@ -674,7 +680,8 @@ function randomStat(min, max) {
 }
 
 function sendMsg(sMsg) {
-  bWnd[iWnd].Wnd.SendMessage(obConf.Pref.msgFormat[0] + "*" + sMsg + obConf.Pref.msgFormat[1]);
+  //bWnd[iWnd].Wnd.SendMessage(obConf.Pref.msgFormat[0] + "*" + sMsg + obConf.Pref.msgFormat[1]);
+  bot.sendMessage(bWnd[iWnd].Wnd, obConf.Pref.msgFormat[0] + "*" + sMsg + obConf.Pref.msgFormat[1]);
 }
 
 function displayHP(Mon) {
