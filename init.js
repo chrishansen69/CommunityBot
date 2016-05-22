@@ -1,27 +1,12 @@
 require('./compat.js');
 
-require('./battler/Alea.js');
-require('./battler/Battler.js');
-require('./battler/Commands.js');
-require('./battler/Damage.js');
-require('./battler/Functions.js');
-require('./battler/helper_lc.js');
-require('./battler/iniEdit.js');
-require('./battler/ItemEquip.js');
-require('./battler/Menu.js');
-require('./battler/Prefs.js');
-require('./battler/RandMon.js');
-require('./battler/StatMods.js');
-require('./battler/Status.js');
-require('./battler/TypeConfig.js');
-require('./battler/TypeList.js');
-require('./battler/TypeMatch.js');
-require('./battler/Update.js');
-require('./battler/Vars.js');
-require('./battler/Wnd_About.js');
-require('./battler/Wnd_Cmd.js');
-require('./battler/Wnd_Config.js');
-require('./battler/Wnd_Equip.js');
-require('./battler/Wnd_Items.js');
-require('./battler/Wnd_Mons.js');
-require('./battler/Wnd_Moves.js');
+const battler = require('./battler/ABattler.js');
+
+/*
+exports.OnEvent_ChatWndReceiveMessage = OnEvent_ChatWndReceiveMessage;
+exports.OnEvent_ChatWndSendMessage = OnEvent_ChatWndSendMessage;
+exports.OnEvent_MenuClicked = OnEvent_MenuClicked;
+exports.OnEvent_Initialize = OnEvent_Initialize;
+exports.OnEvent_Uninitialize = OnEvent_Uninitialize;
+exports.OnWndEditMonEvent_CtrlClicked = OnWndEditMonEvent_CtrlClicked;
+*/
