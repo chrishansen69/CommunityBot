@@ -82,19 +82,13 @@ YD.on('finished', function(data) {
         title: data.videoTitle,
         file: data.file,
     });
-    bot.sendMessage({
-        to: downloadQueue['yt:' + data.videoId].channelID,
-        message: '`' + data.videoTitle + '` added to the playlist. Position: ' + playlist.length,
-    });
+    bot.sendMessage(downloadQueue['yt:' + data.videoId].channelID, '`' + data.videoTitle + '` added to the playlist. Position: ' + playlist.length);
     delete downloadQueue['yt:' + data.videoId];
 });
 
 YD.on('error', function(error) {
     console.error(error);
-    // bot.sendMessage({
-    //     to: downloadQueue['yt:' + error.videoId].channelID,
-    //     message: 'The download of <' + error.youtubeURL + '> failed. Check out terminal of the bot to get more information.',
-    // });
+    // bot.sendMessage(downloadQueue['yt:' + error.videoId].channelID, 'The download of <' + error.youtubeURL + '> failed. Check out terminal of the bot to get more information.');
     // delete downloadQueue['yt:' + error.videoId];
 });
 
@@ -116,10 +110,7 @@ function playLoop(channelID) {
 
         const announceSongs = getConfig()['music-bot'].announceSongs === false ? false : true;
         if (announceSongs) {
-            bot.sendMessage({
-                to: channelID,
-                message: 'Now playing: ' + nextSong.url,
-            });
+            bot.sendMessage(channelID, 'Now playing: ' + nextSong.url);
         }
 
         bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
@@ -138,10 +129,7 @@ function playLoop(channelID) {
             });
         });
     } else {
-        bot.sendMessage({
-            to: channelID,
-            message: 'The bot is not in a voice channel.',
-        });
+        bot.sendMessage(channelID, 'The bot is not in a voice channel.');
     }
 }
 
@@ -151,10 +139,7 @@ function extractYouTubeID(url, channelID) {
     if (matches && matches[2].length === 11) {
         return matches[2];
     } else {
-        bot.sendMessage({
-            to: channelID,
-            message: 'This seems to be an invalid link.',
-        });
+        bot.sendMessage(channelID, 'This seems to be an invalid link.');
         return false;
     }
 }
@@ -164,10 +149,7 @@ function addCommand(_message) { let message = _message.content; let serverID = _
     const url = message.split(' ')[0];
 
     if (url.length < 1) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'You have to add a link to your command.',
-        });
+        bot.sendMessage(channelID, 'You have to add a link to your command.');
 
         return false;
     }
@@ -182,10 +164,7 @@ function addCommand(_message) { let message = _message.content; let serverID = _
     fetchVideoInfofunction(youtubeID, function(error, videoInfo) {
         if (error) {
             console.error(error, youtubeID);
-            bot.sendMessage({
-                to: channelID,
-                message: 'This seems to be an invalid link.',
-            });
+            bot.sendMessage(channelID, 'This seems to be an invalid link.');
             return false;
         }
 
@@ -193,24 +172,15 @@ function addCommand(_message) { let message = _message.content; let serverID = _
         let maxLength = getConfig()['music-bot'].maxLength;
         if (maxLength && isNaN(maxLength)) {
             console.log(chalk.styles.red.open + 'The max length of a song defined in your "config.json" is invalid. Therefore the download of ' + chalk.styles.red.close + videoInfo.url + chalk.styles.red.open + ' will be stopped.' + chalk.styles.red.close);
-            bot.sendMessage({
-                to: channelID,
-                message: 'The max length of a song defined in your "config.json" is invalid. Therefore the download will be stopped.',
-            });
+            bot.sendMessage(channelID, 'The max length of a song defined in your "config.json" is invalid. Therefore the download will be stopped.');
             return false;
         } else if (Math.ceil(maxLength) === 0) {
 
         } else if (videoInfo.duration / 60 > Math.ceil(maxLength)) {
-            bot.sendMessage({
-                to: channelID,
-                message: 'The video is too long. Only videos up to ' + Math.round(maxLength) + ' minutes are allowed.',
-            });
+            bot.sendMessage(channelID, 'The video is too long. Only videos up to ' + Math.round(maxLength) + ' minutes are allowed.');
             return false;
         } else if (videoInfo.duration / 60 > 15) {
-            bot.sendMessage({
-                to: channelID,
-                message: 'The video is too long. Only videos up to 15 minutes are allowed.',
-            });
+            bot.sendMessage(channelID, 'The video is too long. Only videos up to 15 minutes are allowed.');
             return false;
         }
 
@@ -218,20 +188,14 @@ function addCommand(_message) { let message = _message.content; let serverID = _
         mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
             if (error) {
                 console.error(error);
-                bot.sendMessage({
-                    to: channelID,
-                    message: 'There was a problem with downloading the video. Check out terminal of the bot to get more information.',
-                });
+                bot.sendMessage(channelID, 'There was a problem with downloading the video. Check out terminal of the bot to get more information.');
                 return false;
             }
 
             // Check if already downloaded
             fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
                 if (error) {
-                    bot.sendMessage({
-                        to: channelID,
-                        message: 'Downloading the requested video ...',
-                    });
+                    bot.sendMessage(channelID, 'Downloading the requested video ...');
 
                     downloadQueue['yt:' + videoInfo.videoId] = {
                         channelID,
@@ -248,10 +212,7 @@ function addCommand(_message) { let message = _message.content; let serverID = _
                         file: getConfig()['music-bot'].library + '/youtube/' + videoInfo.videoId + '.mp3',
                     });
 
-                    bot.sendMessage({
-                        to: channelID,
-                        message: '`' + videoInfo.title + '` added to the playlist. Position: ' + playlist.length,
-                    });
+                    bot.sendMessage(channelID, '`' + videoInfo.title + '` added to the playlist. Position: ' + playlist.length);
                 }
             });
         });
@@ -262,10 +223,7 @@ function removeCommand(_message) { let message = _message.content; let serverID 
     const url = message.split(' ')[0];
 
     if (url.length < 1) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'You have to add a link to your command.',
-        });
+        bot.sendMessage(channelID, 'You have to add a link to your command.');
 
         return false;
     }
@@ -278,10 +236,7 @@ function removeCommand(_message) { let message = _message.content; let serverID 
 
     playlist = playlist.filter(function(element) { element.youtubeID !== youtubeID });
 
-    bot.sendMessage({
-        to: channelID,
-        message: 'Successfully removed from the playlist.',
-    });
+    bot.sendMessage(channelID, 'Successfully removed from the playlist.');
 }
 
 function skipCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
@@ -305,16 +260,10 @@ function skipCommand(_message) { let message = _message.content; let serverID = 
                 }, 2000);
             });
         } else {
-            bot.sendMessage({
-                to: channelID,
-                message: 'You need ' + (skipLimit - usersWantToSkip.length) + ' more to skip the current song.',
-            });
+            bot.sendMessage(channelID, 'You need ' + (skipLimit - usersWantToSkip.length) + ' more to skip the current song.');
         }
     } else {
-        bot.sendMessage({
-            to: channelID,
-            message: 'The bot is not in a voice channel.',
-        });
+        bot.sendMessage(channelID, 'The bot is not in a voice channel.');
     }
 }
 
@@ -400,32 +349,20 @@ function enterCommand(_message) { let message = _message.content; let serverID =
         isID = true;
         message = bot.servers[serverID].members[userID].voice_channel_id;
     } else if (message.length < 1) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'You have to add the channel name which the bot should join.',
-        });
+        bot.sendMessage(channelID, 'You have to add the channel name which the bot should join.');
         return false;
     }
 
     enter(_message, message, isID, function() {
-        bot.sendMessage({
-            to: channelID,
-            message: 'There is no channel named ' + message + '.',
-        });
+        bot.sendMessage(channelID, 'There is no channel named ' + message + '.');
     });
 }
 
 function playCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     if (!voiceChannelID) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'The bot is not in a voice channel.',
-        });
+        bot.sendMessage(channelID, 'The bot is not in a voice channel.');
     } else if (playlist.length <= 0) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'There are currently no entries on the playlist.',
-        });
+        bot.sendMessage(channelID, 'There are currently no entries on the playlist.');
     } else {
         playLoop(channelID);
     }
@@ -444,35 +381,23 @@ function stopCommand() {
 function currentCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if a song is playing
     if (currentSong) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'Currently playing: ' + currentSong.url,
-        });
+        bot.sendMessage(channelID, 'Currently playing: ' + currentSong.url);
     } else {
-        bot.sendMessage({
-            to: channelID,
-            message: 'There is currently nothing playing.',
-        });
+        bot.sendMessage(channelID, 'There is currently nothing playing.');
     }
 }
 
 function playlistCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if there are songs on the playlist
     if (playlist.length < 1) {
-        bot.sendMessage({
-            to: channelID,
-            message: 'There are currently no entries on the playlist.',
-        });
+        bot.sendMessage(channelID, 'There are currently no entries on the playlist.');
     } else {
         let string = '';
         for (const song of playlist) {
             string += ', ' + song.url;
         }
         string = string.substring(1);
-        bot.sendMessage({
-            to: channelID,
-            message: 'Current playlist: ' + string,
-        });
+        bot.sendMessage(channelID, 'Current playlist: ' + string);
     }
 }
 
