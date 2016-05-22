@@ -496,19 +496,23 @@ exports.commands = {
     process: function(message, suffix) {
       let index = suffix.indexOf(" | ");
       if (index !== -1) {
-          const config = getConfig();
-          
-          // register command
-          let cmd = suffix.substr(0, index);
-          let execute = suffix.substr(index + (" | ".length));
-          utility.registerEval(cmd, execute);
-          
-          // store to config
-          config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
-          utility.saveConfig();
-          
-          // done
-          bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+          try {
+            const config = getConfig();
+            
+            // register command
+            let cmd = suffix.substr(0, index);
+            let execute = suffix.substr(index + (" | ".length));
+            utility.registerEval(cmd, execute);
+            
+            // store to config
+            config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
+            utility.saveConfig();
+            
+            // done
+            bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+          } catch (e) {
+            bot.sendMessage(message.channel, "Error registering command: " + e);
+          }
       } else {
           bot.sendMessage(message.channel, "Invalid syntax");
       }
