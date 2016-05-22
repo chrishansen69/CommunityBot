@@ -59,7 +59,20 @@ bot.on("message", function (message) { // MAIN MESSAGE HANDLER
 
 const loadPlugins = require('./plugins.js');
 if (config.plugins && config.plugins.length > 0) {
-	loadPlugins(config.plugins);
+	const plugins = loadPlugins(config.plugins);
+  
+  for (let i in plugins) { // iterate through plugins
+    if (plugins.hasOwnProperty(i)) {
+      let plugin = plugins[i];
+      
+      for (let name in plugin.commands) { // iterate through commands
+        if (plugin.hasOwnProperty(name)) {
+          utility.registerCommand(name, plugin.commands[j].fn); // register
+        }
+      }
+      
+    }
+  }
 }
 // load user commands from saved
 if (config.customCommands) {
