@@ -621,6 +621,33 @@ exports.commands = {
     process: function(message, suffix) {
       bot.sendMessage(message.channel, 'Your ID: \'' + message.sender.id + '\'');
     }
+  },
+  shut: {
+    process: function(message, suffix) {
+      bot.sendMessage(message.channel, 'https://i.ytimg.com/vi/wQYob6dpTTk/hqdefault.jpg');
+      
+      setTimeout(function () {
+        bot.sendMessage(message.channel, 'YOU');
+        setTimeout(function () {
+          bot.sendMessage(message.channel, 'NEED');
+          setTimeout(function () {
+            bot.sendMessage(message.channel, 'TO');
+            setTimeout(function () {
+              bot.sendMessage(message.channel, 'SHUT');
+              setTimeout(function () {
+                bot.sendMessage(message.channel, 'THE');
+                setTimeout(function () {
+                  bot.sendMessage(message.channel, 'FUCK');
+                  setTimeout(function () {
+                    bot.sendMessage(message.channel, 'UP');
+                  }, 500);
+                }, 500);
+              }, 500);
+            }, 500);
+          }, 500);
+        }, 500);
+      }, 500);
+    }
   }
 };
 
