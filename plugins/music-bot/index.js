@@ -23,28 +23,28 @@ const YoutubeMp3Downloader = require('youtube-mp3-downloader');
 
 // setup configs if not exists
 if (!getConfig()['music-bot']) {
-  getConfig()['music-bot'] = {};
-  getConfig()['music-bot'].library = '../music';
-  getConfig()['music-bot'].skipLimit = 1;
-  getConfig()['music-bot'].announceSongs = true;
-  getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
-  getConfig()['music-bot'].maxLength = 15;
-} else {
-  if (!getConfig()['music-bot'].library) {
+    getConfig()['music-bot'] = {};
     getConfig()['music-bot'].library = '../music';
-  }
-  if (!getConfig()['music-bot'].skipLimit) {
     getConfig()['music-bot'].skipLimit = 1;
-  }
-  if (!getConfig()['music-bot'].announceSongs) {
     getConfig()['music-bot'].announceSongs = true;
-  }
-  if (!getConfig()['music-bot'].autoJoinVoiceChannel) {
     getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
-  }
-  if (!getConfig()['music-bot'].maxLength) {
     getConfig()['music-bot'].maxLength = 15;
-  }
+} else {
+    if (!getConfig()['music-bot'].library) {
+        getConfig()['music-bot'].library = '../music';
+    }
+    if (!getConfig()['music-bot'].skipLimit) {
+        getConfig()['music-bot'].skipLimit = 1;
+    }
+    if (!getConfig()['music-bot'].announceSongs) {
+        getConfig()['music-bot'].announceSongs = true;
+    }
+    if (!getConfig()['music-bot'].autoJoinVoiceChannel) {
+        getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
+    }
+    if (!getConfig()['music-bot'].maxLength) {
+        getConfig()['music-bot'].maxLength = 15;
+    }
 }
 
 /*
@@ -74,7 +74,7 @@ let currentSong = null; // The current song will be saved in this variable
 let downloadQueue = {};
 let usersWantToSkip = []; // The id of the users that want to skip the current song will be stored in this array
 
-YD.on('finished', function(data) {
+YD.on('finished', function (data) {
     // Add the song to the playlist
     playlist.push({
         youtubeID: data.videoId,
@@ -86,7 +86,7 @@ YD.on('finished', function(data) {
     delete downloadQueue['yt:' + data.videoId];
 });
 
-YD.on('error', function(error) {
+YD.on('error', function (error) {
     console.error(error);
     // bot.sendMessage(downloadQueue['yt:' + error.videoId].channelID, 'The download of <' + error.youtubeURL + '> failed. Check out terminal of the bot to get more information.');
     // delete downloadQueue['yt:' + error.videoId];
@@ -113,12 +113,15 @@ function playLoop(channelID) {
             bot.sendMessage(channelID, 'Now playing: ' + nextSong.url);
         }
 
-        bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
+        bot.getAudioContext({
+            channel: voiceChannelID,
+            stereo: true
+        }, function (stream) {
             stream.playAudioFile(currentSong.file);
-            stream.oncefunction('fileEnd', function() {
+            stream.oncefunction('fileEnd', function () {
                 if (currentSong) {
                     // Hack required because the event fileEnd does not trigger when the file ends ...
-                    setTimeout(function() {
+                    setTimeout(function () {
                         currentSong = null;
                         bot.setPresence({
                             game: null,
@@ -166,7 +169,7 @@ function addCommand(_message, message) {
     }
 
     // Fetch meta data from YouTube video
-    fetchVideoInfo(youtubeID, function(error, videoInfo) {
+    fetchVideoInfo(youtubeID, function (error, videoInfo) {
         if (error) {
             console.error(error, youtubeID);
             bot.sendMessage(channelID, 'This seems to be an invalid link.');
@@ -190,7 +193,7 @@ function addCommand(_message, message) {
         }
 
         // Create download directory
-        mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
+        mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function (error) {
             if (error) {
                 console.error(error);
                 bot.sendMessage(channelID, 'There was a problem with downloading the video. Check out terminal of the bot to get more information.');
@@ -198,7 +201,7 @@ function addCommand(_message, message) {
             }
 
             // Check if already downloaded
-            fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
+            fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function (error) {
                 if (error) {
                     bot.sendMessage(channelID, 'Downloading the requested video ...');
 
@@ -244,7 +247,9 @@ function removeCommand(_message, message) {
         return false;
     }
 
-    playlist = playlist.filter(function(element) { return element.youtubeID !== youtubeID; });
+    playlist = playlist.filter(function (element) {
+        return element.youtubeID !== youtubeID;
+    });
 
     bot.sendMessage(channelID, 'Successfully removed from the playlist.');
 }
@@ -263,14 +268,17 @@ function skipCommand(_message, message) {
 
         const skipLimit = getConfig()['music-bot'].skipLimit ? getConfig()['music-bot'].skipLimit : 1;
         if (usersWantToSkip.length >= skipLimit) {
-            bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
+            bot.getAudioContext({
+                channel: voiceChannelID,
+                stereo: true
+            }, function (stream) {
                 stream.stopAudioFile();
                 currentSong = null;
                 bot.setPresence({
                     game: null,
                 });
 
-                setTimeout(function() {
+                setTimeout(function () {
                     playLoop(channelID);
                 }, 2000);
             });
@@ -292,24 +300,24 @@ function leave(serverID) {
 
     const channels = bot.servers[serverID].channels;
     for (let i = 0; i < channels.length; i++) {
-      if (channels[i].type === 'voice') {
-          bot.leaveVoiceChannel(channels[i].id);
-      }
+        if (channels[i].type === 'voice') {
+            bot.leaveVoiceChannel(channels[i].id);
+        }
     }
 }
 
 function enter(_message, message, isID, callback) {
     let serverID;
     if (_message === null)
-      serverID = null;
+        serverID = null;
     else {
-      serverID = _message.channel.server.id;
-      for (let _id = 0; _id < bot.servers.length; _id++) {
-        if (bot.servers[_id].id === _message.channel.server.id) {
-          serverID = _id;
-          return;
+        serverID = _message.channel.server.id;
+        for (let _id = 0; _id < bot.servers.length; _id++) {
+            if (bot.servers[_id].id === _message.channel.server.id) {
+                serverID = _id;
+                return;
+            }
         }
-      }
     }
     if (isID) {
         leave(serverID);
@@ -319,31 +327,31 @@ function enter(_message, message, isID, callback) {
 
     let notFound = true;
     // Look for the ID of the requested channel
-    
+
     if (serverID === null) {
-      for (let _id = 0; _id < bot.servers.length; _id++) {
-        for (let id = 0; id < bot.servers[_id].channels.length; id++) {
-          const channel = bot.servers[_id].channels[id];
+        for (let _id = 0; _id < bot.servers.length; _id++) {
+            for (let id = 0; id < bot.servers[_id].channels.length; id++) {
+                const channel = bot.servers[_id].channels[id];
 
-          if (channel !== undefined && channel.name === message && channel.type === 'voice') {
-            voiceChannelID = channel.id;
-            notFound = false;
-            serverID = _id;
-            break;
-          }
+                if (channel !== undefined && channel.name === message && channel.type === 'voice') {
+                    voiceChannelID = channel.id;
+                    notFound = false;
+                    serverID = _id;
+                    break;
+                }
+            }
+            if (!notFound) break;
         }
-        if (!notFound) break;
-      }
     } else {
-      for (let id = 0; id < bot.servers[serverID].channels.length; id++) {
-        const channel = bot.servers[serverID].channels[id];
+        for (let id = 0; id < bot.servers[serverID].channels.length; id++) {
+            const channel = bot.servers[serverID].channels[id];
 
-        if (channel.name === message && channel.type === 'voice') {
-            voiceChannelID = channel.id;
-            notFound = false;
-            return;
+            if (channel.name === message && channel.type === 'voice') {
+                voiceChannelID = channel.id;
+                notFound = false;
+                return;
+            }
         }
-      }
     }
 
     if (notFound) {
@@ -354,9 +362,9 @@ function enter(_message, message, isID, callback) {
     }
 }
 
-bot.on('ready', function() {
+bot.on('ready', function () {
     if (getConfig()['music-bot'].autoJoinVoiceChannel && getConfig()['music-bot'].autoJoinVoiceChannel.length > 0) {
-        enter(null, getConfig()['music-bot'].autoJoinVoiceChannel, false, function() {
+        enter(null, getConfig()['music-bot'].autoJoinVoiceChannel, false, function () {
             console.log(chalk.red('The voice channel defined in autoJoinVoiceChannel could not be found.'));
         });
     }
@@ -380,7 +388,7 @@ function enterCommand(_message, suffix) {
         return false;
     }
 
-    enter(_message, suffix, isID, function() {
+    enter(_message, suffix, isID, function () {
         bot.sendMessage(channelID, 'There is no channel named ' + suffix + '.');
     });
 }
@@ -401,7 +409,10 @@ function playCommand(_message, message) {
 }
 
 function stopCommand() {
-    bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
+    bot.getAudioContext({
+        channel: voiceChannelID,
+        stereo: true
+    }, function (stream) {
         stream.stopAudioFile();
         currentSong = null;
         bot.setPresence({
