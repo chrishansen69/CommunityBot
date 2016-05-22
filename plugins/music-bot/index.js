@@ -287,8 +287,15 @@ function enter(_message, message, isID, callback) {
     let serverID;
     if (_message === null)
       serverID = null;
-    else
+    else {
       serverID = _message.channel.server.id;
+      for (let _id = 0; _id < bot.servers.length; _id++) {
+        if (bot.servers[_id].id === _message.channel.server.id) {
+          serverID = _id;
+          return;
+        }
+      }
+    }
     if (isID) {
         leave(serverID);
         bot.joinVoiceChannel(message);
@@ -340,22 +347,21 @@ bot.on('ready', function() {
     }
 });
 
-function enterCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
-    console.log("enterCommand " + message);
+function enterCommand(_message, suffix) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     let isID = false;
     if (
-        message.length < 1
+        suffix.length < 1
         && bot.servers[serverID].members[userID].voice_channel_id
     ) {
         isID = true;
-        message = bot.servers[serverID].members[userID].voice_channel_id;
-    } else if (message.length < 1) {
+        suffix = bot.servers[serverID].members[userID].voice_channel_id;
+    } else if (suffix.length < 1) {
         bot.sendMessage(channelID, 'You have to add the channel name which the bot should join.');
         return false;
     }
 
-    enter(_message, message, isID, function() {
-        bot.sendMessage(channelID, 'There is no channel named ' + message + '.');
+    enter(_message, suffix, isID, function() {
+        bot.sendMessage(channelID, 'There is no channel named ' + suffix + '.');
     });
 }
 
