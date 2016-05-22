@@ -1,4 +1,8 @@
 'use strict';
+// TODO:
+// - Permissions
+// - More evalwhitelist.json stuff
+// - Command descriptions
 
 const config = require('./config.json');
 const bot = require('./bot.js');
@@ -516,6 +520,45 @@ module.exports = {
           config.r9kEnabled[id] = !config.r9kEnabled[id];
           bot.sendMessage(message.channel, (config.r9kEnabled[id] ? "Enabled" : "Disabled") + " R9K mode");
         }
+      }
+    },
+    "setavatar": {
+      process: function(message, suffix) {
+        const path = suffix.split(' ')[0];
+        const channelID = message.channel;
+        
+        if (path.length < 1) {
+            bot.sendMessage(channelID, 'You have to add a relative path or an url to the new avatar.');
+            return;
+        }
+        
+        const oldAvatar = config.avatar;
+        config.avatar = path;
+
+        jsonfile.writeFile('./config.json', config, {spaces: 2}, function(err) {
+          if (err) { // if failed
+            console.error(err);
+            config.avatar = oldAvatar;
+            bot.sendMessage(channelID, 'There was an error saving the avatar to your \'config.json\'.');
+            return;
+          }
+          
+          const reg = new RegExp(/^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$/, 'gi');
+          if (reg.test(path)) { // if is URL
+            request({
+              url: path,
+              encoding: null,
+            }, function(error, response, body) {
+              if (!error && response.statusCode == 200) {
+                  setAvatar(new Buffer(body).toString('base64'), channelID);
+              } else {
+                  console.log(chalk.red('The avatar could not be set. Make sure the path is correct.'));
+              }
+            });
+          } else { // else, assume absolute file path
+            setAvatar(fs.readFileSync(path, 'base64'), channelID);
+          }
+        });
       }
     }
   }
