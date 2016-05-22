@@ -3,7 +3,7 @@
 
 /*jslint bitwise: true */
 
-'use strict';
+//'use strict';
 function Alea() {
   return (function (args) {
     var s0 = 0;
@@ -19,7 +19,7 @@ function Alea() {
     s1 = mash(' ');
     s2 = mash(' ');
 
-    for (var i = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i++) {
       s0 -= mash(args[i]);
       if (s0 < 0) {
         s0 += 1;
@@ -60,7 +60,7 @@ function Mash() {
 
   var mash = function (data) {
     data = data.toString();
-    for (var i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       n += data.charCodeAt(i);
       var h = 0.02519603282416938 * n;
       n = h >>> 0;
@@ -413,7 +413,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
       sendMsg(obTrans.GetMessages().GetString("AtkFailed").replace(/MON_NAME/, offMon.Name).replace(/ATTACK_NAME/, oAtk.Name));
     } else {
       a = oAtk.Eff.match(/m.*[\+\-]\d*|d|f[\d\.]*|s[\d\.]*|r[\d\.]*|c[\d\.]*|h[\d\.]*|w/gi);
-      for (i = 0; i < a.length; i++) {
+      for (let i = 0; i < a.length; i++) {
         switch (a[i].charAt(0)) {
         case "d": //Damage - Formula based on 4th Gen Games
           if (oAtk.Pwr === undefined) {
@@ -426,14 +426,14 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
             oAtk.Dmg = 0;
           }
           if (a[i].slice(1) !== "") {
-            Debug.Trac
+            //Debug.Trac
             oAtk.Dmg = parseInt(a[i].substr(1));
           }
           if (isNaN(CHEAT) === false) {
             oAtk.Dmg = CHEAT;
             CHEAT = undefined;
           }
-          defMon.HPCur - oAtk.Dmg < 0 ? defMon.HPCur = 0 : defMon.HPCur -= oAtk.Dmg;
+          if (defMon.HPCur - oAtk.Dmg < 0) defMon.HPCur = 0; else defMon.HPCur -= oAtk.Dmg;
           sendMsg(msgCrit + msgEffect + obTrans.GetMessages().GetString("AtkDamage").replace(/MON_NAME/, offMon.Name).replace(/ATTACK_NAME/, oAtk.Name).replace(/NUMBER/, oAtk.Dmg));
           displayHP(defMon);
           break;
@@ -449,7 +449,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
           break;
         case "h":
           v = a[i].charAt(1) === "0" ? Math.ceil(parseFloat(a[i].slice(2)) / 100 * offMon.HPMax) : Math.ceil(oAtk.Dmg / 2);
-          offMon.HPCur + v > offMon.HPMax ? offMon.HPCur = offMon.HPMax : offMon.HPCur += v;
+          if (offMon.HPCur + v > offMon.HPMax) offMon.HPCur = offMon.HPMax; else offMon.HPCur += v;
           sendMsg(obTrans.GetMessages().GetString("HealSuccess").replace(/MON_NAME/, offMon.Name).replace(/NUMBER/, v));
           displayHP(offMon);
           break;
@@ -460,7 +460,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
           break;
         case "r":
           v = Math.ceil((a[i].charAt(1) === "0" ? oAtk.Dmg : offMon.HPCur) * parseFloat(a[i].slice(2)) / 100);
-          offMon.HPCur - v < 0 ? offMon.HPCur = 0 : offMon.HPCur -= v;
+          if (offMon.HPCur - v < 0) offMon.HPCur = 0; else offMon.HPCur -= v;
           sendMsg(obTrans.GetMessages().GetString("AtkRecoil").replace(/MON_NAME/, offMon.Name).replace(/NUMBER/, v));
           displayHP(offMon);
           break;
@@ -499,7 +499,7 @@ function healMon(oMon) {
           intHeal = CHEAT;
           CHEAT = undefined;
         }
-        oMon.HPCur + intHeal > oMon.HPMax ? oMon.HPCur = oMon.HPMax : oMon.HPCur += intHeal;
+        if (oMon.HPCur + intHeal > oMon.HPMax) oMon.HPCur = oMon.HPMax; else oMon.HPCur += intHeal;
         sendMsg(obTrans.GetMessages().GetString("HealSuccess").replace(/MON_NAME/, oMon.Name).replace(/NUMBER/, intHeal));
         displayHP(oMon);
       } else {
@@ -566,25 +566,25 @@ var damageCalc = {
   Power: function () {
     var p = rand();
     //like Magnitude in the games
-    // if(p >= .95) {return 150;}
-    // else if(p >= .85 && p < .95) {return 110;}
-    // else if(p >= .65 && p < .85) {return 90;}
-    // else if(p >= .35 && p < .65) {return 70;}
-    // else if(p >= .15 && p < .35) {return 50;}
-    // else if(p >= .05 && p < .15) {return 30;}
+    // if(p >= 0.95) {return 150;}
+    // else if(p >= 0.85 && p < 0.95) {return 110;}
+    // else if(p >= 0.65 && p < 0.85) {return 90;}
+    // else if(p >= 0.35 && p < 0.65) {return 70;}
+    // else if(p >= 0.15 && p < 0.35) {return 50;}
+    // else if(p >= 0.05 && p < 0.15) {return 30;}
     // else {return 10;}
     //it's been like the above since v2 but now I find the extremes too... extreme
-    if (p >= .985) {
+    if (p >= 0.985) {
       return 140;
-    } else if (p >= .90 && p < .985) {
+    } else if (p >= 0.90 && p < 0.985) {
       return 110;
-    } else if (p >= .65 && p < .90) {
+    } else if (p >= 0.65 && p < 0.90) {
       return 90;
-    } else if (p >= .35 && p < .65) {
+    } else if (p >= 0.35 && p < 0.65) {
       return 70;
-    } else if (p >= .10 && p < .35) {
+    } else if (p >= 0.10 && p < 0.35) {
       return 50;
-    } else if (p >= .015 && p < .10) {
+    } else if (p >= 0.015 && p < 0.10) {
       return 30;
     } else {
       return 15;
@@ -609,7 +609,7 @@ var damageCalc = {
   Mod1: function (Mon) { //if burned, half power
     return Mon.Status.ID === 1 ? 0.5 : 1;
   }
-}
+};
 
 //No, none of the filenames make any sense.
 
@@ -634,7 +634,7 @@ function CreateMon(strName) {
 }
 
 function LoadMon(obMon) {
-  this.Name = obMon.Name.toUpperCase();;
+  this.Name = obMon.Name.toUpperCase();
   this.Atk = parseInt(obMon.Atk);
   this.Def = parseInt(obMon.Def);
   this.Spe = parseInt(obMon.Spe);
@@ -701,12 +701,14 @@ function changeTurn(Turn, offMon, defMon) {
       sendMsg(obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, defMon.Name));
     }
   } else {
+    let loser;
+    let winner;
     if (offMon.HPCur <= 0) { //check the attackers's HP first, if both are 0, the defender wins
-      var loser = bWnd[iWnd].Player[Turn].Name;
-      var winner = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
+      loser = bWnd[iWnd].Player[Turn].Name;
+      winner = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
     } else {
-      var loser = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
-      var winner = bWnd[iWnd].Player[Turn].Name;
+      loser = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
+      winner = bWnd[iWnd].Player[Turn].Name;
     }
     sendMsg(obTrans.GetMessages().GetString("BattleEnd").replace(/PLAYER1_NAME/, winner).replace(/PLAYER2_NAME/, loser));
     bWnd.splice(iWnd, 1);
@@ -744,7 +746,7 @@ var Translation = function (type) {
     this.translationFile = type;
   }
   this.LoadTranslation();
-}
+};
 
 
 Translation.prototype = {
@@ -754,12 +756,12 @@ Translation.prototype = {
 
   "GetAuthor": function () {
     var author = this.xml.selectNodes("/Translation/Author");
-    return (author.length != 0) ? author[0].text : "Unknown";
+    return (author.length !== 0) ? author[0].text : "Unknown";
   },
 
   "GetWebsite": function () {
     var website = this.xml.selectNodes("/Translation/Website");
-    return (website.length != 0) ? website[0].text : "";
+    return (website.length !== 0) ? website[0].text : "";
   },
 
   "LoadTranslation": function () {
@@ -774,7 +776,7 @@ Translation.prototype = {
   "TranslationList": function () {
     var fso = w32Factory('Scripting.FileSystemObject');
     var returns = [];
-    for (var enume = new Enumerator(fso.GetFolder(this.LanguageFolder).Files); !enume.atEnd(); enume.moveNext()) {
+    for (let enume = new Enumerator(fso.GetFolder(this.LanguageFolder).Files); !enume.atEnd(); enume.moveNext()) {
 
       returns[returns.length] = String(enume.item()).match(/([^\\]*)\.xml$/)[1];
     }
@@ -790,7 +792,7 @@ Translation.prototype = {
 
 
     var wnd, id, twnd, controls, control, text, cControls, cElements, cColumns, cColumn, cControl, cElement, temp, title;
-    for (var i = 0; i < windows.length; i++) {
+    for (let i = 0; i < windows.length; i++) {
       wnd = windows[i];
       id = wnd.getAttribute('Id');
 
@@ -800,7 +802,8 @@ Translation.prototype = {
         twnd = twnd[0];
 
 
-        if (temp = wnd.selectSingleNode("Caption")) {
+        temp = wnd.selectSingleNode("Caption");
+        if (temp) {
           title = twnd.selectSingleNode("Attributes/Caption");
 
           if (title) {
@@ -808,7 +811,8 @@ Translation.prototype = {
           }
         }
 
-        if (temp = wnd.selectSingleNode("TitleBar")) {
+        temp = wnd.selectSingleNode("TitleBar");
+        if (temp) {
           title = twnd.selectSingleNode("TitleBar/Title/Text");
           if (title) {
             title.text = temp.text;
@@ -816,7 +820,7 @@ Translation.prototype = {
         }
 
         controls = wnd.selectNodes("Control");
-        for (var x = 0; x < controls.length; x++) {
+        for (let x = 0; x < controls.length; x++) {
           control = controls[x];
 
           if (control.hasChildNodes) {
@@ -847,21 +851,21 @@ Translation.prototype = {
 
             cColumns = control.selectNodes("Column");
 
-            for (var y = 0; y < cControls.length; y++) {
+            for (let y = 0; y < cControls.length; y++) {
               cControl = cControls[y];
 
               if (cControl.hasChildNodes) {
                 text = cControl.selectSingleNode("Caption");
                 if (text) {
                   temp = twnd.selectNodes(".//Control[@Id='" + control.getAttribute('Id') + "']//Control[@Id='" + cControl.getAttribute('Id') + "']/Caption");
-                  for (var z = 0; z < temp.length; z++) {
+                  for (let z = 0; z < temp.length; z++) {
                     temp[z].text = text.text;
                   }
                 }
               }
             }
 
-            for (var y = 0; y < cElements.length; y++) {
+            for (let y = 0; y < cElements.length; y++) {
               cElement = cElements[y];
               if (cElement.hasChildNodes) {
 
@@ -870,7 +874,7 @@ Translation.prototype = {
 
                   temp = twnd.selectNodes(".//Control[@Id='" + control.getAttribute('Id') + "']//Element[@Id='" + cElement.getAttribute('Id') + "']/Text");
 
-                  for (var z = 0; z < temp.length; z++) {
+                  for (let z = 0; z < temp.length; z++) {
                     temp[z].text = text.text;
                   }
                 }
@@ -878,13 +882,13 @@ Translation.prototype = {
 
             }
 
-            for (var y = 0; y < cColumns.length; y++) {
+            for (let y = 0; y < cColumns.length; y++) {
               cColumn = cColumns[y];
               if (cColumn.hasChildNodes) {
                 text = cColumn.selectSingleNode("Label");
                 if (text) {
                   temp = twnd.selectNodes(".//Control[@Id='" + control.getAttribute('Id') + "']//Column[ColumnId='" + cColumn.getAttribute('Id') + "']/Label");
-                  for (var z = 0; z < temp.length; z++) {
+                  for (let z = 0; z < temp.length; z++) {
                     temp[z].text = text.text;
                   }
                 }
@@ -913,7 +917,7 @@ Translation.prototype = {
     var wnd = MsgPlus.CreateWnd(XmlFile, WindowId, 1);
     var wndStrings = this.GetWindow(WindowId).ToObject();
 
-    for (x in wndStrings) {
+    for (let x in wndStrings) {
       if (x == "Caption") {
         Interop.Call("User32", "SetWindowTextW", wnd.Handle, wndStrings[x]);
       } else if (x == "Title") {
@@ -929,49 +933,49 @@ Translation.prototype = {
 
   "GetMenu": function (menuId) {
     var menu = this.xml.selectNodes("/Translation/ScriptMenu[@Id='" + menuId + "']");
-    return (menu.length != 0) ? new this.window(menu[0]) : false;
+    return (menu.length !== 0) ? new this.window(menu[0]) : false;
   },
 
   "GetWindow": function (wndID) {
     var wnd = this.xml.selectNodes("/Translation/Window[@Id='" + wndID + "']");
-    return (wnd.length != 0) ? new this.window(wnd[0]) : false;
+    return (wnd.length !== 0) ? new this.window(wnd[0]) : false;
   },
 
   "GetSpecialString": function (name) {
     var elements = this.xml.selectNodes("/Translation/" + name);
-    return (elements.length != 0) ? elements[0].text : false;
+    return (elements.length !== 0) ? elements[0].text : false;
   },
 
   "GetMessages": function () {
     var msg = this.xml.selectNodes("/Translation/Messages");
-    return (msg.length != 0) ? new this.window(msg[0]) : false;
+    return (msg.length !== 0) ? new this.window(msg[0]) : false;
   },
 
   "Types": function () {
     var msg = this.xml.selectNodes("/Translation/Types");
-    return (msg.length != 0) ? new this.window(msg[0]) : false;
+    return (msg.length !== 0) ? new this.window(msg[0]) : false;
   }
-}
+};
 
 Translation.prototype.window = function (windowObj) {
   this.xml = windowObj;
-}
+};
 
 Translation.prototype.window.prototype = {
   "GetString": function (id) {
     var str = this.xml.selectNodes("String[@Id='" + id + "']");
-    return (str.length != 0) ? str[0].text : false;
+    return (str.length !== 0) ? str[0].text : false;
   },
 
   "GetStringBundle": function (id) {
     var bundle = this.xml.selectNodes("StringBundle[@Id='" + id + "']");
-    return (bundle.length != 0) ? new this.StringBundle(bundle[0]) : false;
+    return (bundle.length !== 0) ? new this.StringBundle(bundle[0]) : false;
   },
 
   "ToObject": function () {
     var elements = this.xml.selectNodes("*");
     var returns = {};
-    for (var i = 0; i < elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
       if (elements[i].nodeType == 1) {
 
         if (elements[i].tagName == "String") {
@@ -991,13 +995,13 @@ Translation.prototype.window.prototype = {
     this.xml = bundleObj;
 
   }
-}
+};
 
 Translation.prototype.window.prototype.StringBundle.prototype = {
   "ToObject": function () {
     var nodes = this.xml.selectNodes("String");
     var returns = {};
-    for (var i = 0; i < nodes.length; i++) {
+    for (let i = 0; i < nodes.length; i++) {
       if (nodes[i].nodeType == 1) {
         returns[nodes[i].getAttribute("Id")] = nodes[i].text;
       }
@@ -1007,23 +1011,23 @@ Translation.prototype.window.prototype.StringBundle.prototype = {
 
   "GetDefault": function () {
     var str = this.xml.selectNodes("Default");
-    return (str.length != 0) ? str[0].text : false;
+    return (str.length !== 0) ? str[0].text : false;
   },
 
   "GetString": function (id) {
     var str = this.xml.selectNodes("String[@Id='" + id + "']");
-    return (str.length != 0) ? str[0].text : false;
+    return (str.length !== 0) ? str[0].text : false;
   }
 
-}
+};
 
 var iniIntf = {
   DeleteHeader: function (filename, header) {
     //The following Read/Write/Del code was taken and modified from a post within the MsgPlus! forums http://www.msghelp.net/showthread.php?tid=83351&pid=904319#pid904319
-    Interop.Call("kernel32", "WritePrivateProfileSectionW", header.toString(), 0, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini")
+    Interop.Call("kernel32", "WritePrivateProfileSectionW", header.toString(), 0, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
   },
   DeleteKey: function (filename, header, key) {
-    Interop.Call("kernel32", "WritePrivateProfileStringW", header.toString(), key.toString(), 0, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini")
+    Interop.Call("kernel32", "WritePrivateProfileStringW", header.toString(), key.toString(), 0, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
   },
   WriteIni: function (filename, header, key, value) {
     Interop.Call("kernel32", "WritePrivateProfileStringW", header.toString(), key.toString(), value.toString(), MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
@@ -1048,7 +1052,7 @@ var iniIntf = {
         ob[sectionName] = {};
         var v = sections[i].match(/^(.*?)=(.*?)$/gm);
         if (v) {
-          for (var x = 0; x < v.length; x++) {
+          for (let x = 0; x < v.length; x++) {
             var sp = v[x].split("=", 2);
             if (sp[1] === "true") {
               sp[1] = true;
@@ -1070,7 +1074,7 @@ function useItem(Player, itemName, itemEff) {
   var oMon = Player.Mon;
   sendMsg(obTrans.GetMessages().GetString("ItemUsed").replace(/PLAYER_NAME/, Player.Name).replace(/ITEM_NAME/, itemName.toUpperCase()));
   var a = itemEff.match(/([amp]\d[\+\-]\d*)|(h\d*)|c|s\d*/gi);
-  for (i = 0; i < a.length; i++) {
+  for (let i = 0; i < a.length; i++) {
     switch (a[i].charAt(0)) {
     case "a":
       statMod.Set.Absolute(oMon, parseInt(a[i].charAt(1), 10), parseInt(a[i].slice(2), 10));
@@ -1083,7 +1087,7 @@ function useItem(Player, itemName, itemEff) {
       break;
     case "h":
       i = a[i].charAt(1) === "0" ? Math.ceil(parseInt(a[i].slice(2), 10) * oMon.HPMax / 100) : parseInt(a[i].slice(2), 10);
-      oMon.HPCur + i > oMon.HPMax ? oMon.HPCur = oMon.HPMax : oMon.HPCur += i;
+      if (oMon.HPCur + i > oMon.HPMax) oMon.HPCur = oMon.HPMax; else oMon.HPCur += i;
       sendMsg(obTrans.GetMessages().GetString("HealSuccess").replace(/MON_NAME/, oMon.Name).replace(/NUMBER/, i));
       displayHP(oMon);
       break;
@@ -1107,7 +1111,7 @@ function equipItem(oMon, itemName, itemEff, itemMsg) {
     sendMsg(obTrans.GetMessages().GetString("ItemEquipped").replace(/MON_NAME/, oMon.Name).replace(/ITEM_NAME/, itemName.toUpperCase()) + " " + itemMsg);
     var a = itemEff.match(/[amp]\d[\+\-]\d*|s\d*/gi);
     if (a !== null) {
-      for (var i = 0; i < a.length; i++) {
+      for (let i = 0; i < a.length; i++) {
         switch (a[i].charAt(0)) {
         case "a":
           statMod.Set.Absolute(oMon, parseInt(a[i].charAt(1), 10), parseInt(a[i].slice(2), 10));
@@ -1136,7 +1140,7 @@ function unequipItem(oMon) {
     //Reverse stat changes
     a = oMon.Equip.Eff.match(/[amp]\d[\+\-]\d*/gi);
     if (a !== null) {
-      for (i = 0; i < a.length; i++) {
+      for (let i = 0; i < a.length; i++) {
         switch (a[i].charAt(0)) {
         case "a":
           statMod.Set.Absolute(oMon, parseInt(a[i].charAt(1), 10), -parseInt(a[i].slice(2), 10));
@@ -1161,13 +1165,16 @@ function OnGetScriptMenu() {
   var sMenu = "<ScriptMenu>";
   sMenu += "<SubMenu Label=\"Language\">";
   var languages = obTrans.TranslationList();
-  for (var i in languages) {
-    sMenu += "<MenuEntry Id=\"" + languages[i] + "\">" + languages[i] + "</MenuEntry>";
+  for (let i in languages) {
+    if (languages.hasOwnProperty(i))
+      sMenu += "<MenuEntry Id=\"" + languages[i] + "\">" + languages[i] + "</MenuEntry>";
   }
   sMenu += "</SubMenu>";
-  obConf.Pref.enabled === true ?
-    sMenu += "<MenuEntry Id=\"Enabled\">" + obTrans.GetMenu("Menu").GetString("Disable") + "</MenuEntry>" :
+  if (obConf.Pref.enabled === true) {
+    sMenu += "<MenuEntry Id=\"Enabled\">" + obTrans.GetMenu("Menu").GetString("Disable") + "</MenuEntry>"
+  } else {
     sMenu += "<MenuEntry Id=\"Enabled\">" + obTrans.GetMenu("Menu").GetString("Enable") + "</MenuEntry>";
+  }
   sMenu += "<MenuEntry Id=\"Config\">" + obTrans.GetMenu("Menu").GetString("Config") + "</MenuEntry>";
   sMenu += "<MenuEntry Id=\"Shop\">" + obTrans.GetMenu("Menu").GetString("Shop") + "</MenuEntry>";
   sMenu += "<MenuEntry Id=\"Equip\">" + obTrans.GetMenu("Menu").GetString("Equip") + "</MenuEntry>";
@@ -1235,7 +1242,7 @@ function OnEvent_Uninitialize() { // TODO - Missing polyfill
 
 var settings = {
   LoadScript: function () {
-    for (f in settings.LoadFile) {
+    for (let f in settings.LoadFile) {
       settings.LoadFile[f]();
     }
     obConf.Pref.enabled = true;
@@ -1269,7 +1276,7 @@ var settings = {
     },
     Mon: function () {
       obMonParty = iniIntf.ToObject("monParty");
-      for (p in obMonParty) {
+      for (let p in obMonParty) {
         if (typeof (obMonParty[p].Type) === "string" && obMonParty[p].Type.split(",").length > 1) {
           obMonParty[p].Type = [parseInt(obMonParty[p].Type.split(",")[0]), parseInt(obMonParty[p].Type.split(",")[1])];
         } else {
@@ -1321,7 +1328,7 @@ var settings = {
     iniIntf.WriteIni("settings", "record", prop, obConf.Record[prop]);
   },
   Debug: function (ob) {
-    for (var p in ob) {
+    for (let p in ob) {
       Debug.Trace(p + ": " + ob[p]);
     }
   }
@@ -2783,7 +2790,7 @@ var status = {
         }
       case 6:
         //Infatuated
-        if (rand() < .3333) {
+        if (rand() < 0.3333) {
           sendMsg(obTrans.GetMessages().GetString("StsChkStart" + Mon.Status.ID).replace(/MON_NAME/, Mon.Name));
           return 0;
         } else {
@@ -4120,7 +4127,7 @@ function PokemonTypes(Name) {
     if (obConf.Pref.mustBePokemonOn === true) {
       return -1;
     } else {
-      if (rand() > .5) {
+      if (rand() > 0.5) {
         type0 = Math.floor(rand() * 17);
         type1 = Math.floor(rand() * 17);
         while (type0 === type1) {
@@ -4155,22 +4162,22 @@ obItemDB = {};
 
 aTypeMatchup = [
   [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
-  [1, .5, 2, 1, .5, .5, 1, 1, 2, 1, 1, .5, 2, 1, 1, 1, .5],
-  [1, .5, .5, 2, 2, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, .5],
-  [1, 1, 1, .5, 1, 1, 1, 1, 2, .5, 1, 1, 1, 1, 1, 1, .5],
-  [1, 2, .5, .5, .5, 2, 1, 2, .5, 2, 1, 2, 1, 1, 1, 1, 1],
-  [1, 2, 1, 1, 1, .5, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, .5, .5, 1, 1, .5, 1],
-  [1, 1, 1, 1, .5, 1, .5, .5, 2, 1, 2, .5, 1, 1, 1, 1, 1],
-  [1, 1, 2, 0, 2, 2, 1, .5, 1, 1, 1, 1, .5, 1, 1, 1, 1],
-  [1, 1, 1, 2, .5, 2, .5, 1, 0, 1, 1, .5, 2, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, .5, 1, 1, 1, .5, 2, 1, 2, 1, 2, 1],
-  [1, 2, 1, 1, .5, 1, .5, 1, .5, 2, 1, 1, 2, 1, 1, 1, 1],
-  [.5, .5, 2, 1, 2, 1, 2, .5, 2, .5, 1, 1, 1, 1, 1, 1, 2],
-  [0, 1, 1, 1, 1, 1, 0, .5, 1, 1, 1, .5, 1, 2, 1, 2, 1],
-  [1, .5, .5, .5, .5, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1],
-  [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 2, 1, .5, 1, .5, 1],
-  [.5, 2, 1, 1, .5, .5, 2, 0, 2, .5, .5, .5, .5, .5, .5, .5, .5]
+  [1, 0.5, 2, 1, 0.5, 0.5, 1, 1, 2, 1, 1, 0.5, 2, 1, 1, 1, 0.5],
+  [1, 0.5, 0.5, 2, 2, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5],
+  [1, 1, 1, 0.5, 1, 1, 1, 1, 2, 0.5, 1, 1, 1, 1, 1, 1, 0.5],
+  [1, 2, 0.5, 0.5, 0.5, 2, 1, 2, 0.5, 2, 1, 2, 1, 1, 1, 1, 1],
+  [1, 2, 1, 1, 1, 0.5, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 0.5, 0.5, 1, 1, 0.5, 1],
+  [1, 1, 1, 1, 0.5, 1, 0.5, 0.5, 2, 1, 2, 0.5, 1, 1, 1, 1, 1],
+  [1, 1, 2, 0, 2, 2, 1, 0.5, 1, 1, 1, 1, 0.5, 1, 1, 1, 1],
+  [1, 1, 1, 2, 0.5, 2, 0.5, 1, 0, 1, 1, 0.5, 2, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0.5, 2, 1, 2, 1, 2, 1],
+  [1, 2, 1, 1, 0.5, 1, 0.5, 1, 0.5, 2, 1, 1, 2, 1, 1, 1, 1],
+  [0.5, 0.5, 2, 1, 2, 1, 2, 0.5, 2, 0.5, 1, 1, 1, 1, 1, 1, 2],
+  [0, 1, 1, 1, 1, 1, 0, 0.5, 1, 1, 1, 0.5, 1, 2, 1, 2, 1],
+  [1, 0.5, 0.5, 0.5, 0.5, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1],
+  [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 2, 1, 0.5, 1, 0.5, 1],
+  [0.5, 2, 1, 1, 0.5, 0.5, 2, 0, 2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 ];
 
 function OnWndAboutEvent_CtrlClicked(aboutWnd, ControlId) {
@@ -4187,13 +4194,13 @@ function openPage(sLink) {
 
 function loadCmdWnd(cmdWnd) {
   //Remove current list items
-  for (var i = cmdWnd.LstView_GetCount("LvCommands") - 1; i >= 0; i--) {
+  for (let i = cmdWnd.LstView_GetCount("LvCommands") - 1; i >= 0; i--) {
     cmdWnd.LstView_RemoveItem("LvCommands", i);
   }
   //(Re)populate list
   var i = 0;
   var a = ["ichal", "go", "bhelp", "qq", "return", "use", "heal", "item", "equip", "unequip"];
-  for (var p in obCmds) {
+  for (let p in obCmds) {
     cmdWnd.LstView_AddItem("LvCommands", p);
     cmdWnd.LstView_SetItemText("LvCommands", i, 1, a[i]);
     cmdWnd.LstView_SetItemText("LvCommands", i, 2, obCmds[p]);
@@ -4397,7 +4404,7 @@ function loadEquipWnd(equipWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (sName in obEquipDB) {
+  for (let sName in obEquipDB) {
     equipWnd.LstView_AddItem("LvEquip", sName);
     equipWnd.LstView_SetItemText("LvEquip", i, 1, obEquipDB[sName].Desc);
     equipWnd.LstView_SetItemText("LvEquip", i, 2, obEquipDB[sName].Enabled);
@@ -4410,13 +4417,13 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
   case "BtnAdd":
     addEquipWnd = MsgPlus.CreateWnd("XMLWindows.xml", "WndAddEquip");
     //Populate dropdown menus
-    for (var i = -2; i <= 6; i++) {
+    for (let i = -2; i <= 6; i++) {
       addEquipWnd.Combo_AddItem("CbSts", obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
     }
-    for (var i = -2; i <= -1; i++) {
+    for (let i = -2; i <= -1; i++) {
       addEquipWnd.Combo_AddItem("CbImm", obTrans.GetWindow("WndAddEquip").GetString("CbImm" + i), i);
     }
-    for (var i = 0; i <= 6; i++) {
+    for (let i = 0; i <= 6; i++) {
       addEquipWnd.Combo_AddItem("CbImm", obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
     }
     addEquipWnd.Combo_SetCurSel("CbSts", 0);
@@ -4424,7 +4431,7 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
     break;
   case "BtnDelete":
     //Loop through the list to find the selected item
-    for (var i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
+    for (let i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
       if (equipWnd.LstView_GetSelectedState("LvEquip", i) === true) {
         iniIntf.DeleteHeader("equipDB", equipWnd.LstView_GetItemText("LvEquip", i, 0));
         settings.LoadFile.Equip();
@@ -4435,7 +4442,7 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
     break;
   case "BtnEnable":
     //Loop through the list to find the selected item
-    for (var i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
+    for (let i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
       if (equipWnd.LstView_GetSelectedState("LvEquip", i) === true) {
         name = equipWnd.LstView_GetItemText("LvEquip", i, 0);
         iniIntf.WriteIni("equipDB", name, "Enabled", (obEquipDB[name].Enabled === false) ? true : false);
@@ -4499,7 +4506,7 @@ function loadShopWnd(shopWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (sName in obItemDB) {
+  for (let sName in obItemDB) {
     shopWnd.LstView_AddItem("LvItems", sName);
     shopWnd.LstView_SetItemText("LvItems", i, 1, obItemDB[sName].Desc);
     shopWnd.LstView_SetItemText("LvItems", i, 2, obItemDB[sName].Enabled);
@@ -4604,7 +4611,7 @@ function loadMonWnd(monWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (sName in obMonParty) {
+  for (let sName in obMonParty) {
     monWnd.LstView_AddItem("LvMons", obMonParty[sName].Name);
     monWnd.LstView_SetItemText("LvMons", i, 1, obTrans.Types().GetString(obMonParty[sName].Type[0]) + (obMonParty[sName].Type[1] === undefined ? "" : ("," + obTrans.Types().GetString(obMonParty[sName].Type[1]))));
     monWnd.LstView_SetItemText("LvMons", i, 2, obMonParty[sName].HPCur + "\/" + obMonParty[sName].HPMax);
@@ -4721,7 +4728,7 @@ function loadMoveWnd(moveWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (sName in obMoveDB) {
+  for (let sName in obMoveDB) {
     moveWnd.LstView_AddItem("LvMoves", sName);
     moveWnd.LstView_SetItemText("LvMoves", i, 1, obTrans.Types().GetString(obMoveDB[sName].Type));
     moveWnd.LstView_SetItemText("LvMoves", i, 2, obMoveDB[sName].Pwr);
