@@ -67,7 +67,16 @@ if (config.plugins && config.plugins.length > 0) {
       
       for (let name in plugin.commands) { // iterate through commands
         if (plugin.hasOwnProperty(name)) {
-          utility.registerCommand(name, plugin.commands[j].fn); // register
+          let command = plugin.commands[j];
+          
+          utility.registerCommand(name, command.fn); // register
+          if (command.synonyms) {
+            for (let aliasName in command.synonyms) { // iterate through commands
+              if (command.synonyms.hasOwnProperty(aliasName)) {
+                utility.registerCommand(aliasName, command.fn); // register
+              }
+            }
+          }
         }
       }
       
