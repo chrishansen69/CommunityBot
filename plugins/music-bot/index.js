@@ -341,6 +341,7 @@ bot.on('ready', function() {
 });
 
 function enterCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+    console.log("enterCommand " + message);
     let isID = false;
     if (
         message.length < 1
@@ -405,47 +406,47 @@ module.exports = {
     name: 'music-bot',
     defaultCommandPrefix: 'music',
     commands: {
-        "music add": {
+        "music-add": {
             fn: addCommand,
             description: 'Adds a song to the playlist',
             synonyms: [
                 'new',
             ],
         },
-        "music remove": {
+        "music-remove": {
             fn: removeCommand,
             description: 'Removes a song from the playlist',
         },
-        "music skip": {
+        "music-skip": {
             fn: skipCommand,
             description: 'Skips the current song',
         },
-        "music enter": {
+        "music-enter": {
             fn: enterCommand,
             description: 'Let the bot enter a voice channel',
             synonyms: [
-                'music join',
+                'music-join',
             ],
         },
-        "music play": {
+        "music-play": {
             fn: playCommand,
             description: 'Starts the playlist',
             synonyms: [
-                'music start',
+                'music-start',
             ],
         },
-        "music stop": {
+        "music-stop": {
             fn: stopCommand,
             description: 'Stops the playlist',
         },
-        "music current": {
+        "music-current": {
             fn: currentCommand,
             description: 'Displays the current song',
             synonyms: [
-                'music now',
+                'music-now',
             ],
         },
-        "music playlist": {
+        "music-playlist": {
             fn: playlistCommand,
             description: 'Displays all songs on the playlist',
         },
