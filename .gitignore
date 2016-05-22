@@ -3,3 +3,7 @@ config.json
 npm-debug.log
 ops.json
 Battler5.02.plsc
+plugins/gabenizer/secret.py
+plugins/gabenizer/numpy-1.10.4+mkl-cp27-cp27m-win32.whl
+plugins/gabenizer/numpy-1.10.4+mkl-cp27-cp27m-win_amd64.whl
+plugins/gabenizer/dist/gabenizer-1.0-py2.7.egg

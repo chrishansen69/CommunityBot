@@ -8,10 +8,9 @@ import os
 from pprint import pprint
 from PIL import Image, ImageStat
 
-SKYBIO_ID = os.environ['SKYBIO_ID']
-SKYBIO_SECRET = os.environ['SKYBIO_SECRET']
-IMGUR_KEY = os.environ['IMGUR_KEY']
-IMGUR_DELETE = os.environ['IMGUR_DELETE']
+import secret
+SKYBIO_ID = secret.SKYBIO_ID
+SKYBIO_SECRET = secret.SKYBIO_SECRET
 
 
 def process_image(url, gaben_path):
@@ -84,9 +83,11 @@ def process_image(url, gaben_path):
             continue
 
         # arrange both images
-        final = Image.new("RGB", (original_width * 2, original_height))
-        final.paste(original, (0,0))
-        final.paste(gabenized, (original_width, 0))
+		final = Image.new("RGB", (original_width, original_height))
+		final.paste(gabenized, (0,0))
+        #final = Image.new("RGB", (original_width * 2, original_height))
+        #final.paste(original, (0,0))
+        #final.paste(gabenized, (original_width, 0))
 
         # if original image was grayscale, convert final
         COLOR_CUTOFF = 100
@@ -95,28 +96,4 @@ def process_image(url, gaben_path):
             final = final.convert('L')
 
         return final
-
-
-def imgur_upload(final, filepath, filename, title, URL_STATIC):
-    """ Uploads a locally hosted image to imgur.
-        TODO: upload the file directly. """
-    # save image
-    fullpath = os.path.join(filepath, filename)
-    final.save(fullpath)
-
-    # upload to imgur
-    dataupload = {
-        'image': URL_STATIC + filename,
-        'type': 'URL',
-        'name': filename,
-        'title': title,
-        'album': IMGUR_DELETE
-    }
-    url = 'https://api.imgur.com/3/image'
-    headers = {'Authorization': 'Client-ID ' + IMGUR_KEY}
-    req = requests.post(url, data=dataupload, headers=headers)
-    imgururl = req.json()['data']['link']
-    print imgururl
-
-    return imgururl
 
