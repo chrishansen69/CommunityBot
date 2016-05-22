@@ -307,10 +307,10 @@ function enter(_message, message, isID, callback) {
             voiceChannelID = channel.id;
             notFound = false;
             serverID = _id;
-            return;
+            break;
           }
         }
-        if (!notFound) return;
+        if (!notFound) break;
       }
     } else {
       for (let id = 0; id < bot.servers[serverID].channels.length; id++) {
