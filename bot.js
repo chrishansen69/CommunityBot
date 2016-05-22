@@ -61,27 +61,23 @@ const loadPlugins = require('./plugins.js');
 if (config.plugins && config.plugins.length > 0) {
 	const plugins = loadPlugins(config.plugins);
   
-  for (let i in plugins) { // iterate through plugins
-    if (plugins.hasOwnProperty(i)) {
-      let plugin = plugins[i];
+  
+  Object.keys(plugins).forEach(function (i) {
+    const plugin = plugins[i];
+    
+    Object.keys(plugin.commands).forEach(function (name) {
+      const command = plugin.commands[name];
       
-      for (let name in plugin.commands) { // iterate through commands
-        if (plugin.hasOwnProperty(name)) {
-          let command = plugin.commands[j];
-          
-          utility.registerCommand(name, command.fn); // register
-          if (command.synonyms) {
-            for (let aliasName in command.synonyms) { // iterate through commands
-              if (command.synonyms.hasOwnProperty(aliasName)) {
-                utility.registerCommand(aliasName, command.fn); // register
-              }
-            }
-          }
-        }
+      utility.registerCommand(name, command.fn); // register
+      console.log("registered: " + name);
+      if (command.synonyms) {
+        command.synonyms.forEach(function (aliasName) {
+          utility.registerCommand(aliasName, command.fn); // register
+          console.log("registered alias: " + aliasName);
+        });
       }
-      
-    }
-  }
+    });
+  });
 }
 // load user commands from saved
 if (config.customCommands) {
