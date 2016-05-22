@@ -5,7 +5,8 @@ function loadPlugins(pluginList) {
   let plugins = {};
 
   for (let pluginName of pluginList) {
-    plugins[pluginName] = require('plugins/' + pluginName);
+    plugins[pluginName] = require('plugins/' + pluginName + '/main.js');
+    console.log('loaded plugin ' + pluginName);
   }
 	
   return plugins;
