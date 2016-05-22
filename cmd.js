@@ -284,282 +284,281 @@ process.on('exit', function() { // save r9kMessages (and possibly other settings
   jsonfile.writeFileSync('./config.json', config, {spaces: 2});
 });
 
-module.exports = {
-  r9kEnabled: function(channel) {
-    return config.r9kEnabled[channel.id];
-  },
-  r9k: function(msg) { // r9k mode
-    let id = msg.channel.id; // unique-ish channel id
-      console.info(config.r9kMessages);
-    
-    if (config.r9kMessages[id].indexOf(msg.cleanContent.trim()) !== -1) { // if message is not unique
-      console.log("deleting " + msg.content);
-      bot.deleteMessage(msg);
-    } else { // if message is unique, add it to the config
-      console.log("adding " + msg.content);
-      config.r9kMessages[id][config.r9kMessages[id].length] = msg.cleanContent.trim();
+exports.r9kEnabled = function(channel) {
+  return config.r9kEnabled[channel.id];
+};
+exports.r9k = function(msg) { // r9k mode
+  let id = msg.channel.id; // unique-ish channel id
+    console.info(config.r9kMessages);
+  
+  if (config.r9kMessages[id].indexOf(msg.cleanContent.trim()) !== -1) { // if message is not unique
+    console.log("deleting " + msg.content);
+    bot.deleteMessage(msg);
+  } else { // if message is unique, add it to the config
+    console.log("adding " + msg.content);
+    config.r9kMessages[id][config.r9kMessages[id].length] = msg.cleanContent.trim();
+  }
+};
+
+exports.commands = {
+  "ping": {
+    process: function(message) {
+      bot.sendMessage(message.channel, "PONG");
     }
   },
-  commands: {
-    "ping": {
-      process: function(message) {
-        bot.sendMessage(message.channel, "PONG");
-      }
-    },
-    "newvote": {
-      process: function(msg, suffix) {
-        if (!suffix) { bot.sendMessage(msg.channel, "Include a suffix please!"); return; }
-        if (votebool == true) { bot.sendMessage(msg, "Theres already a vote pending!"); return; }
-        topicstring = suffix;
-        bot.sendMessage(msg, "New Vote started: `" + suffix + "`\nTo vote say `" + AuthDetails.discordjs_trigger + "vote +/-`");
-        votebool = true;
-      }
-    },
-    "vote": {
-      process: function(msg, suffix) {
-        if (!suffix) { bot.sendMessage(msg, "Gotta vote for something!"); return; }
-        if (votebool == false) { bot.sendMessage(msg, "There is not a vote in progress. Start one with the 'newvote' command."); return; }
-        if (voter.indexOf(msg.author) != -1) { return; }
-        voter.push(msg.author);
-        var vote = suffix.split(" ")[0]
-        if (vote == "+" || vote == "y" || vote == "yes") { upvote += 1; }
-        else if (vote == "-" || vote == "n" || vote == "no") { downvote += 1; }
-      }
-    },
-    "votestatus": {
-      process: function(msg) {
-        var msgArray = [];
-        if (votebool == true) {bot.sendMessage(msg.channel, "There **is** a vote in progress. Error reading topic string.")}
-          else {
-            bot.sendMessage(msg.channel, "There is currently **not** a vote in progress.")
+  "newvote": {
+    process: function(msg, suffix) {
+      if (!suffix) { bot.sendMessage(msg.channel, "Include a suffix please!"); return; }
+      if (votebool == true) { bot.sendMessage(msg, "Theres already a vote pending!"); return; }
+      topicstring = suffix;
+      bot.sendMessage(msg, "New Vote started: `" + suffix + "`\nTo vote say `" + AuthDetails.discordjs_trigger + "vote +/-`");
+      votebool = true;
+    }
+  },
+  "vote": {
+    process: function(msg, suffix) {
+      if (!suffix) { bot.sendMessage(msg, "Gotta vote for something!"); return; }
+      if (votebool == false) { bot.sendMessage(msg, "There is not a vote in progress. Start one with the 'newvote' command."); return; }
+      if (voter.indexOf(msg.author) != -1) { return; }
+      voter.push(msg.author);
+      var vote = suffix.split(" ")[0]
+      if (vote == "+" || vote == "y" || vote == "yes") { upvote += 1; }
+      else if (vote == "-" || vote == "n" || vote == "no") { downvote += 1; }
+    }
+  },
+  "votestatus": {
+    process: function(msg) {
+      var msgArray = [];
+      if (votebool == true) {bot.sendMessage(msg.channel, "There **is** a vote in progress. Error reading topic string.")}
+        else {
+          bot.sendMessage(msg.channel, "There is currently **not** a vote in progress.")
+        }
+    }
+  },
+  "endvote": {
+    process: function(msg, suffix) {
+      bot.sendMessage(msg, "**Results of last vote:**\nTopic: `" + topicstring + "`\nVotes for: `" + upvote + "`\nVotes against: `" + downvote + "`");
+      upvote = 0;
+      downvote = 0;
+      voter = [];
+      votebool = false;
+      topicstring = "";
+    }
+  },
+  "ping": {
+    process: function(message) {
+      bot.sendMessage(message.channel, "PONG");
+    }
+  },
+  "pong": {
+    process: function(message) {
+      bot.sendMessage(message.channel, "PING");
+    }
+  },
+  "setgame": {
+    process: function(msg, suffix) {
+      bot.setStatus('online', suffix);
+      bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
+    }
+  },
+  "setgame-idle": {
+    process: function(msg, suffix) {
+      bot.setStatus('idle', suffix);
+      bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
+    }
+  },
+  "johncena": {
+    process: function(msg, suffix) {
+      bot.sendMessage(msg.channel, " **AND HIS NAME IS** https://www.youtube.com/watch?v=4k1xY7v8dDQ");
+    }
+  },
+  "join": {
+    process: function(message, suffix) {
+      if (config.token) { // join through oAuth
+        bot.sendMessage(msg.channel, "Apologies, but I am now a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
+      } else { // join normally
+        let query = suffix;
+        let sender = message.author.username;
+        if (!query) {
+          bot.sendMessage(message.channel, "Please specify an invite link.");
+          return;
+        }
+        let invite = message.content.split(" ")[1];
+        bot.joinServer(invite, function(error, server) {
+          if (error) {
+            bot.sendMessage(message.channel, "Something went wrong. Error code: " + error);
+          } else {
+            bot.sendMessage(message.channel, "Great! I just joined: " + server);
+            let messageArray = [];
+            messageArray.push("Hi! I'm **" + bot.user.username + "**. I was invited to this server by " + message.author + ".");
+            messageArray.push("You can use `" + trigger + "help` to see what I can do.");
+            messageArray.push("If you don't want me here, please use the " + AuthDetails.discordjs_trigger + "leave command to get me out.");
+            bot.sendMessage(server.defaultChannel, messageArray);
+            console.log("Joined server: " + server)
           }
-      }
-    },
-    "endvote": {
-      process: function(msg, suffix) {
-        bot.sendMessage(msg, "**Results of last vote:**\nTopic: `" + topicstring + "`\nVotes for: `" + upvote + "`\nVotes against: `" + downvote + "`");
-        upvote = 0;
-        downvote = 0;
-        voter = [];
-        votebool = false;
-        topicstring = "";
-      }
-    },
-    "ping": {
-      process: function(message) {
-        bot.sendMessage(message.channel, "PONG");
-      }
-    },
-    "pong": {
-      process: function(message) {
-        bot.sendMessage(message.channel, "PING");
-      }
-    },
-    "setgame": {
-      process: function(msg, suffix) {
-        bot.setStatus('online', suffix);
-        bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
-      }
-    },
-    "setgame-idle": {
-      process: function(msg, suffix) {
-        bot.setStatus('idle', suffix);
-        bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
-      }
-    },
-    "johncena": {
-      process: function(msg, suffix) {
-        bot.sendMessage(msg.channel, " **AND HIS NAME IS** https://www.youtube.com/watch?v=4k1xY7v8dDQ");
-      }
-    },
-    "join": {
-      process: function(message, suffix) {
-        if (config.token) { // join through oAuth
-          bot.sendMessage(msg.channel, "Apologies, but I am now a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
-        } else { // join normally
-          let query = suffix;
-          let sender = message.author.username;
-          if (!query) {
-            bot.sendMessage(message.channel, "Please specify an invite link.");
-            return;
-          }
-          let invite = message.content.split(" ")[1];
-          bot.joinServer(invite, function(error, server) {
-            if (error) {
-              bot.sendMessage(message.channel, "Something went wrong. Error code: " + error);
-            } else {
-              bot.sendMessage(message.channel, "Great! I just joined: " + server);
-              let messageArray = [];
-              messageArray.push("Hi! I'm **" + bot.user.username + "**. I was invited to this server by " + message.author + ".");
-              messageArray.push("You can use `" + trigger + "help` to see what I can do.");
-              messageArray.push("If you don't want me here, please use the " + AuthDetails.discordjs_trigger + "leave command to get me out.");
-              bot.sendMessage(server.defaultChannel, messageArray);
-              console.log("Joined server: " + server)
-            }
-          });
-        }
-      }
-    },
-    "hello": {
-      process: function(message) {
-        bot.sendMessage(message.channel, "Hello Expand Dong. I'm a bot made by rafa1231518, based on https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!")
-      }
-    },
-    "eval": {
-      process: function(message, suffix) {
-        let evalWhitelist = require('./evalwhitelist.json');
-        if (evalWhitelist.indexOf(message.sender.id) > -1) {
-          try {
-            bot.sendMessage(message, eval(suffix));
-          } catch (err) {
-            let array = [];
-            array.push("*Eval failed.*");
-            array.push('```');
-            array.push(err);
-            array.push(err.stack);
-            array.push('```');
-            bot.sendMessage(message, array);
-          }
-        } else {
-          bot.sendMessage(message, "You don't have permission to use this command!");
-        }
-      }
-    },
-    "eliza": {
-      process: function(message, suffix) {
-        console.log(suffix);
-        if (eliza === null) {
-            eliza = new ElizaBot();
-            let initial = eliza.getInitial();
-            bot.sendMessage(message.channel, initial);
-        } else {
-            let reply = eliza.transform(suffix);
-            bot.sendMessage(message.channel, reply);
-            
-            if (eliza.quit) {
-                eliza = null;
-            }
-        }
-      }
-    },
-    "cleverbot": {
-      process: function(message, suffix) {
-        console.log(suffix);
-        if (cleverbot === null) {
-            cleverbot = new Cleverbot();
-        }
-        Cleverbot.prepare(function(){
-          cleverbot.write(suffix, function (response) {
-               bot.sendMessage(message.channel, response.message);
-          });
-        });        
-      }
-    },
-    "help": {
-      process: function(message) {
-        let response = ["Here are my commands: ", ""];
-        Object.keys(module.exports.commands).forEach(function (element) {
-          response.push(config.trigger + element);
         });
-        bot.sendMessage(message.channel, response);
       }
-    },
-    "spam": {
-      process: function(message) {
-        bot.sendMessage(message.channel, ":warning: keep it in the #spam fam :warning:");
-      }
-    },
-    "permtest": {
-      process: function(message) {
-        if (message.channel.permissionsOf(message.sender).hasPermission("kickMembers")) {
-            bot.sendMessage(message.channel, ":warning: " + message.sender.name + " has permission to kick users");
-        } else {
-            bot.sendMessage(message.channel, ":warning: " + message.sender.name + " does **not** have permission to kick users");
+    }
+  },
+  "hello": {
+    process: function(message) {
+      bot.sendMessage(message.channel, "Hello Expand Dong. I'm a bot made by rafa1231518, based on https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!")
+    }
+  },
+  "eval": {
+    process: function(message, suffix) {
+      let evalWhitelist = require('./evalwhitelist.json');
+      if (evalWhitelist.indexOf(message.sender.id) > -1) {
+        try {
+          bot.sendMessage(message, eval(suffix));
+        } catch (err) {
+          let array = [];
+          array.push("*Eval failed.*");
+          array.push('```');
+          array.push(err);
+          array.push(err.stack);
+          array.push('```');
+          bot.sendMessage(message, array);
         }
+      } else {
+        bot.sendMessage(message, "You don't have permission to use this command!");
       }
-    },
-    "excuse": {
-      process: function(message) {
-        bot.sendMessage(message.channel, EXCUSES[Math.round(Math.random() * EXCUSES.length)]);
-      }
-    },
-    "createcmd": {
-      process: function(message, suffix) {
-        let index = suffix.indexOf(" | ");
-        if (index !== -1) {
-            // register command
-            let cmd = suffix.substr(0, index);
-            let execute = suffix.substr(index + (" | ".length));
-            utility.registerEval(cmd, execute);
-            
-            // store to config
-            config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
-            jsonfile.writeFileSync('./config.json', config, {spaces: 2});
-            
-            // done
-            bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
-        } else {
-            bot.sendMessage(message.channel, "Invalid syntax");
-        }
-      }
-    },
-    "r9k": {
-      process: function(message, suffix) {
-        let id = message.channel.id; // unique-ish channel id
-        
-        if (!config.r9kMessages[id]) // make channel slot if not exists
-          config.r9kMessages[id] = [];
-        
-        if (suffix == "on" && !config.r9kEnabled[id]) { //enable
-          config.r9kEnabled[id] = true;
-          bot.sendMessage(message.channel, "Enabled R9K mode");
-        } else if (suffix == "off" && config.r9kEnabled[id]) { //disable
-          config.r9kEnabled[id] = false;
-          bot.sendMessage(message.channel, "Disabled R9K mode");
-        } else { //toggle
-          config.r9kEnabled[id] = !config.r9kEnabled[id];
-          bot.sendMessage(message.channel, (config.r9kEnabled[id] ? "Enabled" : "Disabled") + " R9K mode");
-        }
-      }
-    },
-    "setavatar": {
-      process: function(message, suffix) {
-        const path = suffix.split(' ')[0];
-        const channelID = message.channel;
-        
-        if (path.length < 1) {
-            bot.sendMessage(channelID, 'You have to add a relative path or an url to the new avatar.');
-            return;
-        }
-        
-        const oldAvatar = config.avatar;
-        config.avatar = path;
-
-        jsonfile.writeFile('./config.json', config, {spaces: 2}, function(err) {
-          if (err) { // if failed
-            console.error(err);
-            config.avatar = oldAvatar;
-            bot.sendMessage(channelID, 'There was an error saving the avatar to your \'config.json\'.');
-            return;
-          }
+    }
+  },
+  "eliza": {
+    process: function(message, suffix) {
+      console.log(suffix);
+      if (eliza === null) {
+          eliza = new ElizaBot();
+          let initial = eliza.getInitial();
+          bot.sendMessage(message.channel, initial);
+      } else {
+          let reply = eliza.transform(suffix);
+          bot.sendMessage(message.channel, reply);
           
-          const reg = new RegExp(/^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$/, 'gi');
-          if (reg.test(path)) { // if is URL
-            request({
-              url: path,
-              encoding: null,
-            }, function(error, response, body) {
-              if (!error && response.statusCode == 200) {
-                  setAvatar(new Buffer(body).toString('base64'), channelID);
-              } else {
-                  console.log(chalk.red('The avatar could not be set. Make sure the path is correct.'));
-              }
-            });
-          } else { // else, assume absolute file path
-            setAvatar(fs.readFileSync(path, 'base64'), channelID);
+          if (eliza.quit) {
+              eliza = null;
           }
-        });
       }
+    }
+  },
+  "cleverbot": {
+    process: function(message, suffix) {
+      console.log(suffix);
+      if (cleverbot === null) {
+          cleverbot = new Cleverbot();
+      }
+      Cleverbot.prepare(function(){
+        cleverbot.write(suffix, function (response) {
+             bot.sendMessage(message.channel, response.message);
+        });
+      });        
+    }
+  },
+  "help": {
+    process: function(message) {
+      let response = ["Here are my commands: ", ""];
+      Object.keys(module.exports.commands).forEach(function (element) {
+        response.push(config.trigger + element);
+      });
+      bot.sendMessage(message.channel, response);
+    }
+  },
+  "spam": {
+    process: function(message) {
+      bot.sendMessage(message.channel, ":warning: keep it in the #spam fam :warning:");
+    }
+  },
+  "permtest": {
+    process: function(message) {
+      if (message.channel.permissionsOf(message.sender).hasPermission("kickMembers")) {
+          bot.sendMessage(message.channel, ":warning: " + message.sender.name + " has permission to kick users");
+      } else {
+          bot.sendMessage(message.channel, ":warning: " + message.sender.name + " does **not** have permission to kick users");
+      }
+    }
+  },
+  "excuse": {
+    process: function(message) {
+      bot.sendMessage(message.channel, EXCUSES[Math.round(Math.random() * EXCUSES.length)]);
+    }
+  },
+  "createcmd": {
+    process: function(message, suffix) {
+      let index = suffix.indexOf(" | ");
+      if (index !== -1) {
+          // register command
+          let cmd = suffix.substr(0, index);
+          let execute = suffix.substr(index + (" | ".length));
+          utility.registerEval(cmd, execute);
+          
+          // store to config
+          config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
+          jsonfile.writeFileSync('./config.json', config, {spaces: 2});
+          
+          // done
+          bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+      } else {
+          bot.sendMessage(message.channel, "Invalid syntax");
+      }
+    }
+  },
+  "r9k": {
+    process: function(message, suffix) {
+      let id = message.channel.id; // unique-ish channel id
+      
+      if (!config.r9kMessages[id]) // make channel slot if not exists
+        config.r9kMessages[id] = [];
+      
+      if (suffix == "on" && !config.r9kEnabled[id]) { //enable
+        config.r9kEnabled[id] = true;
+        bot.sendMessage(message.channel, "Enabled R9K mode");
+      } else if (suffix == "off" && config.r9kEnabled[id]) { //disable
+        config.r9kEnabled[id] = false;
+        bot.sendMessage(message.channel, "Disabled R9K mode");
+      } else { //toggle
+        config.r9kEnabled[id] = !config.r9kEnabled[id];
+        bot.sendMessage(message.channel, (config.r9kEnabled[id] ? "Enabled" : "Disabled") + " R9K mode");
+      }
+    }
+  },
+  "setavatar": {
+    process: function(message, suffix) {
+      const path = suffix.split(' ')[0];
+      const channelID = message.channel;
+      
+      if (path.length < 1) {
+          bot.sendMessage(channelID, 'You have to add a relative path or an url to the new avatar.');
+          return;
+      }
+      
+      const oldAvatar = config.avatar;
+      config.avatar = path;
+
+      jsonfile.writeFile('./config.json', config, {spaces: 2}, function(err) {
+        if (err) { // if failed
+          console.error(err);
+          config.avatar = oldAvatar;
+          bot.sendMessage(channelID, 'There was an error saving the avatar to your \'config.json\'.');
+          return;
+        }
+        
+        const reg = new RegExp(/^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$/, 'gi');
+        if (reg.test(path)) { // if is URL
+          request({
+            url: path,
+            encoding: null,
+          }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                setAvatar(new Buffer(body).toString('base64'), channelID);
+            } else {
+                console.log(chalk.red('The avatar could not be set. Make sure the path is correct.'));
+            }
+          });
+        } else { // else, assume absolute file path
+          setAvatar(fs.readFileSync(path, 'base64'), channelID);
+        }
+      });
     }
   }
 };
