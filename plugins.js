@@ -2,14 +2,12 @@
 'use strict';
 
 function loadPlugins(pluginList) {
-	let plugins = {};
+  let plugins = {};
 
-	for (let pluginName in pluginList) {
-		if (pluginList.hasOwnProperty(pluginName)) {
-			plugins[pluginName] = require('plugins/' + pluginName);
-		}
-	}
+  for (let pluginName of pluginList) {
+    plugins[pluginName] = require('plugins/' + pluginName);
+  }
 	
-	return plugins;
+  return plugins;
 }
 module.exports = loadPlugins;
