@@ -2,6 +2,7 @@
 
 const Discord = require('discord.js');
 const fs = require('fs');
+const utility = require('./utility.js');
 
 // LOAD CONFIG
 
@@ -19,7 +20,6 @@ const trigger = config.trigger;
 let bot = new Discord.Client();
 module.exports = bot;
 
-const utility = require('./utility.js');
 
 // ADD HANDLERS
 
