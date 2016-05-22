@@ -2,6 +2,17 @@
 // Johannes Baagøe <baagoe@baagoe.com>, 2010
 
 var bot = require('../bot.js');
+var fso = require('fso');
+var DOMParser = require('xmldom').DOMParser;
+
+function w32Factory(str) {
+  if (str === 'Scripting.FileSystemObject') {
+    return fso;
+  }
+  if (str === 'Microsoft.XMLDOM') {
+    return DOMParser;
+  }
+}
 
 /*jslint bitwise: true */
 
