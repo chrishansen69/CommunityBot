@@ -13,6 +13,9 @@
     "type": "git",
     "url": "git+https://github.com/OneMansGlory/CommunityBot.git"
   },
+  "scripts": {
+    "start": "node bot"
+  },
   "license": "GPL-3.0",
   "dependencies": {
     "discord.js": "^6.0.0",
