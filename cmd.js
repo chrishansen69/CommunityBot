@@ -413,7 +413,7 @@ exports.commands = {
   },
   "eval": {
     process: function(message, suffix) {
-      if (ops.indexOf(message.sender.id) > -1) {
+      if (utility.isOpped(message.sender)) {
         try {
           bot.sendMessage(message, eval(suffix));
         } catch (err) {
@@ -618,3 +618,9 @@ exports.commands = {
     }
   }
 };
+
+// alias commands
+exports.commands.avatar = exports.commands.setavatar;
+exports.commands.exec = exports.commands.eval;
+exports.commands.game = exports.commands.setgame;
+exports.commands.exit = exports.commands.kill;
