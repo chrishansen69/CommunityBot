@@ -616,6 +616,11 @@ exports.commands = {
       else
         bot.sendMessage(message.channel, opped.name + ' is not an operator');
     }
+  },
+  "me": {
+    process: function(message, suffix) {
+      bot.sendMessage(message.channel, 'Your ID: \'' + message.sender.id + '\'');
+    }
   }
 };
 
