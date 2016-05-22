@@ -1,3 +1,5 @@
+'use strict';
+
 // Discord Bot API
 const getConfig = require('../../utility.js').getConfig;
 //import bot from '../../modules/bot';
@@ -18,6 +20,48 @@ const fs = require('fs');
 const mkdirp = require('mkdirp');
 const fetchVideoInfo = require('youtube-info');
 const YoutubeMp3Downloader = require('youtube-mp3-downloader');
+
+// setup configs if not exists
+if (!getConfig()['music-bot']) {
+  getConfig()['music-bot'] = {};
+  getConfig()['music-bot'].library = '../music';
+  getConfig()['music-bot'].skipLimit = 1;
+  getConfig()['music-bot'].announceSongs = true;
+  getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
+  getConfig()['music-bot'].maxLength = 15;
+} else {
+  if (!getConfig()['music-bot'].library) {
+    getConfig()['music-bot'].library = '../music';
+  }
+  if (!getConfig()['music-bot'].skipLimit) {
+    getConfig()['music-bot'].skipLimit = 1;
+  }
+  if (!getConfig()['music-bot'].announceSongs) {
+    getConfig()['music-bot'].announceSongs = true;
+  }
+  if (!getConfig()['music-bot'].autoJoinVoiceChannel) {
+    getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
+  }
+  if (!getConfig()['music-bot'].maxLength) {
+    getConfig()['music-bot'].maxLength = 15;
+  }
+}
+
+/*
+"music-bot": {
+    "commands": {
+        "add": {
+            "channel": "#music"
+        }
+    },
+    "commandPrefix": "music",
+    "library": "../music",
+    "skipLimit": 1,
+    "announceSongs": true,
+    "autoJoinVoiceChannel": "General",
+    "maxLength": 15
+}
+*/
 
 let YD = new YoutubeMp3Downloader({
     outputPath: getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
@@ -80,10 +124,10 @@ function playLoop(channelID) {
 
         bot.getAudioContext({channel: voiceChannelID, stereo: true}, function(stream) {
             stream.playAudioFile(currentSong.file);
-            stream.oncefunction('fileEnd', () {
+            stream.oncefunction('fileEnd', function() {
                 if (currentSong) {
                     // Hack required because the event fileEnd does not trigger when the file ends ...
-                    setTimeoutfunction(() {
+                    setTimeoutfunction(function() {
                         currentSong = null;
                         bot.setPresence({
                             game: null,
@@ -115,7 +159,7 @@ function extractYouTubeID(url, channelID) {
     }
 }
 
-function addCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function addCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Get the URL from the message (it should be the first element after the command)
     const url = message.split(' ')[0];
 
@@ -135,7 +179,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
     }
 
     // Fetch meta data from YouTube video
-    fetchVideoInfofunction(youtubeID, (error, videoInfo) {
+    fetchVideoInfofunction(youtubeID, function(error, videoInfo) {
         if (error) {
             console.error(error, youtubeID);
             bot.sendMessage({
@@ -214,7 +258,7 @@ function addCommand(_message) { let message = _message.content; let user = _mess
     });
 }
 
-function removeCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function removeCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     const url = message.split(' ')[0];
 
     if (url.length < 1) {
@@ -232,7 +276,7 @@ function removeCommand(_message) { let message = _message.content; let user = _m
         return false;
     }
 
-    playlist = playlist.filter(function(element) element.youtubeID !== youtubeID);
+    playlist = playlist.filter(function(element) { element.youtubeID !== youtubeID });
 
     bot.sendMessage({
         to: channelID,
@@ -240,7 +284,7 @@ function removeCommand(_message) { let message = _message.content; let user = _m
     });
 }
 
-function skipCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function skipCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if the bot is in a voice channel
     if (voiceChannelID) {
         if (usersWantToSkip.indexOf(userID) === -1) {
@@ -256,7 +300,7 @@ function skipCommand(_message) { let message = _message.content; let user = _mes
                     game: null,
                 });
 
-                setTimeoutfunction(() {
+                setTimeoutfunction(function() {
                     playLoop(channelID);
                 }, 2000);
             });
@@ -274,64 +318,92 @@ function skipCommand(_message) { let message = _message.content; let user = _mes
     }
 }
 
-function leave() {
-    // if (bot.servers[configModule.get().serverID].members[bot.id].voice_channel_id) {
-    //     bot.leaveVoiceChannel(bot.servers[configModule.get().serverID].members[bot.id].voice_channel_id);
+function leave(serverID) {
+    // if (bot.servers[serverID].members[bot.id].voice_channel_id) {
+    //     bot.leaveVoiceChannel(bot.servers[serverID].members[bot.id].voice_channel_id);
     // }
 
     // Leaves every voice channel.
     // It's needed to loop over all channels, because after a reconnect the previous voice channel is unknown
-    for (let voiceChannelID in bot.servers[configModule.get().serverID].channels) {
-        if (bot.servers[configModule.get().serverID].channels.hasOwnProperty(voiceChannelID)) {
-            if (bot.servers[configModule.get().serverID].channels[voiceChannelID].type === 'voice') {
-                bot.leaveVoiceChannel(voiceChannelID);
-            }
+
+    Object.keys(bot.servers[serverID].channels).forEach(function(voiceChannelID) {
+      if (bot.servers[serverID].channels[voiceChannelID] !== undefined) {
+        if (bot.servers[serverID].channels[voiceChannelID].type === 'voice') {
+            bot.leaveVoiceChannel(voiceChannelID);
         }
-    }
+      } else {
+        console.info(bot.servers[serverID].channels);
+      }
+    });
 }
 
-function enter(message, isID, callback) {
+function enter(_message, message, isID, callback) {
+    let serverID;
+    if (_message === null)
+      serverID = null;
+    else
+      serverID = _message.channel.server.id;
     if (isID) {
-        leave();
+        leave(serverID);
         bot.joinVoiceChannel(message);
         return true;
     }
 
     let notFound = true;
     // Look for the ID of the requested channel
-    Object.keysfunction(bot.servers[configModule.get().serverID].channels).forEach((id) {
-        const channel = bot.servers[configModule.get().serverID].channels[id];
+    
+    if (serverID === null) {
+      Object.keys(bot.servers).forEach(function(_id) {
+        if (bot.servers[_id] !== undefined && bot.servers[_id].channels !== undefined) {
+          Object.keys(bot.servers[_id].channels).forEach(function(id) {
+            const channel = bot.servers[_id].channels[id];
 
-        if (channel.name === message && channel.type === 'voice') {
-            voiceChannelID = id;
-            notFound = false;
+            if (channel !== undefined && channel.name === message && channel.type === 'voice') {
+              voiceChannelID = id;
+              notFound = false;
+              serverID = _id;
+              return;
+            }
+          });
         }
-    });
+        if (!notFound) return;
+      });
+    } else {
+      Object.keys(bot.servers[serverID].channels).forEach(function(id) {
+          const channel = bot.servers[serverID].channels[id];
+
+          if (channel.name === message && channel.type === 'voice') {
+              voiceChannelID = id;
+              notFound = false;
+              return;
+          }
+      });
+    }
 
     if (notFound) {
         callback();
     } else {
-        leave();
+        leave(serverID);
         bot.joinVoiceChannel(voiceChannelID);
     }
 }
 
-bot.onfunction('ready', () {
+bot.on('ready', function() {
     if (getConfig()['music-bot'].autoJoinVoiceChannel && getConfig()['music-bot'].autoJoinVoiceChannel.length > 0) {
-        enterfunction(getConfig()['music-bot'].autoJoinVoiceChannel, false, () {
+        enter(null, getConfig()['music-bot'].autoJoinVoiceChannel, false, function() {
             console.log(chalk.red('The voice channel defined in autoJoinVoiceChannel could not be found.'));
         });
     }
 });
 
-function enterCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function enterCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     let isID = false;
     if (
         message.length < 1
-        && bot.servers[configModule.get().serverID].members[userID].voice_channel_id
+        && bot.servers[serverID].members[userID].voice_channel_id
     ) {
         isID = true;
-        message = bot.servers[configModule.get().serverID].members[userID].voice_channel_id;
+        message = bot.servers[serverID].members[userID].voice_channel_id;
     } else if (message.length < 1) {
         bot.sendMessage({
             to: channelID,
@@ -340,7 +412,7 @@ function enterCommand(_message) { let message = _message.content; let user = _me
         return false;
     }
 
-    enterfunction(message, isID, () {
+    enter(_message, message, isID, function() {
         bot.sendMessage({
             to: channelID,
             message: 'There is no channel named ' + message + '.',
@@ -348,7 +420,7 @@ function enterCommand(_message) { let message = _message.content; let user = _me
     });
 }
 
-function playCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function playCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     if (!voiceChannelID) {
         bot.sendMessage({
             to: channelID,
@@ -374,7 +446,7 @@ function stopCommand() {
     });
 }
 
-function currentCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function currentCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if a song is playing
     if (currentSong) {
         bot.sendMessage({
@@ -389,7 +461,7 @@ function currentCommand(_message) { let message = _message.content; let user = _
     }
 }
 
-function playlistCommand(_message) { let message = _message.content; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
+function playlistCommand(_message) { let message = _message.content; let serverID = _message.channel.server.id; let user = _message.sender; let userID = _message.sender.id; let channelID = _message.channel.id;
     // Check if there are songs on the playlist
     if (playlist.length < 1) {
         bot.sendMessage({
