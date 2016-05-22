@@ -416,7 +416,7 @@ module.exports = {
             fn: addCommand,
             description: 'Adds a song to the playlist',
             synonyms: [
-                'new',
+                'music-new',
             ],
         },
         "music-remove": {
