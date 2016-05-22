@@ -19,7 +19,7 @@ function Alea() {
     s1 = mash(' ');
     s2 = mash(' ');
 
-    for (let i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       s0 -= mash(args[i]);
       if (s0 < 0) {
         s0 += 1;
@@ -60,7 +60,7 @@ function Mash() {
 
   var mash = function (data) {
     data = data.toString();
-    for (let i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       n += data.charCodeAt(i);
       var h = 0.02519603282416938 * n;
       n = h >>> 0;
@@ -237,7 +237,7 @@ function OnEvent_ChatWndReceiveMessage(ChatWnd, Origin, Message, MsgKind) { // T
       sendMsg(obTrans.GetMessages().GetString("ItemDisabled"));
     } else {
       if (bWnd[iWnd].Player[bWnd[iWnd].Turn].Name === Origin) {
-        let itemName = Message.substr(0, 4) === "item" ? Message.substr(5) : Message.substr(obCmds.Item.length + 1);
+        var itemName = Message.substr(0, 4) === "item" ? Message.substr(5) : Message.substr(obCmds.Item.length + 1);
         if (obItemDB[itemName] !== undefined) {
           if (obItemDB[itemName].Enabled === true) {
             useItem(bWnd[iWnd].Player[bWnd[iWnd].Turn], itemName, obItemDB[itemName].Eff);
@@ -256,7 +256,7 @@ function OnEvent_ChatWndReceiveMessage(ChatWnd, Origin, Message, MsgKind) { // T
       sendMsg(obTrans.GetMessages().GetString("EquipDisabled"));
     } else {
       if (bWnd[iWnd].Player[bWnd[iWnd].Turn].Name === Origin) {
-        let itemName = Message.substr(0, 5) === "equip" ? Message.substr(6) : Message.substr(obCmds.Equip.length + 1);
+        var itemName = Message.substr(0, 5) === "equip" ? Message.substr(6) : Message.substr(obCmds.Equip.length + 1);
         if (obEquipDB[itemName] !== undefined) {
           if (obEquipDB[itemName].Enabled === true) {
             equipItem(bWnd[iWnd].Player[bWnd[iWnd].Turn].Mon, itemName, obEquipDB[itemName].Eff, obEquipDB[itemName].Text);
@@ -413,7 +413,7 @@ function attackMon(offMon, defMon, atkName, existsInMoveDB) {
       sendMsg(obTrans.GetMessages().GetString("AtkFailed").replace(/MON_NAME/, offMon.Name).replace(/ATTACK_NAME/, oAtk.Name));
     } else {
       a = oAtk.Eff.match(/m.*[\+\-]\d*|d|f[\d\.]*|s[\d\.]*|r[\d\.]*|c[\d\.]*|h[\d\.]*|w/gi);
-      for (let i = 0; i < a.length; i++) {
+      for (var i = 0; i < a.length; i++) {
         switch (a[i].charAt(0)) {
         case "d": //Damage - Formula based on 4th Gen Games
           if (oAtk.Pwr === undefined) {
@@ -701,8 +701,8 @@ function changeTurn(Turn, offMon, defMon) {
       sendMsg(obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, defMon.Name));
     }
   } else {
-    let loser;
-    let winner;
+    var loser;
+    var winner;
     if (offMon.HPCur <= 0) { //check the attackers's HP first, if both are 0, the defender wins
       loser = bWnd[iWnd].Player[Turn].Name;
       winner = bWnd[iWnd].Player[Turn === 1 ? 2 : 1].Name;
@@ -776,7 +776,7 @@ Translation.prototype = {
   "TranslationList": function () {
     var fso = w32Factory('Scripting.FileSystemObject');
     var returns = [];
-    for (let enume = new Enumerator(fso.GetFolder(this.LanguageFolder).Files); !enume.atEnd(); enume.moveNext()) {
+    for (var enume = new Enumerator(fso.GetFolder(this.LanguageFolder).Files); !enume.atEnd(); enume.moveNext()) {
 
       returns[returns.length] = String(enume.item()).match(/([^\\]*)\.xml$/)[1];
     }
@@ -792,7 +792,7 @@ Translation.prototype = {
 
 
     var wnd, id, twnd, controls, control, text, cControls, cElements, cColumns, cColumn, cControl, cElement, temp, title;
-    for (let i = 0; i < windows.length; i++) {
+    for (var i = 0; i < windows.length; i++) {
       wnd = windows[i];
       id = wnd.getAttribute('Id');
 
@@ -820,7 +820,7 @@ Translation.prototype = {
         }
 
         controls = wnd.selectNodes("Control");
-        for (let x = 0; x < controls.length; x++) {
+        for (var x = 0; x < controls.length; x++) {
           control = controls[x];
 
           if (control.hasChildNodes) {
@@ -851,21 +851,21 @@ Translation.prototype = {
 
             cColumns = control.selectNodes("Column");
 
-            for (let y = 0; y < cControls.length; y++) {
+            for (var y = 0; y < cControls.length; y++) {
               cControl = cControls[y];
 
               if (cControl.hasChildNodes) {
                 text = cControl.selectSingleNode("Caption");
                 if (text) {
                   temp = twnd.selectNodes(".//Control[@Id='" + control.getAttribute('Id') + "']//Control[@Id='" + cControl.getAttribute('Id') + "']/Caption");
-                  for (let z = 0; z < temp.length; z++) {
+                  for (var z = 0; z < temp.length; z++) {
                     temp[z].text = text.text;
                   }
                 }
               }
             }
 
-            for (let y = 0; y < cElements.length; y++) {
+            for (var y = 0; y < cElements.length; y++) {
               cElement = cElements[y];
               if (cElement.hasChildNodes) {
 
@@ -874,7 +874,7 @@ Translation.prototype = {
 
                   temp = twnd.selectNodes(".//Control[@Id='" + control.getAttribute('Id') + "']//Element[@Id='" + cElement.getAttribute('Id') + "']/Text");
 
-                  for (let z = 0; z < temp.length; z++) {
+                  for (var z = 0; z < temp.length; z++) {
                     temp[z].text = text.text;
                   }
                 }
@@ -882,13 +882,13 @@ Translation.prototype = {
 
             }
 
-            for (let y = 0; y < cColumns.length; y++) {
+            for (var y = 0; y < cColumns.length; y++) {
               cColumn = cColumns[y];
               if (cColumn.hasChildNodes) {
                 text = cColumn.selectSingleNode("Label");
                 if (text) {
                   temp = twnd.selectNodes(".//Control[@Id='" + control.getAttribute('Id') + "']//Column[ColumnId='" + cColumn.getAttribute('Id') + "']/Label");
-                  for (let z = 0; z < temp.length; z++) {
+                  for (var z = 0; z < temp.length; z++) {
                     temp[z].text = text.text;
                   }
                 }
@@ -917,7 +917,7 @@ Translation.prototype = {
     var wnd = MsgPlus.CreateWnd(XmlFile, WindowId, 1);
     var wndStrings = this.GetWindow(WindowId).ToObject();
 
-    for (let x in wndStrings) {
+    for (var x in wndStrings) {
       if (x == "Caption") {
         Interop.Call("User32", "SetWindowTextW", wnd.Handle, wndStrings[x]);
       } else if (x == "Title") {
@@ -975,7 +975,7 @@ Translation.prototype.window.prototype = {
   "ToObject": function () {
     var elements = this.xml.selectNodes("*");
     var returns = {};
-    for (let i = 0; i < elements.length; i++) {
+    for (var i = 0; i < elements.length; i++) {
       if (elements[i].nodeType == 1) {
 
         if (elements[i].tagName == "String") {
@@ -1001,7 +1001,7 @@ Translation.prototype.window.prototype.StringBundle.prototype = {
   "ToObject": function () {
     var nodes = this.xml.selectNodes("String");
     var returns = {};
-    for (let i = 0; i < nodes.length; i++) {
+    for (var i = 0; i < nodes.length; i++) {
       if (nodes[i].nodeType == 1) {
         returns[nodes[i].getAttribute("Id")] = nodes[i].text;
       }
@@ -1052,7 +1052,7 @@ var iniIntf = {
         ob[sectionName] = {};
         var v = sections[i].match(/^(.*?)=(.*?)$/gm);
         if (v) {
-          for (let x = 0; x < v.length; x++) {
+          for (var x = 0; x < v.length; x++) {
             var sp = v[x].split("=", 2);
             if (sp[1] === "true") {
               sp[1] = true;
@@ -1074,7 +1074,7 @@ function useItem(Player, itemName, itemEff) {
   var oMon = Player.Mon;
   sendMsg(obTrans.GetMessages().GetString("ItemUsed").replace(/PLAYER_NAME/, Player.Name).replace(/ITEM_NAME/, itemName.toUpperCase()));
   var a = itemEff.match(/([amp]\d[\+\-]\d*)|(h\d*)|c|s\d*/gi);
-  for (let i = 0; i < a.length; i++) {
+  for (var i = 0; i < a.length; i++) {
     switch (a[i].charAt(0)) {
     case "a":
       statMod.Set.Absolute(oMon, parseInt(a[i].charAt(1), 10), parseInt(a[i].slice(2), 10));
@@ -1111,7 +1111,7 @@ function equipItem(oMon, itemName, itemEff, itemMsg) {
     sendMsg(obTrans.GetMessages().GetString("ItemEquipped").replace(/MON_NAME/, oMon.Name).replace(/ITEM_NAME/, itemName.toUpperCase()) + " " + itemMsg);
     var a = itemEff.match(/[amp]\d[\+\-]\d*|s\d*/gi);
     if (a !== null) {
-      for (let i = 0; i < a.length; i++) {
+      for (var i = 0; i < a.length; i++) {
         switch (a[i].charAt(0)) {
         case "a":
           statMod.Set.Absolute(oMon, parseInt(a[i].charAt(1), 10), parseInt(a[i].slice(2), 10));
@@ -1140,7 +1140,7 @@ function unequipItem(oMon) {
     //Reverse stat changes
     a = oMon.Equip.Eff.match(/[amp]\d[\+\-]\d*/gi);
     if (a !== null) {
-      for (let i = 0; i < a.length; i++) {
+      for (var i = 0; i < a.length; i++) {
         switch (a[i].charAt(0)) {
         case "a":
           statMod.Set.Absolute(oMon, parseInt(a[i].charAt(1), 10), -parseInt(a[i].slice(2), 10));
@@ -1165,7 +1165,7 @@ function OnGetScriptMenu() {
   var sMenu = "<ScriptMenu>";
   sMenu += "<SubMenu Label=\"Language\">";
   var languages = obTrans.TranslationList();
-  for (let i in languages) {
+  for (var i in languages) {
     if (languages.hasOwnProperty(i))
       sMenu += "<MenuEntry Id=\"" + languages[i] + "\">" + languages[i] + "</MenuEntry>";
   }
@@ -1242,7 +1242,7 @@ function OnEvent_Uninitialize() { // TODO - Missing polyfill
 
 var settings = {
   LoadScript: function () {
-    for (let f in settings.LoadFile) {
+    for (var f in settings.LoadFile) {
       settings.LoadFile[f]();
     }
     obConf.Pref.enabled = true;
@@ -1276,7 +1276,7 @@ var settings = {
     },
     Mon: function () {
       obMonParty = iniIntf.ToObject("monParty");
-      for (let p in obMonParty) {
+      for (var p in obMonParty) {
         if (typeof (obMonParty[p].Type) === "string" && obMonParty[p].Type.split(",").length > 1) {
           obMonParty[p].Type = [parseInt(obMonParty[p].Type.split(",")[0]), parseInt(obMonParty[p].Type.split(",")[1])];
         } else {
@@ -1328,7 +1328,7 @@ var settings = {
     iniIntf.WriteIni("settings", "record", prop, obConf.Record[prop]);
   },
   Debug: function (ob) {
-    for (let p in ob) {
+    for (var p in ob) {
       Debug.Trace(p + ": " + ob[p]);
     }
   }
@@ -4194,13 +4194,13 @@ function openPage(sLink) {
 
 function loadCmdWnd(cmdWnd) {
   //Remove current list items
-  for (let i = cmdWnd.LstView_GetCount("LvCommands") - 1; i >= 0; i--) {
+  for (var i = cmdWnd.LstView_GetCount("LvCommands") - 1; i >= 0; i--) {
     cmdWnd.LstView_RemoveItem("LvCommands", i);
   }
   //(Re)populate list
   var i = 0;
   var a = ["ichal", "go", "bhelp", "qq", "return", "use", "heal", "item", "equip", "unequip"];
-  for (let p in obCmds) {
+  for (var p in obCmds) {
     cmdWnd.LstView_AddItem("LvCommands", p);
     cmdWnd.LstView_SetItemText("LvCommands", i, 1, a[i]);
     cmdWnd.LstView_SetItemText("LvCommands", i, 2, obCmds[p]);
@@ -4404,7 +4404,7 @@ function loadEquipWnd(equipWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (let sName in obEquipDB) {
+  for (var sName in obEquipDB) {
     equipWnd.LstView_AddItem("LvEquip", sName);
     equipWnd.LstView_SetItemText("LvEquip", i, 1, obEquipDB[sName].Desc);
     equipWnd.LstView_SetItemText("LvEquip", i, 2, obEquipDB[sName].Enabled);
@@ -4417,13 +4417,13 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
   case "BtnAdd":
     addEquipWnd = MsgPlus.CreateWnd("XMLWindows.xml", "WndAddEquip");
     //Populate dropdown menus
-    for (let i = -2; i <= 6; i++) {
+    for (var i = -2; i <= 6; i++) {
       addEquipWnd.Combo_AddItem("CbSts", obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
     }
-    for (let i = -2; i <= -1; i++) {
+    for (var i = -2; i <= -1; i++) {
       addEquipWnd.Combo_AddItem("CbImm", obTrans.GetWindow("WndAddEquip").GetString("CbImm" + i), i);
     }
-    for (let i = 0; i <= 6; i++) {
+    for (var i = 0; i <= 6; i++) {
       addEquipWnd.Combo_AddItem("CbImm", obTrans.GetWindow("WndAddEquip").GetString("CbSts" + i), i);
     }
     addEquipWnd.Combo_SetCurSel("CbSts", 0);
@@ -4431,7 +4431,7 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
     break;
   case "BtnDelete":
     //Loop through the list to find the selected item
-    for (let i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
+    for (var i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
       if (equipWnd.LstView_GetSelectedState("LvEquip", i) === true) {
         iniIntf.DeleteHeader("equipDB", equipWnd.LstView_GetItemText("LvEquip", i, 0));
         settings.LoadFile.Equip();
@@ -4442,7 +4442,7 @@ function OnWndEquipEvent_CtrlClicked(equipWnd, ControlId) {
     break;
   case "BtnEnable":
     //Loop through the list to find the selected item
-    for (let i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
+    for (var i = 0; i <= equipWnd.LstView_GetCount("LvEquip"); i++) {
       if (equipWnd.LstView_GetSelectedState("LvEquip", i) === true) {
         name = equipWnd.LstView_GetItemText("LvEquip", i, 0);
         iniIntf.WriteIni("equipDB", name, "Enabled", (obEquipDB[name].Enabled === false) ? true : false);
@@ -4506,7 +4506,7 @@ function loadShopWnd(shopWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (let sName in obItemDB) {
+  for (var sName in obItemDB) {
     shopWnd.LstView_AddItem("LvItems", sName);
     shopWnd.LstView_SetItemText("LvItems", i, 1, obItemDB[sName].Desc);
     shopWnd.LstView_SetItemText("LvItems", i, 2, obItemDB[sName].Enabled);
@@ -4611,7 +4611,7 @@ function loadMonWnd(monWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (let sName in obMonParty) {
+  for (var sName in obMonParty) {
     monWnd.LstView_AddItem("LvMons", obMonParty[sName].Name);
     monWnd.LstView_SetItemText("LvMons", i, 1, obTrans.Types().GetString(obMonParty[sName].Type[0]) + (obMonParty[sName].Type[1] === undefined ? "" : ("," + obTrans.Types().GetString(obMonParty[sName].Type[1]))));
     monWnd.LstView_SetItemText("LvMons", i, 2, obMonParty[sName].HPCur + "\/" + obMonParty[sName].HPMax);
@@ -4728,7 +4728,7 @@ function loadMoveWnd(moveWnd) {
   }
   //(Re)populate list
   i = 0;
-  for (let sName in obMoveDB) {
+  for (var sName in obMoveDB) {
     moveWnd.LstView_AddItem("LvMoves", sName);
     moveWnd.LstView_SetItemText("LvMoves", i, 1, obTrans.Types().GetString(obMoveDB[sName].Type));
     moveWnd.LstView_SetItemText("LvMoves", i, 2, obMoveDB[sName].Pwr);
