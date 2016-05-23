@@ -83,8 +83,8 @@ def process_image(url, gaben_path):
             continue
 
         # arrange both images
-		final = Image.new("RGB", (original_width, original_height))
-		final.paste(gabenized, (0,0))
+        final = Image.new("RGB", (original_width, original_height))
+        final.paste(gabenized, (0,0))
         #final = Image.new("RGB", (original_width * 2, original_height))
         #final.paste(original, (0,0))
         #final.paste(gabenized, (original_width, 0))
