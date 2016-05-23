@@ -328,7 +328,7 @@ exports.commands = {
   "vote": {
     process: function(msg, suffix) {
       if (!suffix) { bot.sendMessage(msg, "Gotta vote for something!"); return; }
-      if (votebool == false) { bot.sendMessage(msg, "There is not a vote in progress. Start one with the 'newvote' command."); return; }
+      if (votebool == false) { bot.sendMessage(msg, "There are no votes in progress. Start one with the 'newvote' command."); return; }
       if (voter.indexOf(msg.author) != -1) { return; }
       voter.push(msg.author);
       var vote = suffix.split(" ")[0]
@@ -339,9 +339,9 @@ exports.commands = {
   "votestatus": {
     process: function(msg) {
       var msgArray = [];
-      if (votebool == true) {bot.sendMessage(msg.channel, "There **is** a vote in progress. Error reading topic string.")}
+      if (votebool == true) {bot.sendMessage(msg.channel, 'A vote is currently in progress. "' + topicstring + '"')}
         else {
-          bot.sendMessage(msg.channel, "There is currently **not** a vote in progress.")
+          bot.sendMessage(msg.channel, "A vote is **not** currently in progress.")
         }
     }
   },
