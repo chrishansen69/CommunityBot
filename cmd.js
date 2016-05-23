@@ -283,6 +283,7 @@ let downvote = 0;
 let voter = [];
 let votebool = false;
 let topicstring = "";
+let voteStarterId = -1;
 
 let eliza = null;
 let cleverbot = null;
@@ -316,9 +317,10 @@ exports.commands = {
   },
   "newvote": {
     process: function(msg, suffix) {
-      if (!suffix) { bot.sendMessage(msg.channel, "Include a suffix please!"); return; }
-      if (votebool == true) { bot.sendMessage(msg, "Theres already a vote pending!"); return; }
+      if (!suffix) { bot.sendMessage(msg.channel, "Include a vote message please!"); return; }
+      if (votebool == true) { bot.sendMessage(msg, "There's already a vote pending!"); return; }
       topicstring = suffix;
+      voteStarterId = msg.sender.id;
       bot.sendMessage(msg, "New Vote started: `" + suffix + "`\nTo vote say `" + AuthDetails.discordjs_trigger + "vote +/-`");
       votebool = true;
     }
@@ -345,6 +347,8 @@ exports.commands = {
   },
   "endvote": {
     process: function(msg, suffix) {
+      if (!utility.isOpped(message.sender) && msg.sender.id !== voteStarterId) { bot.sendMessage(message.channel, "Only bot operators or the vote starter can end a vote!"); return; }
+      
       bot.sendMessage(msg, "**Results of last vote:**\nTopic: `" + topicstring + "`\nVotes for: `" + upvote + "`\nVotes against: `" + downvote + "`");
       upvote = 0;
       downvote = 0;
@@ -355,22 +359,26 @@ exports.commands = {
   },
   "ping": {
     process: function(message) {
-      bot.sendMessage(message.channel, "PONG");
+      bot.sendMessage(message.channel, "PONG " + message.sender.mention());
     }
   },
   "pong": {
     process: function(message) {
-      bot.sendMessage(message.channel, "PING");
+      bot.sendMessage(message.channel, "PING " + message.sender.mention());
     }
   },
   "setgame": {
     process: function(msg, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       bot.setStatus('online', suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
     }
   },
   "setgame-idle": {
     process: function(msg, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       bot.setStatus('idle', suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
     }
@@ -384,7 +392,7 @@ exports.commands = {
     process: function(message, suffix) {
       const config = getConfig();
       if (config.token) { // join through oAuth
-        bot.sendMessage(msg.channel, "Apologies, but I am now a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
+        bot.sendMessage(msg.channel, "Apologies, but I am a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
       } else { // join normally
         let query = suffix;
         let sender = message.author.username;
@@ -416,20 +424,18 @@ exports.commands = {
   },
   "eval": {
     process: function(message, suffix) {
-      if (utility.isOpped(message.sender)) {
-        try {
-          bot.sendMessage(message, eval(suffix));
-        } catch (err) {
-          let array = [];
-          array.push("*Eval failed.*");
-          array.push('```');
-          array.push(err);
-          array.push(err.stack);
-          array.push('```');
-          bot.sendMessage(message, array);
-        }
-      } else {
-        bot.sendMessage(message, "You don't have permission to use this command!");
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
+      try {
+        bot.sendMessage(message, eval(suffix));
+      } catch (err) {
+        let array = [];
+        array.push("*Eval failed.*");
+        array.push('```');
+        array.push(err);
+        array.push(err.stack);
+        array.push('```');
+        bot.sendMessage(message, array);
       }
     }
   },
@@ -494,6 +500,8 @@ exports.commands = {
   },
   "createcmd": {
     process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       let index = suffix.indexOf(" | ");
       if (index !== -1) {
           try {
@@ -520,6 +528,8 @@ exports.commands = {
   },
   "r9k": {
     process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       let id = message.channel.id; // unique-ish channel id
       const config = getConfig();
       
@@ -540,6 +550,8 @@ exports.commands = {
   },
   "setavatar": {
     process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       const config = getConfig();
       const path = suffix.split(' ')[0];
       const channelID = message.channel;
@@ -580,6 +592,8 @@ exports.commands = {
   },
   "kill": {
     process: function() {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       bot.disconnect();
 
       console.log(chalk.yellow('The bot was stopped through the kill command.'));
@@ -589,6 +603,8 @@ exports.commands = {
   },
   "op": {
     process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       let opped;
       if (message.mentions.length > 0) { // get by mention
         opped = message.mentions[0];
@@ -610,6 +626,8 @@ exports.commands = {
   },
   "deop": {
     process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
       let opped;
       if (message.mentions.length > 0) { // get by mention
         opped = message.mentions[0];
@@ -661,8 +679,9 @@ exports.commands = {
       }, 500);
     }
   },
-  "gabe": {
+  "jpeg": {
     process: function(message, suffix) {
+      // TODO needs more jpeg
     }
   }
 };
