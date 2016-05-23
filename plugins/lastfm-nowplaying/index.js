@@ -70,8 +70,10 @@ function getUser(id) {
 function addUserCommand(message, suffix) {
     
     const chan = getConfig()['music-bot'].users[message.channel.server.name][message.channel.name];
-    chan[chan.length][0] = message.sender.id;
-    chan[chan.length][1] = suffix.split(' ')[0];
+    chan[chan.length] = [
+      message.sender.id, // discord id
+      suffix.split(' ')[0] // lastfm username
+    ];
     
     bot.sendMessage(message.channel, 'Added ' + message.sender.name + ' (' + message.sender.id + ') to Now Playing list on this channel');
     
