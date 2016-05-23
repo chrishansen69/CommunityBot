@@ -76,6 +76,8 @@ bot.on("ready", function() {
                   " - " + body.recenttracks.track[0].name; // track name
                 
                 if (trk !== conf.users[servers[i]][channels[j]][user][2]) {
+                  conf.users[servers[i]][channels[j]][user][2] = trk;
+                  
                   bot.sendMessage(getChannel(servers[i], channels[j]), // msg in the channel
                     getUser(conf.users[servers[i]][channels[j]][user][0]).mention() + // @mention the user
                     " now playing: " + trk);
