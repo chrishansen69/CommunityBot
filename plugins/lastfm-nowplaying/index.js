@@ -90,7 +90,7 @@ bot.on("ready", function() {
       }
     }
     
-  }, 2000);
+  }, 120000);
 });
 
 function getUser(id) {
