@@ -15,7 +15,12 @@ function gabe(_message, suffix) {
     };
 
     PythonShell.run('mentions.py', options, function (err, results) {
-      if (err) throw err;
+      if (err) {
+        bot.sendMessage(_message.channel, ['Error creating Gaben!', 'Please check if your image has a face in it.', '`' + err.toString() + '`']);
+        console.error(err);
+        return;
+        //throw err;
+      }
       // results is an array consisting of messages collected during execution
       //console.log('results: %j', results);
       
