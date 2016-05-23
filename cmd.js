@@ -347,7 +347,7 @@ exports.commands = {
   },
   "endvote": {
     process: function(msg, suffix) {
-      if (!utility.isOpped(message.sender) && msg.sender.id !== voteStarterId) { bot.sendMessage(message.channel, "Only bot operators or the vote starter can end a vote!"); return; }
+      if (!utility.isOpped(msg.sender) && msg.sender.id !== voteStarterId) { bot.sendMessage(message.channel, "Only bot operators or the vote starter can end a vote!"); return; }
       
       bot.sendMessage(msg, "**Results of last vote:**\nTopic: `" + topicstring + "`\nVotes for: `" + upvote + "`\nVotes against: `" + downvote + "`");
       upvote = 0;
@@ -369,7 +369,7 @@ exports.commands = {
   },
   "setgame": {
     process: function(msg, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!utility.isOpped(msg.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
       
       bot.setStatus('online', suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
@@ -377,7 +377,7 @@ exports.commands = {
   },
   "setgame-idle": {
     process: function(msg, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!utility.isOpped(msg.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
       
       bot.setStatus('idle', suffix);
       bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
@@ -591,7 +591,7 @@ exports.commands = {
     }
   },
   "kill": {
-    process: function() {
+    process: function(message) {
       if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
       
       bot.disconnect();
