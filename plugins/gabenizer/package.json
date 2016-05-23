@@ -1,19 +1,21 @@
 {
-  "name": "discord-dice",
-  "description": "This let's your users roll a dice. This plugin is based the Discord Bot API (https://github.com/simonknittel/discord-bot-api)",
-  "author": "Simon Knittel <hallo@simonknittel.de> (http://simonknittel.de/)",
-  "homepage": "https://github.com/simonknittel/discord-bot-api",
+  "name": "gabenizer",
+  "description": "Discord Gabenizer",
+  "author": "Rafael (rafa1231518) with help from @HulaSamsquanch and code from https://github.com/revan/gabenizer",
+  "homepage": "https://github.com/rafa1231518/CommunityBot",
   "keywords": [
     "discord",
-    "dice"
+    "gaben",
+	"bot",
+	"plugin"
   ],
-  "license": "GNU GPL v3",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/simonknittel/discord-bot-api"
+    "url": "https://github.com/rafa1231518/CommunityBot"
   },
   "bugs": {
-    "url": "https://github.com/simonknittel/discord-bot-api/issues"
+    "url": "https://github.com/rafa1231518/CommunityBot/issues"
   },
   "main": "index.js",
   "dependencies": {
