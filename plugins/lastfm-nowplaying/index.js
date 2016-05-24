@@ -2,6 +2,8 @@
 
 const bot = require('../../bot.js');
 const getConfig = require('../../utility.js').getConfig;
+const saveConfig = require('../../utility.js').saveConfig;
+
 const http = require('http');
 
 if (!getConfig()['lastfm']) {
@@ -101,7 +103,30 @@ function getChannel(server, name) {
   return bot.servers.get('name', server).channels.get('name', name);
 }
 
-function addUserCommand(message, suffix) {
+function removeMeCommand(message) {
+  try {
+    const chan = getConfig()['lastfm'].users[message.channel.server.name][message.channel.name];
+    for (let i = 0; i < chan.length; i++) {
+      if (chan[i][0] == message.sender.id) {
+        chan.splice(i, 1);
+        bot.sendMessage(message.channel, 'Removed ' + message.sender.name + ' (' + message.sender.id + ') from the Now Playing list on this channel');
+        saveConfig();
+        return;
+      }
+    }
+  } catch (e) {
+    bot.sendMessage(message.channel, '**Error removing user**: `' + e + '`');
+    console.error(e);
+  }
+}
+
+function addUserCommand(message, suffix) { // TODO doesn't create server / channel entries
+    
+    if (!getConfig()['lastfm'].users[message.channel.server.name])
+      getConfig()['lastfm'].users[message.channel.server.name] = {};
+    
+    if (!getConfig()['lastfm'].users[message.channel.server.name][message.channel.name])
+      getConfig()['lastfm'].users[message.channel.server.name][message.channel.name] = [];
     
     const chan = getConfig()['lastfm'].users[message.channel.server.name][message.channel.name];
     chan[chan.length] = [
@@ -109,6 +134,8 @@ function addUserCommand(message, suffix) {
       suffix.split(' ')[0], // lastfm username
       'last played song'
     ];
+    
+    saveConfig();
     
     bot.sendMessage(message.channel, 'Added ' + message.sender.name + ' (' + message.sender.id + ') to Now Playing list on this channel');
     
@@ -121,6 +148,10 @@ module.exports = {
         "lastfm-add": {
             fn: addUserCommand,
             description: 'Adds a lastfm user to the now-playing list'
+        },
+        "lastfm-remove": {
+            fn: removeMeCommand,
+            description: 'Removes yourself from the now-playing list'
         },
     },
 };
