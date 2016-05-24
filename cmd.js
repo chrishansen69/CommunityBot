@@ -310,11 +310,6 @@ exports.r9k = function(msg) { // r9k mode
 };
 
 exports.commands = {
-  "ping": {
-    process: function(message) {
-      bot.sendMessage(message.channel, "PONG");
-    }
-  },
   "newvote": {
     process: function(msg, suffix) {
       if (!suffix) { bot.sendMessage(msg.channel, "Include a vote message please!"); return; }
