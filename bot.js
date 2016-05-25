@@ -17,7 +17,7 @@ const trigger = config.trigger;
 
 // INITIALIZE BOT
 
-let bot = new Discord.Client();
+let bot = new Discord.Client({autoReconnect: true});
 module.exports = bot;
 
 
@@ -31,8 +31,8 @@ bot.on("ready", function () {
 });
 
 bot.on("disconnected", function () {
-	console.log("Bot has disconnected. Exiting...");
-	process.exit(0); //exit node.js without an error cuz CI will complain if we don't use valid credentials
+	console.log("Bot has disconnected. Retrying...");
+	//process.exit(0); //exit node.js without an error cuz CI will complain if we don't use valid credentials
 });
 
 bot.on("error", function (error) {
