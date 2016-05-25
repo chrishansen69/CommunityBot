@@ -15,7 +15,7 @@
   },
   "scripts": {
     "start": "node bot",
-	"test": "rename config-travis.json config.json && node bot"
+	"test": "mv config-travis.json config.json && node bot"
   },
   "license": "GPL-3.0",
   "dependencies": {
