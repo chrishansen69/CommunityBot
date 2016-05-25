@@ -32,6 +32,9 @@ bot.on("ready", function () {
 
 bot.on("disconnected", function () {
 	console.log("Bot has disconnected. Retrying...");
+  
+  // FIXME is it not reconnecting?
+  
 	//process.exit(0); //exit node.js without an error cuz CI will complain if we don't use valid credentials
 });
 
