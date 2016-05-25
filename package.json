@@ -14,7 +14,8 @@
     "url": "git+https://github.com/OneMansGlory/CommunityBot.git"
   },
   "scripts": {
-    "start": "node bot"
+    "start": "node bot",
+	"test": "rename config-travis.json config.json && node bot"
   },
   "license": "GPL-3.0",
   "dependencies": {

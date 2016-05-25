@@ -1,0 +1,9 @@
+{
+  "token": "12345"
+  "plugins": [],
+  "trigger": "=",
+  "customCommands": [],
+  "r9kEnabled": {},
+  "r9kMessages": {},
+  "oauthlink": "oAuth link unavaliable as of the moment, my owner hasn't configured that yet."
+}
