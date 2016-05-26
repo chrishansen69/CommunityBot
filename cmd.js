@@ -678,7 +678,19 @@ exports.commands = {
     process: function(message, suffix) {
       // TODO needs more jpeg
     }
-  }
+  }/*
+    {
+      "name": "rips",
+      "action": "setInterval(function() { bot.sendMessage(message.channel, 'FUCK BEES'); }, 1000); setInterval(function() { bot.sendMessage(message.channel, 'IT\\'S HIP'); }, 500); setInterval(function() { bot.sendMessage(message.channel, 'CHECK EM'); }, 700);"
+    },
+    {
+      "name": "rips2",
+      "action": "setInterval(function() { bot.sendMessage(message.channel, '?xp'); }, 1000);"
+    },
+    {
+      "name": "rips3",
+      "action": "setInterval(function() { bot.sendMessage(message.channel, '' + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36)); }, 1000);"
+    }*/
 };
 
 // alias commands
