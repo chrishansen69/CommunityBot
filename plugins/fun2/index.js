@@ -336,7 +336,7 @@ module.exports.commands.rule34 = {
 
 module.exports.commands.meme = {
   description: "I'll create a meme with your suffixes!",
-  usage: '<memetype> "<Upper line>" "<Bottom line>" **Quotes are important!**',
+//  usage: '<memetype> "<Upper line>" "<Bottom line>" **Quotes are important!**',
   fn: function (msg, suffix, bot) {
     let tags = suffix.split('"');
     let memetype = tags[0].split(' ')[0];
@@ -349,7 +349,7 @@ module.exports.commands.meme = {
         let user = bot.User;
         let guildPerms = user.permissionsFor(guild);
         if (guildPerms.Text.MANAGE_MESSAGES) {
-          msg.delete();
+          bot.deleteMessage(msg);
           bot.reply(msg, image);
         } else {
           bot.reply(msg, image);
