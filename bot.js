@@ -1,5 +1,9 @@
 'use strict';
 
+if (process.env.NODE_ENV !== 'production'){
+  require('longjohn');
+}
+
 const Discord = require('discord.js');
 const fs = require('fs');
 const utility = require('./utility.js');
