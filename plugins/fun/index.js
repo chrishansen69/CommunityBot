@@ -1,9 +1,11 @@
+'use strict';
+
 const fs = require('fs');
 const bot = require('../../bot.js');
 
 const botStartTime = new Date();
 
-const cenaFolder = "./cena/";
+const cenaFolder = "./plugins/fun/cena/";
 const cenaImages = fs.readdirSync(cenaFolder); //Loops through a given folder and creates an array of file names
 
 const ROCK = 0;
@@ -26,14 +28,14 @@ function uptime(message, suffix) { // Stolen from SDG-Discord-Bot
 		let uptimeHours = Math.floor(x % 24);
 		x /= 24;
 		let uptimeDays = Math.floor(x);
-		bot.reply(message, uptimeDays + " days, " + uptimeHours + " hours, " + uptimeMinutes + " minutes and " + uptimeSeconds + " seconds");
+		bot.sendMessage(message.channel, message, uptimeDays + " days, " + uptimeHours + " hours, " + uptimeMinutes + " minutes and " + uptimeSeconds + " seconds");
 }
 
 function cena(message, suffix) { // Stolen from SDG-Discord-Bot
   //\uD83C is the unicode trumpet
-  bot.reply(message, "\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA**JOHN CENA!**\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA");
+  bot.sendMessage(message.channel, message, "\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA**JOHN CENA!**\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA");
   
-  const cenaImage = cenaImageArray[Math.floor(Math.random() * cenaImages.length)];
+  const cenaImage = cenaImages[Math.floor(Math.random() * cenaImages.length)];
   
   bot.sendFile(message.channel, cenaFolder + cenaImage,"jonny.png", (err, message) => {
     if(err)
@@ -43,7 +45,7 @@ function cena(message, suffix) { // Stolen from SDG-Discord-Bot
 
 //KoolAid reply function
 function koolaid(message) {
-  bot.sendFile(message.channel, "./meme/koolaid.jpg", "koolaid.jpg", (err, message) => {
+  bot.sendFile(message.channel, "./plugins/fun/meme/koolaid.jpg", "koolaid.jpg", (err, message) => {
     if(err)
       console.error("couldn't send image: " + err);
   });
@@ -51,8 +53,8 @@ function koolaid(message) {
 
 //Macho Man function
 function machoman(message) {
-  bot.reply(message, "**OOOOOH YEAH BROTHER**");
-  bot.sendFile(message.channel, "./meme/savage.jpg", "savage.jpg", (err, message) => {
+  bot.sendMessage(message.channel, message, "**OOOOOH YEAH BROTHER**");
+  bot.sendFile(message.channel, "./plugins/fun/meme/savage.jpg", "savage.jpg", (err, message) => {
     if(err)
       console.error("Couldn't send image: " + err);
   });
@@ -63,11 +65,12 @@ function rps(message) {
     RPS1choice = -1;
     RPS2choice = -1;
     RPS1 = message.sender.id;
+    console.log('length is ' + message.mentions.length);
     RPS2 = message.mentions[0].id;
     inRPS = true;
-    bot.reply(message.sender.mention() + ' challenges ' + message.mentions[0].mention() + ' to a game of Rock, Paper, Scissors! Type `rock` `paper` or `scissors`!')
+    bot.sendMessage(message.channel, message.sender.mention() + ' challenges ' + message.mentions[0].mention() + ' to a game of Rock, Paper, Scissors! Type `rock` `paper` or `scissors`!')
   } else {
-    bot.reply('A game has already started!');
+    bot.sendMessage(message.channel, 'A game has already started!');
   }
 }
 
