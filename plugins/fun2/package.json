@@ -1,0 +1,42 @@
+{
+  "name": "discord-dice",
+  "description": "This let's your users roll a dice. This plugin is based the Discord Bot API (https://github.com/simonknittel/discord-bot-api)",
+  "author": "Simon Knittel <hallo@simonknittel.de> (http://simonknittel.de/)",
+  "homepage": "https://github.com/simonknittel/discord-bot-api",
+  "keywords": [
+    "discord",
+    "dice"
+  ],
+  "license": "GNU GPL v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simonknittel/discord-bot-api"
+  },
+  "bugs": {
+    "url": "https://github.com/simonknittel/discord-bot-api/issues"
+  },
+  "main": "index.js"
+  "dependencies": {
+    "csgo-market": "^1.5.2",
+    "discordie": "^0.6.2",
+    "imgflipper": "^1.0.1",
+    "inquirer": "^0.12.0",
+    "leetspeak": "0.0.1",
+    "minimist": "^1.2.0",
+    "nedb": "^1.8.0",
+    "ora": "^0.2.1",
+    "request": "^2.72.0",
+    "require-directory": "^2.1.1",
+    "semver": "^5.1.0",
+    "unirest": "^0.4.2",
+    "winston": "^2.2.0",
+    "winston-daily-rotate-file": "^1.0.1",
+    "xml2js": "^0.4.16",
+    "youtube-api": "^2.0.2",
+    "youtube-dl": "^1.11.1"
+  },
+  "devDependencies": {
+    "eslint": "^2.7.0",
+    "standard": "^6.0.8"
+  }
+}
