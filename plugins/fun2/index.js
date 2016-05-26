@@ -123,7 +123,6 @@ module.exports.commands.yomomma = {
 
 module.exports.commands.advice = {
   description: "I'll give you some fantastic advice!",
-  noDM: true, // Ratelimits Ratelimits Ratelimits Ratelimits
   fn: function (msg) {
     request('http://api.adviceslip.com/advice', function (error, response, body) {
       if (!error && response.statusCode === 200) {
@@ -346,8 +345,8 @@ module.exports.commands.meme = {
       if (err) {
         bot.reply(msg, 'Please try again.');
       } else {
-        let guild = msg.guild
-        let user = bot.User
+        let guild = msg.guild;
+        let user = bot.User;
         let guildPerms = user.permissionsFor(guild);
         if (guildPerms.Text.MANAGE_MESSAGES) {
           msg.delete();
@@ -359,4 +358,4 @@ module.exports.commands.meme = {
       }
     });
   }
-}
+};
