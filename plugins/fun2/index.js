@@ -34,7 +34,6 @@ module.exports.commands.gif = {
 
 module.exports.commands.fortunecow = {
   description: "I'll get a random fortunecow!",
-  module: 'fun',
   fn: function (msg) {
     unirest.get('https://thibaultcha-fortunecow-v1.p.mashape.com/random')
       .header('X-Mashape-Key', getConfig().api_keys.mashape)
@@ -47,7 +46,6 @@ module.exports.commands.fortunecow = {
 
 module.exports.commands.randomcat = {
   description: "I'll get a random cat image for you!",
-  module: 'fun',
   fn: function (msg) {
     unirest.get('https://nijikokun-random-cats.p.mashape.com/random')
       .header('X-Mashape-Key', getConfig().api_keys.mashape)
