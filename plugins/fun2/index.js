@@ -1,4 +1,7 @@
 'use strict';
+
+// pretty much completely stolen from SteamingMutt/WildBeast
+
 const bot = require('../../bot.js');
 
 const Commands = {};
@@ -74,10 +77,10 @@ Commands.stroke = {
     if (suffix) {
       name = suffix.split('"');
       if (name.length === 1) {
-        name = ['', name]
+        name = ['', name];
       }
     } else {
-      name = ['Andrei', 'Zbikowski'] // I'm not sorry b1nzy <3
+      name = ['Simplicity', 'NFM']
     }
     const request = require('request');
     request('http://api.icndb.com/jokes/random?escape=javascript&firstName=' + name[0] + '&lastName=' + name[1], function (error, response, body) {
@@ -170,7 +173,7 @@ Commands.urbandictionary = {
         }
         let uD = JSON.parse(body);
         if (uD.result_type !== 'no_results') {
-          let msgArray = []
+          let msgArray = [];
           msgArray.push('**' + uD.list[0].word + '**');
           msgArray.push(uD.list[0].definition);
           msgArray.push('\n```');
@@ -295,7 +298,7 @@ Commands.e621 = {
             msg.reply('Sorry, nothing found.') // Correct me if it's wrong.
           } else {
             let count = Math.floor((Math.random() * result.body.length));
-            let FurryArray = []
+            let FurryArray = [];
             if (suffix) {
               FurryArray.push(`${msg.author.mention}, you've searched for \`${suffix}\``);
             } else {
@@ -324,7 +327,7 @@ Commands.rule34 = {
               bot.sendMessage(msg.channel, 'The API returned an unconventional response.');
             } else {
               let count = Math.floor((Math.random() * reply.posts.post.length));
-              let FurryArray = []
+              let FurryArray = [];
               if (!suffix) {
                 FurryArray.push(msg.author.mention + ", you've searched for `random`");
               } else {
@@ -344,7 +347,7 @@ Commands.meme = {
   usage: '<memetype> "<Upper line>" "<Bottom line>" **Quotes are important!**',
   fn: function (msg, suffix, bot) {
     let tags = suffix.split('"');
-    let memetype = tags[0].split(' ')[0]
+    let memetype = tags[0].split(' ')[0];
     const meme = require('./memes.json');
     const Imgflipper = require('imgflipper');
     let imgflipper = new Imgflipper(config.api_keys.imgflip.username, config.api_keys.imgflip.password);
@@ -367,8 +370,6 @@ Commands.meme = {
   }
 }
 
-exports.Commands = Commands
-
 module.exports = {
-    commands: {
-        uptime: {
+    commands: Commands
+};
