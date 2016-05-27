@@ -1,8 +1,8 @@
 'use strict';
 
-if (process.env.NODE_ENV !== 'production'){
-  require('longjohn');
-}
+//if (process.env.NODE_ENV !== 'production'){
+//  require('longjohn');
+//}
 
 const Discord = require('discord.js');
 const fs = require('fs');
@@ -10,12 +10,6 @@ const utility = require('./utility.js');
 
 // LOAD CONFIG
 
-try {
-	require('./config.json');
-} catch (e) {
-	console.log("config.json not found. Copying from config-base.json...");
-	fs.writeFileSync('./config.json', fs.readFileSync('./config-base.json'));
-}
 const config = utility.getConfig();
 const trigger = config.trigger;
 

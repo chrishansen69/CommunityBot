@@ -7,3 +7,10 @@ plugins/gabenizer/secret.py
 plugins/gabenizer/numpy-1.10.4+mkl-cp27-cp27m-win32.whl
 plugins/gabenizer/numpy-1.10.4+mkl-cp27-cp27m-win_amd64.whl
 plugins/gabenizer/dist/gabenizer-1.0-py2.7.egg
+app.js
+bot-package.json
+config-my-base.json
+ops.json
+start.js
+/static/
+/utils/

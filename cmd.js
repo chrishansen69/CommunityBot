@@ -5,8 +5,6 @@
 // - Command descriptions
 // - Save setgame output
 
-//const config = require('./config.json');
-
 const bot = require('./bot.js');
 const utility = require('./utility.js');
 const getConfig = utility.getConfig;
@@ -559,7 +557,7 @@ exports.commands = {
       const oldAvatar = config.avatar;
       config.avatar = path;
 
-      jsonfile.writeFile('./config.json', config, {spaces: 2}, function(err) {
+      jsonfile.writeFile(utility.dataFolder + 'config.json', config, {spaces: 2}, function(err) {
         if (err) { // if failed
           console.error(err);
           config.avatar = oldAvatar;
@@ -674,23 +672,84 @@ exports.commands = {
       }, 500);
     }
   },
+  "prunebots": {
+    process: function(message, suffix) {
+      bot.getChannelLogs(message.channel, 200, {before: message}, function (err, messages) {
+        if (err) {
+          console.error(err);
+          bot.sendMessage(message.channel, "Failed to prune bot messages in this channel: `" + err + "`");
+          return;
+        }
+        
+        for (let i = 0; i < messages.length; i++) {
+          if (messages[i].sender.bot || messages[i].sender.name === 'BonziBuddy')
+            bot.deleteMessage(messages[i]);
+        }
+        bot.sendMessage(message.channel, "Pruned last 200 bot messages!");
+      });
+      
+      
+    }
+  },
+  "getconf": {
+    process: function(message, suffix) {
+      if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
+      
+      try {
+        bot.sendMessage(message.channel, '```' + JSON.stringify(getConfig()) + '```');
+      } catch (e) {
+        console.error(e);
+        bot.sendMessage(message.channel, "It failed: " + e);
+      }
+    }
+  },
+  "setconf": {
+    process: function(message, suffix) {
+      if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
+      
+      try {
+        utility.setConfig(JSON.parse(message.content.substr(message.content.indexOf(' ') + 1)));
+        utility.saveConfig();
+      } catch (e) {
+        console.error(e);
+        bot.sendMessage(message.channel, "It failed: " + e);
+        bot.sendMessage(message.channel, "Your message: " + message.content.substr(message.content.indexOf(' ') + 1));
+      }
+    }
+  },
+  "saveconf": {
+    process: function(message, suffix) {
+      if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
+      
+      utility.saveConfig();
+    }
+  },
   "jpeg": {
     process: function(message, suffix) {
       // TODO needs more jpeg
     }
-  }/*
-    {
-      "name": "rips",
-      "action": "setInterval(function() { bot.sendMessage(message.channel, 'FUCK BEES'); }, 1000); setInterval(function() { bot.sendMessage(message.channel, 'IT\\'S HIP'); }, 500); setInterval(function() { bot.sendMessage(message.channel, 'CHECK EM'); }, 700);"
-    },
-    {
-      "name": "rips2",
-      "action": "setInterval(function() { bot.sendMessage(message.channel, '?xp'); }, 1000);"
-    },
-    {
-      "name": "rips3",
-      "action": "setInterval(function() { bot.sendMessage(message.channel, '' + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36)); }, 1000);"
-    }*/
+  },
+  "rips1": { // SPAMBOT
+    process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
+      setInterval(function() { bot.sendMessage(message.channel, 'FUCK BEES'); }, 1000); setInterval(function() { bot.sendMessage(message.channel, 'IT\'S HIP'); }, 500); setInterval(function() { bot.sendMessage(message.channel, 'CHECK EM'); }, 700);
+    }
+  },
+  "rips2": { // SPAMBOT
+    process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
+      setInterval(function() { bot.sendMessage(message.channel, '?xp'); }, 1000);
+    }
+  },
+  "rips3": { // SPAMBOT
+    process: function(message, suffix) {
+      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      
+      setInterval(function() { bot.sendMessage(message.channel, '' + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36)); }, 1000);
+    }
+  }
 };
 
 // alias commands

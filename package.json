@@ -27,6 +27,9 @@
     "jsonfile": "^2.2.3",
     "request": "^2.67.0",
     "semver-compare": "^1.0.0",
+    "mkdirp": "git://github.com/substack/node-mkdirp.git",
+	"longjohn": "^0.2.11",
+    "is-property": "^1.0.2",
     "cleverbot-node": "fojas/cleverbot-node"
   },
   "main": "bot.js"
