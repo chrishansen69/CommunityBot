@@ -18,7 +18,7 @@ let RPS2 = "";
 let RPS1choice = 0;
 let RPS2choice = 0;
 
-function uptime(message, suffix) { // Stolen from SDG-Discord-Bot
+function fuptime(message, suffix) { // Stolen from SDG-Discord-Bot
     let botUptime = Math.abs(new Date() - botStartTime);
 		let x = botUptime / 1000;
 		let uptimeSeconds = Math.floor(x % 60);
@@ -28,12 +28,12 @@ function uptime(message, suffix) { // Stolen from SDG-Discord-Bot
 		let uptimeHours = Math.floor(x % 24);
 		x /= 24;
 		let uptimeDays = Math.floor(x);
-		bot.sendMessage(message.channel, message, uptimeDays + " days, " + uptimeHours + " hours, " + uptimeMinutes + " minutes and " + uptimeSeconds + " seconds");
+		bot.sendMessage(message.channel, uptimeDays + " days, " + uptimeHours + " hours, " + uptimeMinutes + " minutes and " + uptimeSeconds + " seconds");
 }
 
-function cena(message, suffix) { // Stolen from SDG-Discord-Bot
+function fcena(message, suffix) { // Stolen from SDG-Discord-Bot
   //\uD83C is the unicode trumpet
-  bot.sendMessage(message.channel, message, "\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA**JOHN CENA!**\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA");
+  bot.sendMessage(message.channel, "\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA**JOHN CENA!**\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA");
   
   const cenaImage = cenaImages[Math.floor(Math.random() * cenaImages.length)];
   
@@ -44,7 +44,7 @@ function cena(message, suffix) { // Stolen from SDG-Discord-Bot
 }
 
 //KoolAid reply function
-function koolaid(message) {
+function fkoolaid(message) {
   bot.sendFile(message.channel, "./plugins/fun/meme/koolaid.jpg", "koolaid.jpg", (err, message) => {
     if(err)
       console.error("couldn't send image: " + err);
@@ -52,15 +52,15 @@ function koolaid(message) {
 }
 
 //Macho Man function
-function machoman(message) {
-  bot.sendMessage(message.channel, message, "**OOOOOH YEAH BROTHER**");
+function fmachoman(message) {
+  bot.sendMessage(message.channel, "**OOOOOH YEAH BROTHER**");
   bot.sendFile(message.channel, "./plugins/fun/meme/savage.jpg", "savage.jpg", (err, message) => {
     if(err)
       console.error("Couldn't send image: " + err);
   });
 }
 
-function rps(message) {
+function frps(message) {
   if (!inRPS) {
     RPS1choice = -1;
     RPS2choice = -1;
@@ -132,23 +132,23 @@ module.exports = {
     name: 'fun',
     commands: {
         uptime: {
-            fn: uptime,
+            fn: fuptime,
             description: 'Shows how long the bot has been running for'
         },
         cena: {
-            fn: cena,
+            fn: fcena,
             description: 'What\'s his name?'
         },
         koolaid: {
-            fn: koolaid,
+            fn: fkoolaid,
             description: 'Memes'
         },
         machoman: {
-            fn: machoman,
+            fn: fmachoman,
             description: 'Memes'
         },
         rps: {
-            fn: rps,
+            fn: frps,
             description: 'Play a game of Rock, Paper, Scissors with your friend(s)!'
         },
     },
