@@ -15,13 +15,13 @@
   },
   "scripts": {
     "start": "node bot",
-	"test": "mv config-travis.json config.json && node bot",
-	"preinstall": "set VCTargetsPath=c:\\Program Files (x86)\\MSBuild\\Microsoft.Cpp\\v4.0\\v140"
+    "test": "mv config-travis.json config.json && node bot",
+    "preinstall": "set VCTargetsPath=c:\\Program Files (x86)\\MSBuild\\Microsoft.Cpp\\v4.0\\v140"
   },
   "license": "GPL-3.0",
   "dependencies": {
     "discord.js": "git://github.com/hydrabolt/discord.js#indev",
-    "babel-cli": "^6.3.17",
+    "babel-cli": "^6.10.0",
     "babel-preset-es2015": "^6.3.13",
     "chalk": "^1.1.1",
     "jsonfile": "^2.2.3",
