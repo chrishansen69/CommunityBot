@@ -19,14 +19,22 @@
   },
   "license": "GPL-3.0",
   "dependencies": {
-    "discord.js": "git://github.com/hydrabolt/discord.js#indev",
-    "babel-cli": "^6.3.17",
-    "babel-preset-es2015": "^6.3.13",
     "chalk": "^1.1.1",
+    "cleverbot-node": "fojas/cleverbot-node",
+    "discord.js": "git://github.com/hydrabolt/discord.js#indev",
+    "entities": ">=1.1.1",
+    "imgflipper": "^1.0.1",
+    "is-property": "^1.0.2",
     "jsonfile": "^2.2.3",
-    "request": "^2.67.0",
-    "semver-compare": "^1.0.0",
-    "cleverbot-node": "fojas/cleverbot-node"
+    "leetspeak": "0.0.1",
+    "longjohn": "^0.2.11",
+    "mkdirp": "git://github.com/substack/node-mkdirp.git",
+    "needle": "^1.0.0",
+    "osu-api": "^0.0.3",
+    "python-shell": "^0.4.0",
+    "request": "^2.72.0",
+    "unirest": "^0.5.0",
+    "xml2js": "^0.4.16"
   },
   "main": "bot.js"
 }
