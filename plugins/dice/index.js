@@ -1,3 +1,5 @@
+"use strict";
+
 // Discord Bot API
 const bot = require('../../bot.js');
 

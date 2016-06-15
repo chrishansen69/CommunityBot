@@ -7,7 +7,7 @@ const battler = require('./battler/ABattler.js');
 
 battler.OnEvent_Initialize();
 
-bot.on("message", function (message) {
+bot.on("message", function(message) {
   // ChatWnd: channel
   // Origin: sender.name
   // Message: message.content

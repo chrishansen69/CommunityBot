@@ -111,7 +111,7 @@ bot.on("message", function(message) {
         RPS1choice = SCISSORS;
       }
       if (RPS1choice !== -1 && RPS2choice !== -1) {
-        endrps();
+        endrps(message);
       }
     } else if (message.sender.id === RPS2) {
       if (message.contents === 'rock') {

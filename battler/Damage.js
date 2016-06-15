@@ -182,7 +182,7 @@ function occRate(oMon, decOcc, strStat) {
 
 
 var damageCalc = {
-	Type: function (iMoveType, aDefType) {
+	Type: function(iMoveType, aDefType) {
 		global.msgEffect = "";
 		if(global.obConf.Pref.typesOn === true) {
 			var t = global.aTypeMatchup[aDefType[0]][iMoveType] * (aDefType[1] !== undefined ? global.aTypeMatchup[aDefType[1]][iMoveType] : 1);
@@ -194,7 +194,7 @@ var damageCalc = {
 		}
 		else {return 1;}
 	},
-	Power: function () {
+	Power: function() {
 		var p = global.rand();
 		//like Magnitude in the games
 		// if(p >= .95) {return 150;}
@@ -213,7 +213,7 @@ var damageCalc = {
 		else if(p >= .015 && p < .10) {return 30;}
 		else {return 15;}
 	},
-	Crit: function (Mon) {
+	Crit: function(Mon) {
 		if(occRate(Mon, global.obConf.OccRate.crit, "Spe") > global.rand()) {
 			global.msgCrit = global.obTrans.GetMessages().GetString("AtkCrit") + "\n";
 			return 2;
@@ -223,11 +223,11 @@ var damageCalc = {
 			return 1;
 		}
 	},
-	STAB: function (monType, moveType) { //same type attack bonus
+	STAB: function(monType, moveType) { //same type attack bonus
 		if(monType[0] === moveType || monType[1] === moveType) {return 2;}
 		else {return 1;}
 	},
-	Mod1: function (Mon) { //if burned, half power
+	Mod1: function(Mon) { //if burned, half power
 		return Mon.Status.ID === 1 ? 0.5 : 1;
 	}
 }

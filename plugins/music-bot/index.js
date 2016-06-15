@@ -74,7 +74,7 @@ let currentSong = null; // The current song will be saved in this variable
 let downloadQueue = {};
 let usersWantToSkip = []; // The id of the users that want to skip the current song will be stored in this array
 
-YD.on('finished', function (data) {
+YD.on('finished', function(data) {
   // Add the song to the playlist
   playlist.push({
     youtubeID: data.videoId,
@@ -86,7 +86,7 @@ YD.on('finished', function (data) {
   delete downloadQueue['yt:' + data.videoId];
 });
 
-YD.on('error', function (error) {
+YD.on('error', function(error) {
   console.error(error);
   // bot.sendMessage(downloadQueue['yt:' + error.videoId].channelID, 'The download of <' + error.youtubeURL + '> failed. Check out terminal of the bot to get more information.');
   // delete downloadQueue['yt:' + error.videoId];
@@ -116,12 +116,12 @@ function playLoop(channelID) {
     bot.getAudioContext({
       channel: voiceChannelID,
       stereo: true
-    }, function (stream) {
+    }, function(stream) {
       stream.playAudioFile(currentSong.file);
-      stream.oncefunction('fileEnd', function () {
+      stream.oncefunction('fileEnd', function() {
         if (currentSong) {
           // Hack required because the event fileEnd does not trigger when the file ends ...
-          setTimeout(function () {
+          setTimeout(function() {
             currentSong = null;
             bot.setPresence({
               game: null,
@@ -169,7 +169,7 @@ function addCommand(_message, message) {
   }
 
   // Fetch meta data from YouTube video
-  fetchVideoInfo(youtubeID, function (error, videoInfo) {
+  fetchVideoInfo(youtubeID, function(error, videoInfo) {
     if (error) {
       console.error(error, youtubeID);
       bot.sendMessage(channelID, 'This seems to be an invalid link.');
@@ -193,7 +193,7 @@ function addCommand(_message, message) {
     }
 
     // Create download directory
-    mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function (error) {
+    mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
       if (error) {
         console.error(error);
         bot.sendMessage(channelID, 'There was a problem with downloading the video. Check out terminal of the bot to get more information.');
@@ -201,7 +201,7 @@ function addCommand(_message, message) {
       }
 
       // Check if already downloaded
-      fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function (error) {
+      fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
         if (error) {
           bot.sendMessage(channelID, 'Downloading the requested video ...');
 
@@ -247,7 +247,7 @@ function removeCommand(_message, message) {
     return false;
   }
 
-  playlist = playlist.filter(function (element) {
+  playlist = playlist.filter(function(element) {
     return element.youtubeID !== youtubeID;
   });
 
@@ -271,14 +271,14 @@ function skipCommand(_message, message) {
       bot.getAudioContext({
         channel: voiceChannelID,
         stereo: true
-      }, function (stream) {
+      }, function(stream) {
         stream.stopAudioFile();
         currentSong = null;
         bot.setPresence({
           game: null,
         });
 
-        setTimeout(function () {
+        setTimeout(function() {
           playLoop(channelID);
         }, 2000);
       });
@@ -315,7 +315,7 @@ function enter(_message, message, isID, callback) {
     for (let _id = 0; _id < bot.servers.length; _id++) {
       if (bot.servers[_id].id === _message.channel.server.id) {
         serverID = _id;
-        return;
+        break; //return;
       }
     }
   }
@@ -349,7 +349,7 @@ function enter(_message, message, isID, callback) {
       if (channel.name === message && channel.type === 'voice') {
         voiceChannelID = channel.id;
         notFound = false;
-        return;
+        break; //return;
       }
     }
   }
@@ -362,9 +362,9 @@ function enter(_message, message, isID, callback) {
   }
 }
 
-bot.on('ready', function () {
+bot.on('ready', function() {
   if (getConfig()['music-bot'].autoJoinVoiceChannel && getConfig()['music-bot'].autoJoinVoiceChannel.length > 0) {
-    enter(null, getConfig()['music-bot'].autoJoinVoiceChannel, false, function () {
+    enter(null, getConfig()['music-bot'].autoJoinVoiceChannel, false, function() {
       console.log(chalk.red('The voice channel defined in autoJoinVoiceChannel could not be found.'));
     });
   }
@@ -388,7 +388,7 @@ function enterCommand(_message, suffix) {
     return false;
   }
 
-  enter(_message, suffix, isID, function () {
+  enter(_message, suffix, isID, function() {
     bot.sendMessage(channelID, 'There is no channel named ' + suffix + '.');
   });
 }
@@ -412,7 +412,7 @@ function stopCommand() {
   bot.getAudioContext({
     channel: voiceChannelID,
     stereo: true
-  }, function (stream) {
+  }, function(stream) {
     stream.stopAudioFile();
     currentSong = null;
     bot.setPresence({
@@ -458,47 +458,47 @@ module.exports = {
   name: 'music-bot',
   defaultCommandPrefix: 'music',
   commands: {
-    "music-add": {
+    'music-add': {
       fn: addCommand,
       description: 'Adds a song to the playlist',
       synonyms: [
         'music-new',
       ],
     },
-    "music-remove": {
+    'music-remove': {
       fn: removeCommand,
       description: 'Removes a song from the playlist',
     },
-    "music-skip": {
+    'music-skip': {
       fn: skipCommand,
       description: 'Skips the current song',
     },
-    "music-enter": {
+    'music-enter': {
       fn: enterCommand,
       description: 'Let the bot enter a voice channel',
       synonyms: [
         'music-join',
       ],
     },
-    "music-play": {
+    'music-play': {
       fn: playCommand,
       description: 'Starts the playlist',
       synonyms: [
         'music-start',
       ],
     },
-    "music-stop": {
+    'music-stop': {
       fn: stopCommand,
       description: 'Stops the playlist',
     },
-    "music-current": {
+    'music-current': {
       fn: currentCommand,
       description: 'Displays the current song',
       synonyms: [
         'music-now',
       ],
     },
-    "music-playlist": {
+    'music-playlist': {
       fn: playlistCommand,
       description: 'Displays all songs on the playlist',
     },

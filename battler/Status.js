@@ -1,5 +1,5 @@
 var status = {
-	Set: function (Mon, ID) {
+	Set: function(Mon, ID) {
 		if (Mon.Status.ID === -1) {
 			if (Mon.Equip.Eff.match("i" + ID) !== null || Mon.Equip.Eff.match("i-1") !== null) {
 				sendMsg(global.obTrans.GetMessages().GetString("StsImmune").replace(/MON_NAME/, Mon.Name));
@@ -10,7 +10,7 @@ var status = {
 			}
 		}
 	},
-	StartCheck: function (Mon) {
+	StartCheck: function(Mon) {
 		if (Mon.Status.Recharge === 1) {
 			sendMsg(global.obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, Mon.Name));
 			return 0;
@@ -78,7 +78,7 @@ var status = {
 		}
 		return 1;
 	},
-	EndCheck: function (Mon) {
+	EndCheck: function(Mon) {
 		if (Mon.Status.ID > -1) {
 			switch (Mon.Status.ID) {
 			case 1:

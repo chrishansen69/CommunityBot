@@ -22,7 +22,7 @@ function w32Factory(str) {
 
 //'use strict';
 function Alea() {
-  return (function (args) {
+  return (function(args) {
     var s0 = 0;
     var s1 = 0;
     var s2 = 0;
@@ -52,16 +52,16 @@ function Alea() {
     }
     mash = null;
 
-    var random = function () {
+    var random = function() {
       var t = 2091639 * s0 + c * 2.3283064365386963e-10; // 2^-32
       s0 = s1;
       s1 = s2;
       return s2 = t - (c = t | 0);
     };
-    random.uint32 = function () {
+    random.uint32 = function() {
       return random() * 0x100000000; // 2^32
     };
-    random.fract53 = function () {
+    random.fract53 = function() {
       return random() +
         (random() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
     };
@@ -75,7 +75,7 @@ function Alea() {
 function Mash() {
   var n = 0xefc8249d;
 
-  var mash = function (data) {
+  var mash = function(data) {
     data = data.toString();
     for (var i = 0; i < data.length; i++) {
       n += data.charCodeAt(i);
@@ -568,7 +568,7 @@ function occRate(oMon, decOcc, strStat) {
 
 
 var damageCalc = {
-  Type: function (iMoveType, aDefType) {
+  Type: function(iMoveType, aDefType) {
     msgEffect = "";
     if (obConf.Pref.typesOn === true) {
       var t = aTypeMatchup[aDefType[0]][iMoveType] * (aDefType[1] !== undefined ? aTypeMatchup[aDefType[1]][iMoveType] : 1);
@@ -584,7 +584,7 @@ var damageCalc = {
       return 1;
     }
   },
-  Power: function () {
+  Power: function() {
     var p = rand();
     //like Magnitude in the games
     // if(p >= 0.95) {return 150;}
@@ -611,7 +611,7 @@ var damageCalc = {
       return 15;
     }
   },
-  Crit: function (Mon) {
+  Crit: function(Mon) {
     if (occRate(Mon, obConf.OccRate.crit, "Spe") > rand()) {
       msgCrit = obTrans.GetMessages().GetString("AtkCrit") + "\n";
       return 2;
@@ -620,14 +620,14 @@ var damageCalc = {
       return 1;
     }
   },
-  STAB: function (monType, moveType) { //same type attack bonus
+  STAB: function(monType, moveType) { //same type attack bonus
     if (monType[0] === moveType || monType[1] === moveType) {
       return 2;
     } else {
       return 1;
     }
   },
-  Mod1: function (Mon) { //if burned, half power
+  Mod1: function(Mon) { //if burned, half power
     return Mon.Status.ID === 1 ? 0.5 : 1;
   }
 };
@@ -759,7 +759,7 @@ function sanitizeStr(str) {
  * ----------------------------------------------------------------------------
  */
 
-var Translation = function (type) {
+var Translation = function(type) {
   type = type + ".xml";
   this.xml = w32Factory("Microsoft.XMLDOM");
   if (type.indexOf('.xml') === -1) {
@@ -776,17 +776,17 @@ Translation.prototype = {
   "translationFile": "en.xml",
   "LanguageFolder": MsgPlus.ScriptFilesPath + "\\Lang\\",
 
-  "GetAuthor": function () {
+  "GetAuthor": function() {
     var author = this.xml.selectNodes("/Translation/Author");
     return (author.length !== 0) ? author[0].text : "Unknown";
   },
 
-  "GetWebsite": function () {
+  "GetWebsite": function() {
     var website = this.xml.selectNodes("/Translation/Website");
     return (website.length !== 0) ? website[0].text : "";
   },
 
-  "LoadTranslation": function () {
+  "LoadTranslation": function() {
     this.xml.load(this.LanguageFolder + this.translationFile);
     if (this.xml.parseError.errorCode) {
       var p = this.xml.parseError;
@@ -795,7 +795,7 @@ Translation.prototype = {
 
   },
 
-  "TranslationList": function () {
+  "TranslationList": function() {
     var fso = w32Factory('Scripting.FileSystemObject');
     var returns = [];
     for (var enume = new Enumerator(fso.GetFolder(this.LanguageFolder).Files); !enume.atEnd(); enume.moveNext()) {
@@ -805,7 +805,7 @@ Translation.prototype = {
     return returns;
   },
 
-  "TranslateFile": function (xmlFile) {
+  "TranslateFile": function(xmlFile) {
     var filePath = xmlFile;
     var inter = w32Factory("Microsoft.XMLDOM");
     inter.load(filePath);
@@ -935,7 +935,7 @@ Translation.prototype = {
   },
 
 
-  "LoadWindow": function (XmlFile, WindowId) {
+  "LoadWindow": function(XmlFile, WindowId) {
     var wnd = MsgPlus.CreateWnd(XmlFile, WindowId, 1);
     var wndStrings = this.GetWindow(WindowId).ToObject();
 
@@ -953,48 +953,48 @@ Translation.prototype = {
     return wnd;
   },
 
-  "GetMenu": function (menuId) {
+  "GetMenu": function(menuId) {
     var menu = this.xml.selectNodes("/Translation/ScriptMenu[@Id='" + menuId + "']");
     return (menu.length !== 0) ? new this.window(menu[0]) : false;
   },
 
-  "GetWindow": function (wndID) {
+  "GetWindow": function(wndID) {
     var wnd = this.xml.selectNodes("/Translation/Window[@Id='" + wndID + "']");
     return (wnd.length !== 0) ? new this.window(wnd[0]) : false;
   },
 
-  "GetSpecialString": function (name) {
+  "GetSpecialString": function(name) {
     var elements = this.xml.selectNodes("/Translation/" + name);
     return (elements.length !== 0) ? elements[0].text : false;
   },
 
-  "GetMessages": function () {
+  "GetMessages": function() {
     var msg = this.xml.selectNodes("/Translation/Messages");
     return (msg.length !== 0) ? new this.window(msg[0]) : false;
   },
 
-  "Types": function () {
+  "Types": function() {
     var msg = this.xml.selectNodes("/Translation/Types");
     return (msg.length !== 0) ? new this.window(msg[0]) : false;
   }
 };
 
-Translation.prototype.window = function (windowObj) {
+Translation.prototype.window = function(windowObj) {
   this.xml = windowObj;
 };
 
 Translation.prototype.window.prototype = {
-  "GetString": function (id) {
+  "GetString": function(id) {
     var str = this.xml.selectNodes("String[@Id='" + id + "']");
     return (str.length !== 0) ? str[0].text : false;
   },
 
-  "GetStringBundle": function (id) {
+  "GetStringBundle": function(id) {
     var bundle = this.xml.selectNodes("StringBundle[@Id='" + id + "']");
     return (bundle.length !== 0) ? new this.StringBundle(bundle[0]) : false;
   },
 
-  "ToObject": function () {
+  "ToObject": function() {
     var elements = this.xml.selectNodes("*");
     var returns = {};
     for (var i = 0; i < elements.length; i++) {
@@ -1013,14 +1013,14 @@ Translation.prototype.window.prototype = {
     return returns;
   },
 
-  "StringBundle": function (bundleObj) {
+  "StringBundle": function(bundleObj) {
     this.xml = bundleObj;
 
   }
 };
 
 Translation.prototype.window.prototype.StringBundle.prototype = {
-  "ToObject": function () {
+  "ToObject": function() {
     var nodes = this.xml.selectNodes("String");
     var returns = {};
     for (var i = 0; i < nodes.length; i++) {
@@ -1031,12 +1031,12 @@ Translation.prototype.window.prototype.StringBundle.prototype = {
     return returns;
   },
 
-  "GetDefault": function () {
+  "GetDefault": function() {
     var str = this.xml.selectNodes("Default");
     return (str.length !== 0) ? str[0].text : false;
   },
 
-  "GetString": function (id) {
+  "GetString": function(id) {
     var str = this.xml.selectNodes("String[@Id='" + id + "']");
     return (str.length !== 0) ? str[0].text : false;
   }
@@ -1044,23 +1044,23 @@ Translation.prototype.window.prototype.StringBundle.prototype = {
 };
 
 var iniIntf = {
-  DeleteHeader: function (filename, header) {
+  DeleteHeader: function(filename, header) {
     //The following Read/Write/Del code was taken and modified from a post within the MsgPlus! forums http://www.msghelp.net/showthread.php?tid=83351&pid=904319#pid904319
     Interop.Call("kernel32", "WritePrivateProfileSectionW", header.toString(), 0, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
   },
-  DeleteKey: function (filename, header, key) {
+  DeleteKey: function(filename, header, key) {
     Interop.Call("kernel32", "WritePrivateProfileStringW", header.toString(), key.toString(), 0, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
   },
-  WriteIni: function (filename, header, key, value) {
+  WriteIni: function(filename, header, key, value) {
     Interop.Call("kernel32", "WritePrivateProfileStringW", header.toString(), key.toString(), value.toString(), MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
   },
-  ReadIni: function (filename, header, key, default_value) {
+  ReadIni: function(filename, header, key, default_value) {
     cRetVal = Interop.Allocate(2 * (256 + 1));
     lTmp = Interop.Call("kernel32", "GetPrivateProfileStringW", header, key.toString(), default_value.toString(), cRetVal, cRetVal.Size, MsgPlus.ScriptFilesPath + "\\config\\" + filename + ".ini");
     return lTmp === 0 ? default_value : cRetVal.ReadString(0);
   },
 
-  ToObject: function (sIniName) {
+  ToObject: function(sIniName) {
     //The following ToObject code was taken and modified from http://mpscripts.net/code.php?id=12
     var fso = w32Factory("Scripting.FileSystemObject");
     var data = fso.GetFile(MsgPlus.ScriptFilesPath + "\\config\\" + sIniName + ".ini").OpenAsTextStream(1, -1).ReadAll();
@@ -1263,7 +1263,7 @@ function OnEvent_Uninitialize() { // TODO - Missing polyfill
 }
 
 var settings = {
-  LoadScript: function () {
+  LoadScript: function() {
     for (var f in settings.LoadFile) {
       settings.LoadFile[f]();
     }
@@ -1279,24 +1279,24 @@ var settings = {
     settings.Debug(obConf.Pref);
   },
   LoadFile: {
-    Conf: function () {
+    Conf: function() {
       obConf = iniIntf.ToObject("settings");
       obConf.Pref.msgFormat = iniIntf.ReadIni("settings", "Pref", "msgFormat", "$MSG").split("$MSG");
       //obConf.Pref.msgFormat = ["[c=3]","[\/c]"];
     },
-    Cmd: function () {
+    Cmd: function() {
       obCmds = iniIntf.ToObject("settings").Commands;
     },
-    Equip: function () {
+    Equip: function() {
       obEquipDB = iniIntf.ToObject("equipDB");
     },
-    Item: function () {
+    Item: function() {
       obItemDB = iniIntf.ToObject("itemDB");
     },
-    Move: function () {
+    Move: function() {
       obMoveDB = iniIntf.ToObject("moveDB");
     },
-    Mon: function () {
+    Mon: function() {
       obMonParty = iniIntf.ToObject("monParty");
       for (var p in obMonParty) {
         if (typeof (obMonParty[p].Type) === "string" && obMonParty[p].Type.split(",").length > 1) {
@@ -1307,7 +1307,7 @@ var settings = {
       }
     }
   },
-  Save: function (header, key, value, isInt) {
+  Save: function(header, key, value, isInt) {
     if (isInt === true) {
       value = parseInt(value);
       if (header === "OccRate") {
@@ -1322,7 +1322,7 @@ var settings = {
     // Debug.Trace(header + ": " + key + "; Setting saved");
     return true;
   },
-  Backup: function () {
+  Backup: function() {
     try {
       var fso = w32Factory("Scripting.FileSystemObject");
       fso.CopyFolder(MsgPlus.ScriptFilesPath + "\\config", MsgPlus.ScriptFilesPath + "\\configbackup");
@@ -1331,7 +1331,7 @@ var settings = {
       Debug.Trace("BACKUP FAILED; catch: " + e);
     }
   },
-  Restore: function () {
+  Restore: function() {
     try {
       var fso = w32Factory("Scripting.FileSystemObject");
       fso.CopyFolder(MsgPlus.ScriptFilesPath + "\\configbackup", MsgPlus.ScriptFilesPath + "\\config");
@@ -1340,16 +1340,16 @@ var settings = {
       Debug.Trace("RESTORE FAILED; catch: " + e);
     }
   },
-  SetLanguage: function (str) {
+  SetLanguage: function(str) {
     obTrans = new Translation(str);
     obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
     settings.Save("Pref", "lang", str);
   },
-  UpdateRecord: function (prop) {
+  UpdateRecord: function(prop) {
     obConf.Record[prop] += 1;
     iniIntf.WriteIni("settings", "record", prop, obConf.Record[prop]);
   },
-  Debug: function (ob) {
+  Debug: function(ob) {
     for (var p in ob) {
       Debug.Trace(p + ": " + ob[p]);
     }
@@ -2661,7 +2661,7 @@ function randomPokemon() {
 }
 
 var statMod = {
-  Get: function (Mon, Stat) { //like modded in the games, except no +/-6 limit
+  Get: function(Mon, Stat) { //like modded in the games, except no +/-6 limit
     if (Mon.Mod[Stat] >= 0) {
       return (Mon.Mod[Stat] + 2) / 2;
     } else {
@@ -2669,7 +2669,7 @@ var statMod = {
     }
   },
   Set: {
-    Absolute: function (Mon, stat, i) {
+    Absolute: function(Mon, stat, i) {
       switch (stat) {
       case 0:
         Mon.Atk += i;
@@ -2695,7 +2695,7 @@ var statMod = {
         sendMsg(obTrans.GetMessages().GetString("StatAbsIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
       }
     },
-    Relative: function (Mon, stat, i) {
+    Relative: function(Mon, stat, i) {
       switch (stat) {
       case 0:
         Mon.Mod[0] += i;
@@ -2721,7 +2721,7 @@ var statMod = {
         sendMsg(obTrans.GetMessages().GetString("StatRelIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
       }
     },
-    Percent: function (Mon, stat, i) {
+    Percent: function(Mon, stat, i) {
       switch (stat) {
       case 0:
         Mon.Atk += Math.floor(Mon.Atk * i / 100);
@@ -2751,7 +2751,7 @@ var statMod = {
 };
 
 var status = {
-  Set: function (Mon, ID) {
+  Set: function(Mon, ID) {
     if (Mon.Status.ID === -1) {
       if (Mon.Equip.Eff.match("i" + ID) !== null || Mon.Equip.Eff.match("i-1") !== null) {
         sendMsg(obTrans.GetMessages().GetString("StsImmune").replace(/MON_NAME/, Mon.Name));
@@ -2761,7 +2761,7 @@ var status = {
       }
     }
   },
-  StartCheck: function (Mon) {
+  StartCheck: function(Mon) {
     if (Mon.Status.Recharge === 1) {
       sendMsg(obTrans.GetMessages().GetString("MustRecharge").replace(/MON_NAME/, Mon.Name));
       return 0;
@@ -2824,7 +2824,7 @@ var status = {
     }
     return 1;
   },
-  EndCheck: function (Mon) {
+  EndCheck: function(Mon) {
     if (Mon.Status.ID > -1) {
       switch (Mon.Status.ID) {
       case 1:

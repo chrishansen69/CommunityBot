@@ -1,5 +1,5 @@
 var statMod = {
-	Get: function (Mon, Stat) { //like modded in the games, except no +/-6 limit
+	Get: function(Mon, Stat) { //like modded in the games, except no +/-6 limit
 		if(Mon.Mod[Stat] >= 0) {
 			return(Mon.Mod[Stat] + 2) / 2;
 		}
@@ -8,7 +8,7 @@ var statMod = {
 		}
 	},
 	Set: {
-		Absolute: function (Mon, stat, i) {
+		Absolute: function(Mon, stat, i) {
 			switch(stat) {
 			case 0:
 				Mon.Atk += i;
@@ -35,7 +35,7 @@ var statMod = {
 				sendMsg(global.obTrans.GetMessages().GetString("StatAbsIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 		},
-		Relative: function (Mon, stat, i) {
+		Relative: function(Mon, stat, i) {
 			switch(stat) {
 			case 0:
 				Mon.Mod[0] += i;
@@ -62,7 +62,7 @@ var statMod = {
 				sendMsg(global.obTrans.GetMessages().GetString("StatRelIncr").replace(/MON_NAME/, Mon.Name).replace(/STAT_NAME/, sStat).replace(/NUMBER/, i));
 			}
 		},
-		Percent: function (Mon, stat, i) {
+		Percent: function(Mon, stat, i) {
 			switch(stat) {
 			case 0:
 				Mon.Atk += Math.floor(Mon.Atk * i / 100);

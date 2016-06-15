@@ -1,0 +1,11 @@
+{
+  "strict": "global",
+  "node": true,
+  "esnext": true,
+  "unused": "vars",
+  "bitwise": false,
+  "evil": true,
+  "varstmt": true,
+  "unused": "vars"
+ // "quotmark": "single"
+} 

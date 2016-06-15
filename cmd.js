@@ -1,14 +1,16 @@
-'use strict';
 // TODO:
-// - Permissions
-// - More evalwhitelist.json stuff
-// - Command descriptions
+// - Permissions - DONE
+// - More evalwhitelist.json stuff - DONE
+// - Command descriptions - PARTLY DONE
 // - Save setgame output
+
+"use strict";
 
 const bot = require('./bot.js');
 const utility = require('./utility.js');
 const getConfig = utility.getConfig;
-const jsonfile = require('jsonfile');
+const roles = require('./roles.js');
+const perms = require('./permissions.js');
 
 const ElizaBot = require('./ELIZA.js');
 const Cleverbot = require('cleverbot-node');
@@ -16,6 +18,7 @@ const Cleverbot = require('cleverbot-node');
 const chalk = require('chalk');
 const request = require('request');
 const fs = require('fs');
+const jsonfile = require('jsonfile');
 
 const EXCUSES = [
     "clock speed", "solar flares", "electromagnetic radiation from satellite debris",
@@ -274,6 +277,7 @@ const EXCUSES = [
     "MDX was blowing a shemale...", "Kaff drank all the coffee again...",
     "Management got drunk and wrecked my car.",
     "The cops showed up and asked me if I could spare a minute to talk about Jesus.",
+    "BREW request in the TEA-capable pots resulted in '418 I'm a Teapot' status code"
 ];
 
 let upvote = 0;
@@ -288,22 +292,23 @@ let cleverbot = null;
 
 process.on('exit', function() { // save r9kMessages (and possibly other settings) on exit
   utility.saveConfig();
+  utility.saveXData();
 });
 
 exports.r9kEnabled = function(channel) {
   return getConfig().r9kEnabled[channel.id];
 };
 exports.r9k = function(msg) { // r9k mode
-  const config = getConfig();
-  let id = msg.channel.id; // unique-ish channel id
-  console.info(config.r9kMessages);
+  const xdata = utility.getXData();
+  const id = msg.channel.id; // unique-ish channel id
+  console.info(xdata.r9kMessages);
   
-  if (config.r9kMessages[id].indexOf(msg.cleanContent.trim()) !== -1) { // if message is not unique
+  if (xdata.r9kMessages[id].indexOf(msg.cleanContent.trim()) !== -1) { // if message is not unique
     console.log("deleting " + msg.content);
     bot.deleteMessage(msg);
-  } else { // if message is unique, add it to the config
+  } else { // if message is unique, add it to the xdata
     console.log("adding " + msg.content);
-    config.r9kMessages[id][config.r9kMessages[id].length] = msg.cleanContent.trim();
+    xdata.r9kMessages[id][xdata.r9kMessages[id].length] = msg.cleanContent.trim();
   }
 };
 
@@ -311,36 +316,33 @@ exports.commands = {
   "newvote": {
     process: function(msg, suffix) {
       if (!suffix) { bot.sendMessage(msg.channel, "Include a vote message please!"); return; }
-      if (votebool == true) { bot.sendMessage(msg, "There's already a vote pending!"); return; }
+      if (votebool === true) { bot.sendMessage(msg, "There's already a vote pending!"); return; }
       topicstring = suffix;
       voteStarterId = msg.sender.id;
-      bot.sendMessage(msg, "New Vote started: `" + suffix + "`\nTo vote say `" + AuthDetails.discordjs_trigger + "vote +/-`");
+      bot.sendMessage(msg, "New Vote started: `" + suffix + "`\nTo vote say `" + getConfig().trigger + "vote +/-`");
       votebool = true;
     }
   },
   "vote": {
     process: function(msg, suffix) {
       if (!suffix) { bot.sendMessage(msg, "Gotta vote for something!"); return; }
-      if (votebool == false) { bot.sendMessage(msg, "There are no votes in progress. Start one with the 'newvote' command."); return; }
+      if (votebool === false) { bot.sendMessage(msg, "There are no votes in progress. Start one with the 'newvote' command."); return; }
       if (voter.indexOf(msg.author) != -1) { return; }
       voter.push(msg.author);
-      var vote = suffix.split(" ")[0]
+      let vote = suffix.split(" ")[0];
       if (vote == "+" || vote == "y" || vote == "yes") { upvote += 1; }
       else if (vote == "-" || vote == "n" || vote == "no") { downvote += 1; }
     }
   },
   "votestatus": {
     process: function(msg) {
-      var msgArray = [];
-      if (votebool == true) {bot.sendMessage(msg.channel, 'A vote is currently in progress. "' + topicstring + '"')}
-        else {
-          bot.sendMessage(msg.channel, "A vote is **not** currently in progress.")
-        }
+      if (votebool === true) { bot.sendMessage(msg.channel, 'A vote is currently in progress. "' + topicstring + '"'); }
+      else bot.sendMessage(msg.channel, "A vote is **not** currently in progress.");
     }
   },
   "endvote": {
     process: function(msg, suffix) {
-      if (!utility.isOpped(msg.sender) && msg.sender.id !== voteStarterId) { bot.sendMessage(message.channel, "Only bot operators or the vote starter can end a vote!"); return; }
+      if (!utility.isOpped(msg.sender) && msg.sender.id !== voteStarterId) { bot.sendMessage(msg.channel, "Only bot operators or the vote starter can end a vote!"); return; }
       
       bot.sendMessage(msg, "**Results of last vote:**\nTopic: `" + topicstring + "`\nVotes for: `" + upvote + "`\nVotes against: `" + downvote + "`");
       upvote = 0;
@@ -362,18 +364,18 @@ exports.commands = {
   },
   "setgame": {
     process: function(msg, suffix) {
-      if (!utility.isOpped(msg.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!utility.isOpped(msg.sender)) { bot.sendMessage(msg.channel, "You don't have permission to use this command!"); return; }
       
       bot.setStatus('online', suffix);
-      bot.sendMessage(msg.channel, "Done! Now playing: " + suffix)
+      bot.sendMessage(msg.channel, "Done! Now playing: " + suffix);
     }
   },
   "setgame-idle": {
     process: function(msg, suffix) {
-      if (!utility.isOpped(msg.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!utility.isOpped(msg.sender)) { bot.sendMessage(msg.channel, "You don't have permission to use this command!"); return; }
       
       bot.setStatus('idle', suffix);
-      bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!")
+      bot.sendMessage(msg.channel, "Done! Now playing: " + suffix + "Idle!");
     }
   },
   "johncena": {
@@ -385,10 +387,9 @@ exports.commands = {
     process: function(message, suffix) {
       const config = getConfig();
       if (config.token) { // join through oAuth
-        bot.sendMessage(msg.channel, "Apologies, but I am a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
+        bot.sendMessage(message.channel, "Apologies, but I am a bot account. This means I cannot accept instant invites. Please go to my oAuth 2 link at " + config.oauthlink);
       } else { // join normally
         let query = suffix;
-        let sender = message.author.username;
         if (!query) {
           bot.sendMessage(message.channel, "Please specify an invite link.");
           return;
@@ -400,11 +401,11 @@ exports.commands = {
           } else {
             bot.sendMessage(message.channel, "Great! I just joined: " + server);
             let messageArray = [];
-            messageArray.push("Hi! I'm **" + bot.user.username + "**. I was invited to this server by " + message.author + ".");
-            messageArray.push("You can use `" + trigger + "help` to see what I can do.");
-            messageArray.push("If you don't want me here, please use the " + AuthDetails.discordjs_trigger + "leave command to get me out.");
+            messageArray.push("Hi! I'm **" + bot.user.name + "**. I was invited to this server by " + message.author.mention() + ".");
+            messageArray.push("You can use `" + config.trigger + "help` to see what I can do.");
+            messageArray.push("If you don't want me here, please use the " + config.trigger + "leave command to get me out.");
             bot.sendMessage(server.defaultChannel, messageArray);
-            console.log("Joined server: " + server)
+            console.log("Joined server: " + server);
           }
         });
       }
@@ -412,12 +413,13 @@ exports.commands = {
   },
   "hello": {
     process: function(message) {
-      bot.sendMessage(message.channel, "Hello Expand Dong. I'm a bot made by rafa1231518, based on https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!")
+      bot.sendMessage(message.channel, "Hello Expand Dong. I'm a bot made by rafa1231518, based on https://github.com/OneMansGlory/CommunityBot.git . You can check out what I can do with my help command!");
     }
   },
   "eval": {
+    /*jslint evil: true */
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       try {
         bot.sendMessage(message, eval(suffix));
@@ -456,20 +458,56 @@ exports.commands = {
           cleverbot = new Cleverbot();
       }
       Cleverbot.prepare(function(){
-        cleverbot.write(suffix, function (response) {
-             bot.sendMessage(message.channel, response.message);
+        cleverbot.write(suffix, function(response) {
+          bot.sendMessage(message.channel, response.message);
         });
       });        
     }
   },
   "help": {
     process: function(message) {
+      // this tries to print 3729 chars. the max is 2000.
+      // what do we do about that? we gotta split it into pages.
+      
+      //console.log('hiiii');
       const config = getConfig();
       let response = ["Here are my commands: ", ""];
-      Object.keys(module.exports.commands).forEach(function (element) {
-        response.push(config.trigger + element);
+      const descs = utility.getCommandDescriptions();
+      const cmds = utility.getCommands();
+      console.log('desc length ' + Object.keys(descs).length);
+      console.log('cmds length ' + Object.keys(cmds).length);
+      const cmdKeys = Object.keys(cmds);
+      cmdKeys.forEach(function(element) {
+        
+        // REALLY DIRTY synonym check
+        if (!descs[element]) { // synonyms have no descriptions
+          for (let i = 0, il = cmdKeys.length; i < il; i++) {
+            if (cmds[element] === cmds[cmdKeys[i]]) { // if 2 cmds are memory-equal
+              return; // continue;
+            }
+          }
+        }
+        
+        response.push('\u200C' + config.trigger + element + ' - ' + descs[element]);
+        //console.log('push ' + config.trigger + element + ' - ' + descs[element]);
       });
-      bot.sendMessage(message.channel, response);
+      
+      if (response.join("\n").length >= 1900) {
+        let left = response.length;
+        
+        while (left > 40) {
+          bot.sendMessage(message.sender, response.slice(left - 40, left));
+          left -= 40;
+        }
+        
+        bot.sendMessage(message.sender, response.slice(0, left));
+        
+      } else {
+        bot.sendMessage(message.sender, response);
+      }
+      
+      
+      //console.log('bye');
     }
   },
   "spam": {
@@ -493,24 +531,39 @@ exports.commands = {
   },
   "createcmd": {
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       let index = suffix.indexOf(" | ");
       if (index !== -1) {
           try {
-            const config = getConfig();
+            const xdata = utility.getXData();
             
             // register command
             let cmd = suffix.substr(0, index);
-            let execute = suffix.substr(index + (" | ".length));
+            let execute = suffix.substr(index + 3);
             utility.registerEval(cmd, execute);
             
-            // store to config
-            config.customCommands[config.customCommands.length] = {name: cmd, action: execute};
-            utility.saveConfig();
+            // store to xdata
+            
+            // get index to replace if exists
+            let exindex = xdata.customCommands.length;
+            for (let i = 0; i < xdata.customCommands.length; i++) { // forEach faster in chrome v8 but can't `break;`
+              if (xdata.customCommands[i].name === cmd) {
+                exindex = i;
+                break;
+              }
+            }
+            
+            xdata.customCommands[exindex] = {name: cmd, action: execute};
+            utility.saveXData();
             
             // done
-            bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+            if (exindex === xdata.customCommands.length - 1) { // -1 here or else it'll always say 'overwrote'
+              bot.sendMessage(message.channel, "Registered " + cmd + " with snippet " + execute);
+            } else {
+              bot.sendMessage(message.channel, "Overwrote " + cmd + " with snippet " + execute);
+            }
+            
           } catch (e) {
             bot.sendMessage(message.channel, "Error registering command: " + e);
           }
@@ -521,13 +574,14 @@ exports.commands = {
   },
   "r9k": {
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "mod")) return;
       
       let id = message.channel.id; // unique-ish channel id
       const config = getConfig();
+      const xdata = utility.getXData();
       
-      if (!config.r9kMessages[id]) // make channel slot if not exists
-        config.r9kMessages[id] = [];
+      if (!xdata.r9kMessages[id]) // make channel slot if not exists
+        xdata.r9kMessages[id] = [];
       
       if (suffix == "on" && !config.r9kEnabled[id]) { //enable
         config.r9kEnabled[id] = true;
@@ -543,7 +597,7 @@ exports.commands = {
   },
   "setavatar": {
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       const config = getConfig();
       const path = suffix.split(' ')[0];
@@ -557,7 +611,7 @@ exports.commands = {
       const oldAvatar = config.avatar;
       config.avatar = path;
 
-      jsonfile.writeFile(utility.dataFolder + 'config.json', config, {spaces: 2}, function(err) {
+      jsonfile.writeFile('./config.json', config, {spaces: 2}, function(err) {
         if (err) { // if failed
           console.error(err);
           config.avatar = oldAvatar;
@@ -572,22 +626,22 @@ exports.commands = {
             encoding: null,
           }, function(error, response, body) {
             if (!error && response.statusCode == 200) {
-                setAvatar(new Buffer(body).toString('base64'), channelID);
+              bot.updateDetails({avatar: new Buffer(body).toString('base64') });
             } else {
-                console.log(chalk.red('The avatar could not be set. Make sure the path is correct.'));
+              console.log(chalk.red('The avatar could not be set. Make sure the path is correct.'));
             }
           });
         } else { // else, assume absolute file path
-          setAvatar(fs.readFileSync(path, 'base64'), channelID);
+          bot.updateDetails({avatar: fs.readFileSync(path, 'base64') });
         }
       });
     }
   },
   "kill": {
     process: function(message) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
-      bot.disconnect();
+      bot.logout();
 
       console.log(chalk.yellow('The bot was stopped through the kill command.'));
       console.log(''); // Empty line
@@ -596,7 +650,7 @@ exports.commands = {
   },
   "op": {
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       let opped;
       if (message.mentions.length > 0) { // get by mention
@@ -619,7 +673,7 @@ exports.commands = {
   },
   "deop": {
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       let opped;
       if (message.mentions.length > 0) { // get by mention
@@ -649,19 +703,19 @@ exports.commands = {
     process: function(message, suffix) {
       bot.sendMessage(message.channel, 'https://i.ytimg.com/vi/wQYob6dpTTk/hqdefault.jpg');
       
-      setTimeout(function () {
+      setTimeout(function() {
         bot.sendMessage(message.channel, 'YOU');
-        setTimeout(function () {
+        setTimeout(function() {
           bot.sendMessage(message.channel, 'NEED');
-          setTimeout(function () {
+          setTimeout(function() {
             bot.sendMessage(message.channel, 'TO');
-            setTimeout(function () {
+            setTimeout(function() {
               bot.sendMessage(message.channel, 'SHUT');
-              setTimeout(function () {
+              setTimeout(function() {
                 bot.sendMessage(message.channel, 'THE');
-                setTimeout(function () {
+                setTimeout(function() {
                   bot.sendMessage(message.channel, 'FUCK');
-                  setTimeout(function () {
+                  setTimeout(function() {
                     bot.sendMessage(message.channel, 'UP');
                   }, 500);
                 }, 500);
@@ -674,7 +728,7 @@ exports.commands = {
   },
   "prunebots": {
     process: function(message, suffix) {
-      bot.getChannelLogs(message.channel, 200, {before: message}, function (err, messages) {
+      bot.getChannelLogs(message.channel, 200, {before: message}, function(err, messages) {
         if (err) {
           console.error(err);
           bot.sendMessage(message.channel, "Failed to prune bot messages in this channel: `" + err + "`");
@@ -685,18 +739,61 @@ exports.commands = {
           if (messages[i].sender.bot || messages[i].sender.name === 'BonziBuddy')
             bot.deleteMessage(messages[i]);
         }
-        bot.sendMessage(message.channel, "Pruned last 200 bot messages!");
+        setTimeout(function() {
+          bot.sendMessage(message.channel, "Pruned last 200 bot messages!");
+        }, 500);
+      });      
+    }
+  },
+  "prunespam": {
+    process: function(message, suffix) {
+      if (!perms.has(message, "minimod")) return;
+      
+      bot.getChannelLogs(message.channel, 20, {before: message}, function(err, messages) {
+        if (err) {
+          console.error(err);
+          bot.sendMessage(message.channel, "Failed to prune spam messages in this channel: `" + err + "`");
+          return;
+        }
+        
+        for (let i = 0; i < messages.length; i++) {
+          if (messages[i].content.length <= 3 || messages[i][0] === '=' || messages[i][0] === '?' || messages[i][0] === '=')
+            bot.deleteMessage(messages[i]);
+        }
+        setTimeout(function() {
+          bot.sendMessage(message.channel, "Pruned last 20 spam messages.");
+        }, 500);
+      });      
+    }
+  },
+  "prune": {
+    process: function(message, suffix) {
+      if (!perms.has(message, "minimod")) return;
+      
+      bot.getChannelLogs(message.channel, parseInt(suffix), {before: message}, function(err, messages) {
+        if (err) {
+          console.error(err);
+          bot.sendMessage(message.channel, "Failed to prune spam messages in this channel: `" + err + "`");
+          return;
+        }
+        
+        for (let i = 0; i < messages.length; i++) {
+          bot.deleteMessage(messages[i]);
+        }
+        
+        setTimeout(function() {
+          bot.sendMessage(message.channel, "Pruned last " + parseInt(suffix) + " messages.");
+        }, 500);
       });
-      
-      
     }
   },
   "getconf": {
-    process: function(message, suffix) {
+    process: function(message) {
       if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
       
       try {
         bot.sendMessage(message.channel, '```' + JSON.stringify(getConfig()) + '```');
+        console.log(JSON.stringify(getConfig()));
       } catch (e) {
         console.error(e);
         bot.sendMessage(message.channel, "It failed: " + e);
@@ -704,12 +801,13 @@ exports.commands = {
     }
   },
   "setconf": {
-    process: function(message, suffix) {
+    process: function(message) {
       if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
       
       try {
         utility.setConfig(JSON.parse(message.content.substr(message.content.indexOf(' ') + 1)));
         utility.saveConfig();
+        bot.sendMessage(message.channel, "Successfully set your config");
       } catch (e) {
         console.error(e);
         bot.sendMessage(message.channel, "It failed: " + e);
@@ -718,42 +816,258 @@ exports.commands = {
     }
   },
   "saveconf": {
-    process: function(message, suffix) {
+    process: function(message) {
       if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
       
-      utility.saveConfig();
+      try {
+        utility.saveConfig();
+        utility.saveXData();
+        bot.sendMessage(message.channel, "Successfully saved your config");
+      } catch (e) {
+        console.error(e);
+        bot.sendMessage(message.channel, "It failed: " + e);
+      }
+    }
+  },
+  "resetconf": { // remember to getconf and save it before this!
+    process: function(message) {
+      if (message.sender.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
+      
+      try {
+        console.log("resetting config.json...");
+        fs.writeFileSync('./config.json', fs.readFileSync('./config-my-base.json'));
+        delete require.cache['./config.json'];
+        utility.setConfig(require('./config.json'));
+        console.log("resaving config.json...");
+        utility.saveConfig();
+        
+        bot.sendMessage(message.channel, "Reset config.json to config-my-base original...");
+      } catch (e) {
+        console.error(e);
+        bot.sendMessage(message.channel, "It failed: " + e);
+      }
+    }
+  },
+  "countchannels": {
+    process: function(message) {
+      bot.sendMessage(message.channel, "This bot is serving in " + bot.channels.length + " channels.");
     }
   },
   "jpeg": {
     process: function(message, suffix) {
-      // TODO needs more jpeg
+      request.post(
+        'http://api.jpeg.li/v1/existing',
+        { form: { url: suffix } },
+        function(error, response, body) {
+          if (error) {
+            console.error(error);
+          }
+          if (response.statusCode == 200) {
+            bot.sendMessages(message.channel, JSON.parse(body).url);
+          } else {
+            console.log(chalk.red('Failed with code: ' + response.statusCode + ' after trying URL ' + suffix));
+          }
+        }
+      );
     }
   },
   "rips1": { // SPAMBOT
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       setInterval(function() { bot.sendMessage(message.channel, 'FUCK BEES'); }, 1000); setInterval(function() { bot.sendMessage(message.channel, 'IT\'S HIP'); }, 500); setInterval(function() { bot.sendMessage(message.channel, 'CHECK EM'); }, 700);
     }
   },
   "rips2": { // SPAMBOT
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       setInterval(function() { bot.sendMessage(message.channel, '?xp'); }, 1000);
     }
   },
   "rips3": { // SPAMBOT
     process: function(message, suffix) {
-      if (!utility.isOpped(message.sender)) { bot.sendMessage(message.channel, "You don't have permission to use this command!"); return; }
+      if (!perms.has(message, "op")) return;
       
       setInterval(function() { bot.sendMessage(message.channel, '' + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36) + Math.random().toString(36)); }, 1000);
+    }
+  },
+  "rename": {
+    process: function(message, suffix) {
+      if (!perms.has(message, "globalmod")) return;
+      
+      if (message.mentions.length > 0) {
+        message.mentions.forEach(function(el) {
+          roles.editNickname({
+            userID: el.id, 
+            serverID: message.channel.server.id,
+            nick: suffix.substr(suffix.indexOf(" | ") + 3)
+          }, function(e) {
+            if (e) {
+              bot.sendMessage(message.channel, "Error: " + JSON.stringify(e));
+              console.log("Failed with userID " + el.id);
+              console.log("serverID " + message.channel.server.id);
+              console.log("nick " + suffix.substr(suffix.indexOf(" | ") + 3));
+              console.log("token " + bot.internal.token);
+              console.error(e);
+            }
+          });
+        });
+      }
+    }
+  },
+  "avatar": { // from brussell98/BrussellBot under MIT
+    description: "Get a link to a user's avatar.",
+    process: function(msg, suffix) {
+      if (msg.channel.isPrivate) {
+        if (msg.author.avatarURL !== null) {
+          bot.sendMessage(msg, "I can only get your avatar in a direct message. Here it is: " + msg.author.avatarURL);
+          return;
+        }
+        if (msg.author.avatarURL === null) {
+          bot.sendMessage(msg, "I can only get your avatar in a direct message, but you don't have one");
+          return;
+        }
+      }
+      if (msg.mentions.length === 0 && !suffix) {
+        if (msg.author.avatarURL !== null) {
+          bot.sendMessage(msg, msg.author.username + "'s avatar: " + msg.author.avatarURL);
+        } else {
+          bot.sendMessage(msg, msg.author.username + " has no avatar", function(erro, wMsg) {
+            bot.deleteMessage(wMsg, { "wait": 8000 }); 
+          });
+        }
+      } else if (msg.mentions.length > 0) {
+        if (msg.everyoneMentioned) {
+          bot.sendMessage(msg, "Nice try.", function(erro, wMsg) { bot.deleteMessage(wMsg, { "wait": 8000 }); });
+          return;
+        }
+        if (msg.mentions.length > 6) {
+          bot.sendMessage(msg, "No more than 6 users.", function(erro, wMsg) { bot.deleteMessage(wMsg, { "wait": 8000 }); });
+          return;
+        }
+        msg.mentions.map(function(usr) {
+          if (usr.avatarURL !== null) {
+            bot.sendMessage(msg, "**" + usr.username.replace(/@/g, '@\u200b') + "**'s avatar: " + usr.avatarURL + "");
+          } else {
+            bot.sendMessage(msg, "**" + usr.username + "** has no avatar", function(erro, wMsg) { bot.deleteMessage(wMsg, { "wait": 8000 }); });
+          }
+        });
+      } else {
+        if (msg.everyoneMentioned) {
+          bot.sendMessage(msg, "Nice try.", function(erro, wMsg) { bot.deleteMessage(wMsg, { "wait": 8000 }); });
+          return;
+        }
+        let users = suffix.split(/, ?/);
+        if (users.length > 6) {
+          bot.sendMessage(msg, "No more than 6 users.", function(erro, wMsg) { bot.deleteMessage(wMsg, { "wait": 8000 }); });
+          return;
+        }
+        users.map(function(user) {
+          let usr = msg.channel.server.members.get("username", user);
+          if (usr) {
+            if (usr.avatarURL !== null) {
+              bot.sendMessage(msg, "**" + usr.username.replace(/@/g, '@\u200b') + "**'s avatar: " + usr.avatarURL + "");
+            } else {
+              bot.sendMessage(msg, "**" + usr.username + "** has no avatar", function(erro, wMsg) { bot.deleteMessage(wMsg, { "wait": 8000 }); });
+            }
+          } else {
+            bot.sendMessage(msg, "User \"" + user + "\" not found. If you want to get the avatar of multiple users separate them with a comma.", function(erro, wMsg) {
+              bot.deleteMessage(wMsg, { "wait": 20000 }); 
+            }); 
+          }
+        });
+      }
+    }
+  },
+  "strawpoll": {
+    description: "Create a strawpoll",
+//  usage: "<option1>, <option2>, [option3], ...",
+    process: function(msg, suffix) {
+      if (suffix && /^[^, ](.*), ?(.*)[^, ]$/.test(suffix)) {
+        suffix = msg.cleanContent.substring(msg.cleanContent.indexOf(" ") + 1).split(/, ?/);
+        request.post({
+            url: "https://strawpoll.me/api/v2/polls",
+            headers: {"content-type": "application/json"},
+            json: true,
+            body: {
+              "title": "" + msg.author.username + "'s Poll",
+              "options": suffix
+            },
+            followAllRedirects: true
+          }, (error, response, body) => {
+            if (!error && response.statusCode == 200) bot.sendMessage(msg, msg.author.username.replace(/@/g, '@\u200b') + " created a strawpoll. Vote here: <http://strawpoll.me/" + body.id + ">");
+            else if (error) bot.sendMessage(msg, error);
+            else if (response.statusCode != 200) bot.sendMessage(msg, "Received status code " + response.statusCode);
+          }
+        );
+      } else {
+        bot.sendMessage(msg.sender, '`' + getConfig().trigger + 'strawpoll` command usage: `<option1>, <option2>, [option3], ...`');
+      }
+    }
+  },
+  "8ball": {
+    description: "It's an 8ball...",
+    process: function(msg, suffix) {
+      const responses = [
+        "Can the Pope's dick fit through a doughnut?",
+        "Can you get AIDS from fucking a monkey?",
+        "Does erasing system32 speed up your PC?", 
+        "Is Clinton really innocent?",
+        "Does the Pope shit in the woods?",
+        "Will Donald Trump become the president of the United States?",
+        "Will there be a Half-Life 3?",
+        "Fuck if I know...",
+
+        "Aw, hell no!", "Probably.", "It is certain.", "Without a doubt!", "You may rely on it.", "Most likely!", "Yes!", "Signs point to yes.", "Better not tell you now!", "Don't count on it!", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful!"];
+      let asuffix = suffix ? '`' + suffix + '`: ' : '';
+      bot.reply(msg, asuffix + (responses[Math.floor(Math.random() * (responses.length))]));
+    }
+  },
+  "botpermissions": {
+    process: function(message, suffix) {
+      const allperms = [
+        // general
+        "administrator",
+        "createInstantInvite",
+        "kickMembers",
+        "banMembers",
+        "manageRoles",
+        "managePermissions",
+        "manageChannels",
+        "manageChannel",
+        "manageServer",
+        "changeNickname",
+        "manageNicknames",
+        // text
+        "readMessages",
+        "sendMessages",
+        "sendTTSMessages",
+        "manageMessages",
+        "embedLinks",
+        "attachFiles",
+        "readMessageHistory",
+        "mentionEveryone",
+        // voict
+        "voiceConnect",
+        "voiceSpeak",
+        "voiceMuteMembers",
+        "voiceDeafenMembers",
+        "voiceMoveMembers",
+        "voiceUseVAD"
+      ];
+      const tperms = message.channel.permissionsOf(bot.user).serialize();
+      for (let i = 0; i < allperms.length; i++) {
+        if (!tperms[allperms[i]]) {
+          tperms[allperms[i]] = false;
+        }
+      }
+      bot.sendMessage(message.channel, JSON.stringify(tperms, null, 2).trim());
     }
   }
 };
 
 // alias commands
-exports.commands.avatar = exports.commands.setavatar;
 exports.commands.exec = exports.commands.eval;
 exports.commands.game = exports.commands.setgame;
 exports.commands.exit = exports.commands.kill;

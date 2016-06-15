@@ -17,8 +17,5 @@
   "bugs": {
     "url": "https://github.com/rafa1231518/CommunityBot/issues"
   },
-  "main": "index.js",
-  "dependencies": {
-    "python-shell": "^0.4.0"
-  }
+  "main": "index.js"
 }

@@ -1,28 +1,80 @@
 'use strict';
 
 // pretty much completely stolen from SteamingMutt/WildBeast, with a few edits
+// so credit where credit's due
+
 const bot = require('../../bot.js');
 const getConfig = require('../../utility.js').getConfig;
 
-const Giphy = require('../giphy.js');
+const Giphy = require('./giphy.js');
 
 const unirest = require('unirest');
 const leetspeak = require('leetspeak');
 const request = require('request');
 const xml2js = require('xml2js');
-const meme = require('./memes.json');
 const Imgflipper = require('imgflipper');
 
+const meme = require('./memes.json');
+
+/*
+
+    "csgo-market": "^1.5.2",
+    "discordie": "^0.6.2",
+    "imgflipper": "^1.0.1",
+    "inquirer": "^0.12.0",
+    "leetspeak": "0.0.1",
+    "minimist": "^1.2.0",
+    "nedb": "^1.8.0",
+    "ora": "^0.2.1",
+    "request": "^2.72.0",
+    "require-directory": "^2.1.1",
+    "semver": "^5.1.0",
+    "unirest": "^0.4.2",
+    "winston": "^2.2.0",
+    "winston-daily-rotate-file": "^1.0.1",
+    "xml2js": "^0.4.16",
+    "youtube-api": "^2.0.2",
+    "youtube-dl": "^1.11.1"
+
+*/
+
+if (!getConfig().fun2) {
+  getConfig().fun2 = {};
+  getConfig().fun2.apiKeys = {};
+  getConfig().fun2.apiKeys.mashape = '';
+  
+  getConfig().fun2.apiKeys.imgflip = {};
+  
+  getConfig().fun2.apiKeys.imgflip.username = '';
+  getConfig().fun2.apiKeys.imgflip.password = '';
+} else {
+  if (!getConfig().fun2.apiKeys) {
+    getConfig().fun2.apiKeys = {};
+  }
+  if (!getConfig().fun2.apiKeys.mashape) {
+    getConfig().fun2.apiKeys.mashape = '';
+  }
+  if (!getConfig().fun2.apiKeys.imgflip) {
+    getConfig().fun2.apiKeys.imgflip = {};
+  }
+  if (!getConfig().fun2.apiKeys.imgflip.username) {
+    getConfig().fun2.apiKeys.imgflip.username = '';
+  }
+  if (!getConfig().fun2.apiKeys.imgflip.password) {
+    getConfig().fun2.apiKeys.imgflip.password = '';
+  }
+}
+
 module.exports = {
-    commands: {}
+  commands: {}
 };
 
 module.exports.commands.gif = {
   description: "I'll search Giphy for a gif matching your tags.",
   synonyms: ['giphy'],
-  fn: function (msg, suffix) {
+  fn: function(msg, suffix) {
     let tags = suffix.split(' ');
-    Giphy.get_gif(tags, function (id) {
+    Giphy.get_gif(tags, function(id) {
       if (typeof id !== 'undefined') {
         bot.reply(msg, 'http://media.giphy.com/media/' + id + '/giphy.gif [Tags: ' + tags + ']');
       } else {
@@ -34,11 +86,12 @@ module.exports.commands.gif = {
 
 module.exports.commands.fortunecow = {
   description: "I'll get a random fortunecow!",
-  fn: function (msg) {
+  synonyms: ['cow'],
+  fn: function(msg) {
     unirest.get('https://thibaultcha-fortunecow-v1.p.mashape.com/random')
-      .header('X-Mashape-Key', getConfig().api_keys.mashape)
+      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
       .header('Accept', 'text/plain')
-      .end(function (result) {
+      .end(function(result) {
         bot.reply(msg, '```' + result.body + '```');
       });
   }
@@ -46,11 +99,12 @@ module.exports.commands.fortunecow = {
 
 module.exports.commands.randomcat = {
   description: "I'll get a random cat image for you!",
-  fn: function (msg) {
+  synonyms: ['cat'],
+  fn: function(msg) {
     unirest.get('https://nijikokun-random-cats.p.mashape.com/random')
-      .header('X-Mashape-Key', getConfig().api_keys.mashape)
+      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
       .header('Accept', 'application/json')
-      .end(function (result) {
+      .end(function(result) {
         try {
           bot.reply(msg, result.body.source);
         } catch (e) {
@@ -64,7 +118,7 @@ module.exports.commands.randomcat = {
 module.exports.commands.leetspeak = {
   description: "1'Ll 3nc0d3 Y0uR Me5s@g3 1Nt0 l337sp3@K!",
   synonyms: ['leetspeek', 'leetspeach'],
-  fn: function (msg, suffix) {
+  fn: function(msg, suffix) {
     if (suffix.length > 0) {
       let thing = leetspeak(suffix);
       bot.reply(msg, thing);
@@ -76,7 +130,7 @@ module.exports.commands.leetspeak = {
 
 module.exports.commands.stroke = {
   description: "I'll stroke someones ego!",
-  fn: function (msg, suffix) {
+  fn: function(msg, suffix) {
     let name;
     if (suffix) {
       name = suffix.split('"');
@@ -86,7 +140,7 @@ module.exports.commands.stroke = {
     } else {
       name = ['Simplicity', 'NFM'];
     }
-    request('http://api.icndb.com/jokes/random?escape=javascript&firstName=' + name[0] + '&lastName=' + name[1], function (error, response, body) {
+    request('http://api.icndb.com/jokes/random?escape=javascript&firstName=' + name[0] + '&lastName=' + name[1], function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -103,8 +157,8 @@ module.exports.commands.stroke = {
 
 module.exports.commands.yomomma = {
   description: "I'll get a random yomomma joke for you!",
-  fn: function (msg, suffix) {
-    request('http://api.yomomma.info/', function (error, response, body) {
+  fn: function(msg, suffix) {
+    request('http://api.yomomma.info/', function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -123,8 +177,8 @@ module.exports.commands.yomomma = {
 
 module.exports.commands.advice = {
   description: "I'll give you some fantastic advice!",
-  fn: function (msg) {
-    request('http://api.adviceslip.com/advice', function (error, response, body) {
+  fn: function(msg) {
+    request('http://api.adviceslip.com/advice', function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -141,8 +195,8 @@ module.exports.commands.advice = {
 
 module.exports.commands.yesno = {
   description: 'Returns a gif displaying yes or no',
-  fn: function (msg, suffix) {
-    request('http://yesno.wtf/api/?force=' + suffix, function (error, response, body) {
+  fn: function(msg, suffix) {
+    request('http://yesno.wtf/api/?force=' + suffix, function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -160,8 +214,8 @@ module.exports.commands.yesno = {
 module.exports.commands.urbandictionary = {
   description: "I'll fetch what idiots on the internet think something means",
   synonyms: ['ud', 'urban'],
-  fn: function (msg, suffix) {
-    request('http://api.urbandictionary.com/v0/define?term=' + suffix, function (error, response, body) {
+  fn: function(msg, suffix) {
+    request('http://api.urbandictionary.com/v0/define?term=' + suffix, function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -179,7 +233,7 @@ module.exports.commands.urbandictionary = {
           msgArray.push('```');
           bot.sendMessage(msg.channel, msgArray.join('\n'));
         } else {
-          bot.reply(msg, suffix + ":This word is so screwed up, even Urban Dictionary doesn't have it in its database");
+          bot.reply(msg, "`" + suffix + "` is so fucked up, even Urban Dictionary doesn't have it in its database");
         }
       }
     });
@@ -188,13 +242,13 @@ module.exports.commands.urbandictionary = {
 
 module.exports.commands.fact = {
   description: "I'll give you some interesting facts!",
-  fn: function (msg) {
-    request('http://www.fayd.org/api/fact.xml', function (error, response, body) {
+  fn: function(msg) {
+    request('http://www.fayd.org/api/fact.xml', function(error, response, body) {
       if (error) {
         console.error(error);
       }
       if (!error && response.statusCode === 200) {
-        xml2js.parseString(body, function (err, result) {
+        xml2js.parseString(body, function(err, result) {
           if (err) {
             console.error(err);
           }
@@ -209,16 +263,17 @@ module.exports.commands.fact = {
   }
 };
 
-module.exports.commands.dice = {
+module.exports.commands.dnd = {
   description: "I'll roll some dice!",
-  fn: function (msg, suffix) {
+  synonyms: ['dnddice'],
+  fn: function(msg, suffix) {
     let dice;
     if (suffix) {
       dice = suffix;
     } else {
       dice = 'd6';
     }
-    request('https://rolz.org/api/?' + dice + '.json', function (error, response, body) {
+    request('https://rolz.org/api/?' + dice + '.json', function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -236,8 +291,8 @@ module.exports.commands.dice = {
 module.exports.commands.fancyinsult = {
   description: "I'll insult your friends!",
   synonyms: ['insult'],
-  fn: function (msg, suffix) {
-    request('http://quandyfactory.com/insult/json/', function (error, response, body) {
+  fn: function(msg, suffix) {
+    request('http://quandyfactory.com/insult/json/', function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -258,8 +313,8 @@ module.exports.commands.fancyinsult = {
 
 module.exports.commands.catfacts = {
   description: "I'll give you some interesting catfacts",
-  fn: function (msg) {
-    request('http://catfacts-api.appspot.com/api/facts', function (error, response, body) {
+  fn: function(msg) {
+    request('http://catfacts-api.appspot.com/api/facts', function(error, response, body) {
       if (!error && response.statusCode === 200) {
         try {
           JSON.parse(body);
@@ -276,41 +331,43 @@ module.exports.commands.catfacts = {
 
 module.exports.commands.e621 = {
   description: 'e621, the definition of *Stop taking the Internet so seriously.*',
-  usage: '<tags> multiword tags need to be typed like: wildbeast_is_a_discord_bot',
-  nsfw: true,
-  fn: function (msg, suffix) {
-    msg.channel.sendTyping();
+//  usage: '<tags> multiword tags need to be typed like: wildbeast_is_a_discord_bot',
+//  nsfw: true,
+  fn: function(msg, suffix) {
+    bot.startTyping(msg.channel);
     unirest.post(`https://e621.net/post/index.json?limit=30&tags=${suffix}`)
-        .headers({
-          'Accept': 'application/json',
-          'User-Agent': 'Unirest Node.js'
-        })
-        // Fetching 30 posts from E621 with the given tags
-        .end(function (result) {
-          if (result.body.length < 1) {
-            bot.reply(msg, 'Sorry, nothing found.'); // Correct me if it's wrong.
+      .headers({
+        'Accept': 'application/json',
+        'User-Agent': 'Unirest Node.js'
+      })
+      // Fetching 30 posts from E621 with the given tags
+      .end(function(result) {
+        if (result.body.length < 1) {
+          bot.reply(msg, 'Sorry, nothing found.'); // Correct me if it's wrong.
+        } else {
+          let count = Math.floor((Math.random() * result.body.length));
+          let FurryArray = [];
+          if (suffix) {
+            FurryArray.push(`${msg.author.mention()}, you've searched for \`${suffix}\``);
           } else {
-            let count = Math.floor((Math.random() * result.body.length));
-            let FurryArray = [];
-            if (suffix) {
-              FurryArray.push(`${msg.author.mention}, you've searched for \`${suffix}\``);
-            } else {
-              FurryArray.push(`${msg.author.mention}, you've searched for \`random\``);
-            } // hehe no privacy if you do the nsfw commands now.
-            FurryArray.push(result.body[count].file_url);
-            bot.sendMessage(msg.channel, FurryArray.join('\n'));
-          }
-        });
+            FurryArray.push(`${msg.author.mention()}, you've searched for \`random\``);
+          } // hehe no privacy if you do the nsfw commands now.
+          FurryArray.push(result.body[count].file_url);
+          bot.stopTyping(msg.channel);
+          bot.sendMessage(msg.channel, FurryArray.join('\n'));
+        }
+      });
   }
 };
 
 module.exports.commands.rule34 = {
-  description: 'Rule#34 : If it exists there is porn of it. If not, start uploading.',
-  nsfw: true,
-  fn: function (msg, suffix) {
-    msg.channel.sendTyping();
+  description: 'Rule 34: If it exists, there is porn of it. If not, start uploading.',
+//  nsfw: true,
+  synonyms: ['r34'],
+  fn: function(msg, suffix) {
+    bot.startTyping(msg.channel);
     unirest.post('http://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=' + suffix) // Fetching 100 rule34 pics
-      .end(function (result) {
+      .end(function(result) {
         if (result.body.length < 75) {
           bot.reply(msg, 'sorry, nothing found.'); // Correct me if it's wrong.
         } else {
@@ -321,11 +378,12 @@ module.exports.commands.rule34 = {
               let count = Math.floor((Math.random() * reply.posts.post.length));
               let FurryArray = [];
               if (!suffix) {
-                FurryArray.push(msg.author.mention + ", you've searched for `random`");
+                FurryArray.push(msg.author.mention() + ", you've searched for `random`");
               } else {
-                FurryArray.push(msg.author.mention + ", you've searched for `" + suffix + '`');
+                FurryArray.push(msg.author.mention() + ", you've searched for `" + suffix + '`');
               }
               FurryArray.push('http:' + reply.posts.post[count].$.file_url);
+              bot.stopTyping(msg.channel);
               bot.sendMessage(msg.channel, FurryArray.join('\n'));
             }
           });
@@ -336,11 +394,11 @@ module.exports.commands.rule34 = {
 
 module.exports.commands.meme = {
   description: "I'll create a meme with your suffixes!",
-//  usage: '<memetype> "<Upper line>" "<Bottom line>" **Quotes are important!**',
-  fn: function (msg, suffix, bot) {
+  ////  usage: '<memetype> "<Upper line>" "<Bottom line>" **Quotes are important!**',
+  fn: function(msg, suffix, bot) {
     let tags = suffix.split('"');
     let memetype = tags[0].split(' ')[0];
-    let imgflipper = new Imgflipper(getConfig().api_keys.imgflip.username, getConfig().api_keys.imgflip.password);
+    let imgflipper = new Imgflipper(getConfig().fun2.apiKeys.imgflip.username, getConfig().fun2.apiKeys.imgflip.password);
     imgflipper.generateMeme(meme[memetype], tags[1] ? tags[1] : '', tags[3] ? tags[3] : '', (err, image) => {
       if (err) {
         bot.reply(msg, 'Please try again.');

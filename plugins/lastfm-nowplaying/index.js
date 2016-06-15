@@ -3,14 +3,17 @@
 const bot = require('../../bot.js');
 const getConfig = require('../../utility.js').getConfig;
 const saveConfig = require('../../utility.js').saveConfig;
+const getXData = require('../../utility.js').getXData;
+const saveXData = require('../../utility.js').saveXData;
 
 const http = require('http');
 
-if (!getConfig()['lastfm']) {
+if (!getConfig()['lastfm'] || !getXData()['lastfm']) {
   getConfig()['lastfm'] = {};
+  getXData()['lastfm'] = {};
   getConfig()['lastfm'].apiKey = '83a068985f1c01197759735f6cfaca92';
   getConfig()['lastfm'].announceSongs = true;
-  getConfig()['lastfm'].users = {
+  getXData()['lastfm'].users = {
     "exampleServer": {
       "exampleChannel": [
         ["userID", "lastfmName", "last played song"]
@@ -24,8 +27,8 @@ if (!getConfig()['lastfm']) {
   if (!getConfig()['lastfm'].announceSongs) {
     getConfig()['lastfm'].announceSongs = true;
   }
-  if (!getConfig()['lastfm'].users) {
-    getConfig()['lastfm'].users = {
+  if (!getXData()['lastfm'].users) {
+    getXData()['lastfm'].users = {
       "exampleServer": {
         "exampleChannel": [
           ["userID", "lastfmName", "last played song"]
@@ -38,23 +41,23 @@ if (!getConfig()['lastfm']) {
 let checkPlayingTimer;
 
 bot.on("ready", function() {
-  const conf = getConfig()['lastfm'];
+  const xdata = getXData()['lastfm'];
   
   checkPlayingTimer = setInterval(function() {
     
-    if (!conf.announceSongs) return;
+    if (!xdata.announceSongs) return;
     
-    const servers = Object.keys(conf.users);
+    const servers = Object.keys(xdata.users);
     for (let i = 0; i < servers.length; i++) {
-      const channels = Object.keys(conf.users[servers[i]]);
+      const channels = Object.keys(xdata.users[servers[i]]);
       
       for (let j = 0; j < channels.length; j++) {
         
-        for (let user = 0; user < conf.users[servers[i]][channels[j]].length; user++) {
+        for (let user = 0; user < xdata.users[servers[i]][channels[j]].length; user++) {
           http.get({
             hostname: 'ws.audioscrobbler.com',
             port: 80,
-            path: '/2.0/?method=user.getRecentTracks&user=' + conf.users[servers[i]][channels[j]][user][1] + '&api_key=' + getConfig()['lastfm'].apiKey + '&limit=1&format=json',
+            path: '/2.0/?method=user.getRecentTracks&user=' + xdata.users[servers[i]][channels[j]][user][1] + '&api_key=' + getConfig()['lastfm'].apiKey + '&limit=1&format=json',
             agent: false
           }, function(res) {
             // response
@@ -77,11 +80,11 @@ bot.on("ready", function() {
                 const trk = body.recenttracks.track[0].artist['#text'] + // artist
                   " - " + body.recenttracks.track[0].name; // track name
                 
-                if (trk !== conf.users[servers[i]][channels[j]][user][2]) {
-                  conf.users[servers[i]][channels[j]][user][2] = trk;
+                if (trk !== xdata.users[servers[i]][channels[j]][user][2]) {
+                  xdata.users[servers[i]][channels[j]][user][2] = trk;
                   
                   bot.sendMessage(getChannel(servers[i], channels[j]), // msg in the channel
-                    getUser(conf.users[servers[i]][channels[j]][user][0]).mention() + // @mention the user
+                    getUser(xdata.users[servers[i]][channels[j]][user][0]).mention() + // @mention the user
                     " now playing: " + trk);
                 }
               }
@@ -105,11 +108,12 @@ function getChannel(server, name) {
 
 function removeMeCommand(message) {
   try {
-    const chan = getConfig()['lastfm'].users[message.channel.server.name][message.channel.name];
+    const chan = getXData()['lastfm'].users[message.channel.server.name][message.channel.name];
     for (let i = 0; i < chan.length; i++) {
       if (chan[i][0] == message.sender.id) {
         chan.splice(i, 1);
         bot.sendMessage(message.channel, 'Removed ' + message.sender.name + ' (' + message.sender.id + ') from the Now Playing list on this channel');
+        saveXData();
         saveConfig();
         return;
       }
@@ -122,13 +126,13 @@ function removeMeCommand(message) {
 
 function addUserCommand(message, suffix) { // TODO doesn't create server / channel entries
     
-    if (!getConfig()['lastfm'].users[message.channel.server.name])
-      getConfig()['lastfm'].users[message.channel.server.name] = {};
+    if (!getXData()['lastfm'].users[message.channel.server.name])
+      getXData()['lastfm'].users[message.channel.server.name] = {};
     
-    if (!getConfig()['lastfm'].users[message.channel.server.name][message.channel.name])
-      getConfig()['lastfm'].users[message.channel.server.name][message.channel.name] = [];
+    if (!getXData()['lastfm'].users[message.channel.server.name][message.channel.name])
+      getXData()['lastfm'].users[message.channel.server.name][message.channel.name] = [];
     
-    const chan = getConfig()['lastfm'].users[message.channel.server.name][message.channel.name];
+    const chan = getXData()['lastfm'].users[message.channel.server.name][message.channel.name];
     chan[chan.length] = [
       message.sender.id, // discord id
       suffix.split(' ')[0], // lastfm username
@@ -136,6 +140,7 @@ function addUserCommand(message, suffix) { // TODO doesn't create server / chann
     ];
     
     saveConfig();
+    saveXData();
     
     bot.sendMessage(message.channel, 'Added ' + message.sender.name + ' (' + message.sender.id + ') to Now Playing list on this channel');
     

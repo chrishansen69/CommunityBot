@@ -1,0 +1,701 @@
+"use strict";
+
+// from brussell98/BrussellBot under the MIT License
+const request = require('request');
+const xml2js = require('xml2js');
+const osuapi = require('osu-api');
+const ent = require('entities');
+const waifus = require("./waifus.json");
+
+const bot = require('../../bot.js');
+const getConfig = require('../../utility.js').getConfig;
+
+const Ratings = {};
+
+// .includes() polyfill
+if (!Array.prototype.includes)
+Array.prototype.includes=function(a){return this.indexOf(a) !== -1;};
+
+if (!getConfig().weeb) {
+  getConfig().weeb = {};
+  getConfig().weeb.mal_pass = "";
+  getConfig().weeb.mal_user = "";
+  getConfig().weeb.osu_api_key = "";
+  getConfig().weeb.imgur_client_id = "";
+  getConfig().weeb.allowNSFW = true;
+}
+
+/**
+ * @param  {User} sender
+ * @param  {String} command
+ * @param  {String} usage
+ */
+function correctUsage(sender, command, usage) {
+  bot.sendMessage(sender, '`' + getConfig().trigger + command + '` command usage: `' + usage + '`');
+}
+
+function findUser(members, query) {
+  let usr = members.find(member=>{ return (member === undefined || member.username === undefined) ? false : member.username.toLowerCase() == query.toLowerCase(); });
+  if (!usr) { usr = members.find(member=>{ return (member === undefined || member.username === undefined) ? false : member.username.toLowerCase().indexOf(query.toLowerCase()) === 0; }); }
+  if (!usr) { usr = members.find(member=>{ return (member === undefined || member.username === undefined) ? false : member.username.toLowerCase().includes(query.toLowerCase()); }); }
+  return usr || false;
+}
+
+function generateRandomRating(fullName, storeRating) {
+  let weightedNumber = Math.floor((Math.random() * 20) + 1); //between 1 and 20
+  let score, moreRandom = Math.floor(Math.random() * 4);
+  if (weightedNumber < 5) score = Math.floor((Math.random() * 3) + 1); //between 1 and 3
+  else if (weightedNumber > 4 && weightedNumber < 16) score = Math.floor((Math.random() * 4) + 4); //between 4 and 7
+  else if (weightedNumber > 15) score = Math.floor((Math.random() * 3) + 8); //between 8 and 10
+  if (moreRandom === 0 && score !== 1) score -= 1;
+  else if (moreRandom === 3 && score !== 10) score += 1;
+  if (storeRating) Ratings[fullName.toLowerCase()] = score;
+  return score;
+}
+
+function generateUserRating(msg, fullName) {
+  let user = msg.channel.server.members.get("username", fullName);
+  if (user === undefined) return generateRandomRating();
+  let score = generateRandomRating() - 1;
+  let details = msg.channel.server.detailsOfUser(user);
+  if (details) {
+    if ((new Date().valueOf() - new Date(details.joinedAt).valueOf()) >= 2592000000) score += 1; //if user has been on the server for at least one month +1
+  }
+  if (msg.channel.permissionsOf(user).hasPermission("manageServer")) score += 1; //admins get +1 ;)
+  let count = 0;
+  bot.servers.map(server=>{ if (server.members.includes(user)) count += 1; }); //how many servers does the bot share with them
+  if (count > 2) score += 1; //if we share at least 3 servers
+  if (!user.avatarURL) score -= 1; //gotta have an avatar
+  if (user.username.length > 22) score -= 1; //long usernames are hard to type so -1
+  if (score > 10) score = 10; else if (score < 1) score = 1; //keep it within 1-10
+  Ratings[fullName.toLowerCase()] = score;
+  return score;
+}
+
+function generateJSONRating(fullName) {
+  let ranking = waifus[fullName];
+  let ranges = {
+    "1": "1-4", "2": "2-4",
+    "3": "4-8", "4": "4-8",
+    "5": "5-8", "6": "6-9",
+    "7": "7-10", "8": "8-10",
+    "9": "10-10"
+  };
+  let score = Math.floor((Math.random() * ((parseInt(ranges[ranking].split("-")[1], 10) + 1 - parseInt(ranges[ranking].split("-")[0], 10)))) + parseInt(ranges[ranking].split("-")[0], 10));
+  let moreRandom = Math.floor(Math.random() * 4); //0-3
+  if (score > 1 && moreRandom === 0) score -= 1; else if (score < 10 && moreRandom === 3) score += 1;
+  Ratings[fullName.toLowerCase()] = score;
+  return score;
+}
+
+module.exports = {
+  commands: {
+    "anime": {
+      description: "Get details on an anime from MAL.",
+      //      usage: "<anime name>",
+      //      deleteCommand: true,
+      //      cooldown: 6,
+      fn: function(msg, suffix) {
+        const MAL_USER = getConfig().weeb.mal_user;
+        const MAL_PASS = getConfig().weeb.mal_pass;
+        if (suffix) {
+          if (!MAL_USER || !MAL_PASS || MAL_USER === "" || MAL_PASS === "") {
+            bot.sendMessage(msg, "MAL login not configured by bot owner", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+            return;
+          }
+          if (/[\uD000-\uF8FF]/g.test(suffix)) {
+            bot.sendMessage(msg, "Your search contained illegal characters", (e, m) => { bot.deleteMessage(m, { "wait": 8000 }); });
+            return;
+          }
+          bot.startTyping(msg.channel);
+          let rUrl = `http://myanimelist.net/api/anime/search.xml?q=${suffix}`;
+          request(rUrl, { "auth": { "user": MAL_USER, "pass": MAL_PASS, "sendImmediately": false } }, function(error, response, body) {
+            if (error) console.log(error);
+            else if (!error && response.statusCode == 200) {
+              xml2js.parseString(body, function(err, result) {
+                let title = result.anime.entry[0].title;
+                let english = result.anime.entry[0].english;
+                let ep = result.anime.entry[0].episodes;
+                let score = result.anime.entry[0].score;
+                let type = result.anime.entry[0].type;
+                let status = result.anime.entry[0].status;
+                let synopsis = result.anime.entry[0].synopsis.toString();
+                let id = result.anime.entry[0].id;
+                synopsis = ent.decodeHTML(synopsis.replace(/<br \/>/g, " ").replace(/\[(.{1,10})\]/g, "").replace(/\r?\n|\r/g, " ").replace(/\[(i|\/i)\]/g, "*").replace(/\[(b|\/b)\]/g, "**"));
+                if (!msg.channel.isPrivate && synopsis.length > 400)
+                  synopsis = synopsis.substring(0, 400) + '...';
+                bot.sendMessage(msg, "**" + title + " / " + english + "**\n**Type:** " + type + " **| Episodes:** " + ep + " **| Status:** " + status + " **| Score:** " + score + "\n" + synopsis + "\n**<http://www.myanimelist.net/anime/" + id + ">**");
+              });
+            } else bot.sendMessage(msg, "\"" + suffix + "\" not found.", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+          });
+          bot.stopTyping(msg.channel);
+        } else {
+          bot.sendMessage(msg.sender, '`' + getConfig().trigger + 'anime` command usage: `<anime name>`');
+        }
+      }
+    },
+    "manga": {
+      description: "Get details on a manga from MAL.",
+      //      usage: "<manga/novel name>",
+      //      deleteCommand: true,
+      //      cooldown: 6,
+      fn: function(msg, suffix) {
+        const MAL_USER = getConfig().weeb.mal_user;
+        const MAL_PASS = getConfig().weeb.mal_pass;
+        if (suffix) {
+          if (!MAL_USER || !MAL_PASS || MAL_USER === "" || MAL_PASS === "") {
+            bot.sendMessage(msg, "MAL login not configured by bot owner", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+            return;
+          }
+          if (/[\uD000-\uF8FF]/g.test(suffix)) {
+            bot.sendMessage(msg, "Your search contained illegal characters", (e, m) => { bot.deleteMessage(m, { "wait": 8000 }); });
+            return;
+          }
+          bot.startTyping(msg.channel);
+          let rUrl = `http://myanimelist.net/api/manga/search.xml?q=${suffix}`;
+          request(rUrl, { "auth": { "user": MAL_USER, "pass": MAL_PASS, "sendImmediately": false } }, function(error, response, body) {
+            if (error) console.log(error);
+            else if (!error && response.statusCode == 200) {
+              xml2js.parseString(body, function(err, result) {
+                let title = result.manga.entry[0].title;
+                let english = result.manga.entry[0].english;
+                let chapters = result.manga.entry[0].chapters;
+                let volumes = result.manga.entry[0].volumes;
+                let score = result.manga.entry[0].score;
+                let type = result.manga.entry[0].type;
+                let status = result.manga.entry[0].status;
+                let synopsis = result.manga.entry[0].synopsis.toString();
+                let id = result.manga.entry[0].id;
+                synopsis = ent.decodeHTML(synopsis.replace(/<br \/>/g, " ").replace(/\[(.{1,10})\]/g, "").replace(/\r?\n|\r/g, " ").replace(/\[(i|\/i)\]/g, "*").replace(/\[(b|\/b)\]/g, "**"));
+                if (!msg.channel.isPrivate && synopsis.length > 400)
+                  synopsis = synopsis.substring(0, 400) + '...';
+                bot.sendMessage(msg, `**${title} / ${english}**\n**Type:** ${type} **| Chapters:** ${chapters} **| Volumes:** ${volumes} **| Status:** ${status} **| Score:** ${score}\n${synopsis}\n**<http://www.myanimelist.net/manga/${id}>**`);
+              });
+            } else bot.sendMessage(msg, "\"" + suffix + "\" not found", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+          });
+          bot.stopTyping(msg.channel);
+        } else {
+          bot.sendMessage(msg.sender, '`' + getConfig().trigger + 'manga` command usage: `<manga/novel name>`');
+        }
+      }
+    },
+    "maluser": {
+      description: "Get details on a user's MAL.",
+      //      usage: "<username>",
+      //      deleteCommand: true,
+      //      cooldown: 6,
+      fn: function(msg, suffix) {
+        if (suffix) {
+          if (/[\uD000-\uF8FF]/g.test(suffix)) {
+            bot.sendMessage(msg, "Your search contained illegal characters", (e, m) => { bot.deleteMessage(m, { "wait": 8000 }); });
+            return;
+          }
+          let rUrl = `http://myanimelist.net/malappinfo.php?u=${suffix.replace(/ /g, '%20')}&status=all&type=anime`;
+          request(rUrl, (error, response, body) => {
+            if (error) console.log(error);
+            else if (!error && response.statusCode == 200) {
+              xml2js.parseString(body, (err, result) => {
+                if (err) console.log(err);
+                else if (!result.myanimelist.myinfo) bot.sendMessage(msg, result.myanimelist.error, (e, m) => { bot.deleteMessage(m, { "wait": 8000 }); });
+                else {
+                  result = result.myanimelist.myinfo[0];
+                  bot.sendMessage(msg, `\`\`\`ruby\nUser: ${result.user_name} (${result.user_id})\nWatching: ${result.user_watching}\nCompleted: ${result.user_completed}\nOn Hold: ${result.user_onhold}\nDropped: ${result.user_dropped}\nPTW: ${result.user_plantowatch}\nDays Spent Watching: ${result.user_days_spent_watching}\`\`\``);
+                }
+              });
+            }
+          });
+        } else {
+          bot.sendMessage(msg.sender, '`' + getConfig().trigger + 'maluser` command usage: `<username>`');
+        }
+      }
+    },
+    "coinflip": {
+      description: "Flip a coin.",
+      fn: function(msg) {
+        bot.sendMessage(msg, "**" + msg.author.username.replace(/@/g, '@\u200b') + "** flipped a coin and got **" + (Math.floor(Math.random() * (2)) === 0 ? "Heads" : "Tails") + "**");
+      }
+    },
+    "osu": { // GOD DAMN THIS IS BIG
+      description: "Commands to fetch osu! data.",
+      //      usage: "[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]",
+      //      info: "**sig:** Get an osu!next styled signature for the specified account. You may provide a hex color.\n**user:** Get the statistics for a user.\n**best:** Get the top 5 plays for a user (by PP).\n**recent:** Get the 5 most recent plays for a user.\n**mode:** Mode can be used if you want to get data for a mode other than osu. You can use mania, taiko, or ctb.",
+      //      deleteCommand: true, cooldown: 5,
+      fn: function(msg, suffix) {
+        if (!suffix) {
+          bot.sendMessage(msg.sender, '`' + getConfig().trigger + 'osu` command usage: `[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]`');
+          return;
+        }
+
+        const OSU_API_KEY = getConfig().weeb.osu_api_key;
+
+        let osu;
+        if (/^(osu!?)?(standard|mania|taiko|ctb|catch the beat) .{3,6} /i.test(suffix)) {
+          if (suffix.replace(/^(osu!?)?(standard|mania|taiko|ctb|catch the beat) /i, '').startsWith('sig')) {
+            if (/^(osu!?)?mania/i.test(suffix)) osu = "3";
+            else if (/^(osu!?)?(ctb|catch the beat)/i.test(suffix)) osu = "2";
+            else if (/^(osu!?)?taiko/i.test(suffix)) osu = "1";
+          } else {
+            if (!OSU_API_KEY || OSU_API_KEY === "") {
+              bot.sendMessage(msg, "Osu API key not configured by bot owner", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            if (/^(osu!?)?mania/i.test(suffix)) osu = new osuapi.Api(OSU_API_KEY, osuapi.Modes.osumania);
+            else if (/^(osu!?)?(ctb|catch the beat)/i.test(suffix)) osu = new osuapi.Api(OSU_API_KEY, osuapi.Modes.CtB);
+            else if (/^(osu!?)?taiko/i.test(suffix)) osu = new osuapi.Api(OSU_API_KEY, osuapi.Modes.taiko);
+            else osu = new osuapi.Api(OSU_API_KEY);
+          }
+          suffix = suffix.replace(/^(osu!?)?(standard|mania|taiko|ctb|catch the beat) /i, '');
+        } else {
+          if (suffix.startsWith("sig")) osu = false;
+          else {
+            if (!OSU_API_KEY || OSU_API_KEY === "") {
+              bot.sendMessage(msg, "Osu API key not configured by bot owner", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            osu = new osuapi.Api(OSU_API_KEY);
+          }
+        }
+
+        if (suffix.split(" ")[0] === "sig") {
+
+          let color = "ff66aa",
+            username = msg.author.username;
+          suffix = suffix.split(" ");
+          suffix.shift();
+          if (suffix && suffix.length >= 1) {
+            if (/(.*) #?[A-Fa-f0-9]{6}$/.test(suffix.join(" "))) {
+              username = suffix.join("%20").substring(0, suffix.join("%20").lastIndexOf("%20"));
+              if (suffix[suffix.length - 1].length == 6) {
+                color = suffix[suffix.length - 1];
+              } else if (suffix[suffix.length - 1].length == 7) { color = suffix[suffix.length - 1].substring(1); }
+            } else if (/#?[A-Fa-f0-9]{6}$/.test(suffix.join(" "))) {
+              username = msg.author.username;
+              if (suffix[0].length == 6) {
+                color = suffix[0];
+              } else if (suffix[0].length == 7) { color = suffix[0].substring(1); }
+            } else { username = suffix.join("%20"); }
+          }
+          let url = "https://lemmmy.pw/osusig/sig.php?colour=hex" + color + "&uname=" + username + "&pp=2&flagshadow&xpbar&xpbarhex&darktriangles";
+          if (osu) url += "&mode=" + osu;
+          request({ url: url, encoding: null }, (err, response, body) => {
+            if (err) {
+              bot.sendMessage(msg, "Error: " + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            if (response.statusCode != 200) {
+              bot.sendMessage(msg, "Got status code " + response.statusCode, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            bot.sendMessage(msg, "Here's your osu signature for **" + username.replace(/@/g, '@\u200b') + "**! Get a live version at `lemmmy.pw/osusig/`");
+            bot.sendFile(msg, body, "sig.png");
+          });
+
+        } else if (suffix.split(" ")[0] == "user") {
+
+          let username = (suffix.split(" ").length < 2) ? msg.author.username : suffix.substring(5);
+          osu.getUser(username, (err, data) => {
+            if (err) bot.sendMessage(msg, "Error: " + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+            if (!data) bot.sendMessage(msg, "User \"" + username + "\" not found", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+            else {
+              if (data.playcount === null || data.playcount === 0) {
+                bot.sendMessage(msg, "User has no data", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+                return;
+              }
+              let toSend = [];
+              toSend.push("User: " + data.username.replace(/@/g, '@\u200b') + " (" + data.country + ")");
+              toSend.push("Play Count: " + data.playcount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Level: " + data.level.substring(0, data.level.split(".")[0].length + 3));
+              toSend.push("Ranked Score: " + data.ranked_score.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+              toSend.push("Total Score: " + data.total_score.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+              toSend.push("PP: " + data.pp_raw.split(".")[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+              toSend.push("Rank: #" + data.pp_rank.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " (Country Rank: #" + data.pp_country_rank.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ")");
+              toSend.push("Accuracy: " + data.accuracy.substring(0, data.accuracy.split(".")[0].length + 3) + "%");
+              toSend.push("300s: " + data.count300.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | 100s: " + data.count100.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | 50s: " + data.count50.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | SS: " + data.count_rank_ss + " | S: " + data.count_rank_s + " | A: " + data.count_rank_a.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+              bot.sendMessage(msg, "```xl\n" + toSend.join('\n') + "```");
+            }
+          });
+
+        } else if (suffix.split(" ")[0] === "best") {
+
+          let username = (suffix.split(" ").length < 2) ? msg.author.username : suffix.substring(5);
+          osu.getUserBest(username, function(err, data) {
+            if (err) {
+              bot.sendMessage(msg, "Error: " + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            if (!data || !data[0] || !data[1] || !data[2] || !data[3] || !data[4]) {
+              bot.sendMessage(msg, "User \"" + username + "\" not found or user doesn't have 5 plays", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            let toSend = [];
+            toSend.push("```ruby\nTop 5 for " + username.replace(/@/g, '@\u200b') + ":");
+            osu.getBeatmap(data[0].beatmap_id, (err, map1) => {
+
+              toSend.push("1.# " + map1.title + " (?" + map1.difficultyrating.substring(0, map1.difficultyrating.split(".")[0].length + 3) + ")\n\tPP: " + Math.round(data[0].pp.split(".")[0]) + " | Rank: " + data[0].rank + " | Score: " + data[0].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Max Combo: " + data[0].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[0].countmiss + " | Date: " + data[0].date);
+
+              osu.getBeatmap(data[1].beatmap_id, (err, map2) => {
+
+                toSend.push("2.# " + map2.title + " (?" + map2.difficultyrating.substring(0, map2.difficultyrating.split(".")[0].length + 3) + ")\n\tPP: " + Math.round(data[1].pp.split(".")[0]) + " | Rank: " + data[1].rank + " | Score: " + data[1].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Max Combo: " + data[1].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[1].countmiss + " | Date: " + data[1].date);
+
+                osu.getBeatmap(data[2].beatmap_id, (err, map3) => {
+
+                  toSend.push("3.# " + map3.title + " (?" + map3.difficultyrating.substring(0, map3.difficultyrating.split(".")[0].length + 3) + ")\n\tPP: " + Math.round(data[2].pp.split(".")[0]) + " | Rank: " + data[2].rank + " | Score: " + data[2].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Max Combo: " + data[2].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[2].countmiss + " | Date: " + data[2].date);
+
+                  osu.getBeatmap(data[3].beatmap_id, (err, map4) => {
+
+                    toSend.push("4.# " + map4.title + " (?" + map4.difficultyrating.substring(0, map4.difficultyrating.split(".")[0].length + 3) + ")\n\tPP: " + Math.round(data[3].pp.split(".")[0]) + " | Rank: " + data[3].rank + " | Score: " + data[3].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Max Combo: " + data[3].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[3].countmiss + " | Date: " + data[3].date);
+
+                    osu.getBeatmap(data[4].beatmap_id, (err, map5) => {
+
+                      toSend.push("5.# " + map5.title + " (?" + map5.difficultyrating.substring(0, map5.difficultyrating.split(".")[0].length + 3) + ")\n\tPP: " + Math.round(data[4].pp.split(".")[0]) + " | Rank: " + data[4].rank + " | Score: " + data[4].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Max Combo: " + data[4].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[4].countmiss + " | Date: " + data[4].date);
+                      bot.sendMessage(msg, toSend.join("\n") + "```");
+                    });
+                  });
+                });
+              });
+            });
+          });
+
+        } else if (suffix.split(" ")[0] === "recent") {
+
+          let username = (suffix.split(" ").length < 2) ? msg.author.username : suffix.substring(7);
+          osu.getUserRecent(username, function(err, data) {
+            if (err) {
+              bot.sendMessage(msg, "Error: " + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            if (!data || !data[0]) {
+              bot.sendMessage(msg, "User \"" + username + "\" not found or no recent plays", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+              return;
+            }
+            let toSend = [];
+            toSend.push("```ruby\n5 most recent plays for " + username.replace(/@/g, '@\u200b') + ":");
+            osu.getBeatmap(data[0].beatmap_id, (err, map1) => {
+
+              if (!map1 || !map1.title) {
+                bot.sendMessage(msg, toSend + "```");
+                return;
+              }
+              toSend.push("1.# " + map1.title + " (?" + map1.difficultyrating.substring(0, map1.difficultyrating.split(".")[0].length + 3) + ")\n\tScore: " + data[0].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Rank: " + data[0].rank + " | Max Combo: " + data[0].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[0].countmiss);
+              if (!data[1]) {
+                bot.sendMessage(msg, toSend.join("\n") + "```");
+                return;
+              }
+
+              osu.getBeatmap(data[1].beatmap_id, (err, map2) => {
+
+                if (!map2 || !map2.title) {
+                  bot.sendMessage(msg, toSend);
+                  return;
+                }
+                toSend.push("2.# " + map2.title + " (?" + map2.difficultyrating.substring(0, map2.difficultyrating.split(".")[0].length + 3) + ")\n\tScore: " + data[1].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Rank: " + data[1].rank + " | Max Combo: " + data[1].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[1].countmiss);
+                if (!data[2]) {
+                  bot.sendMessage(msg, toSend.join("\n") + "```");
+                  return;
+                }
+
+                osu.getBeatmap(data[2].beatmap_id, (err, map3) => {
+
+                  if (!map3 || !map3.title) {
+                    bot.sendMessage(msg, toSend);
+                    return;
+                  }
+                  toSend.push("3.# " + map3.title + " (?" + map3.difficultyrating.substring(0, map3.difficultyrating.split(".")[0].length + 3) + ")\n\tScore: " + data[2].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Rank: " + data[2].rank + " | Max Combo: " + data[2].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[2].countmiss);
+                  if (!data[3]) {
+                    bot.sendMessage(msg, toSend.join("\n") + "```");
+                    return;
+                  }
+
+                  osu.getBeatmap(data[3].beatmap_id, (err, map4) => {
+
+                    if (!map4 || !map4.title) {
+                      bot.sendMessage(msg, toSend);
+                      return;
+                    }
+                    toSend.push("4.# " + map4.title + " (?" + map4.difficultyrating.substring(0, map4.difficultyrating.split(".")[0].length + 3) + ")\n\tScore: " + data[3].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Rank: " + data[3].rank + " | Max Combo: " + data[3].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[3].countmiss);
+                    if (!data[4]) {
+                      bot.sendMessage(msg, toSend.join("\n") + "```");
+                      return;
+                    }
+
+                    osu.getBeatmap(data[4].beatmap_id, (err, map5) => {
+
+                      if (!map5 || !map5.title) {
+                        bot.sendMessage(msg, toSend);
+                        return;
+                      }
+                      toSend.push("5.# " + map5.title + " (?" + map5.difficultyrating.substring(0, map5.difficultyrating.split(".")[0].length + 3) + ")\n\tScore: " + data[4].score.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Rank: " + data[4].rank + " | Max Combo: " + data[4].maxcombo.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " | Misses: " + data[4].countmiss);
+                      bot.sendMessage(msg, toSend.join("\n") + "```");
+                    });
+                  });
+                });
+              });
+            });
+          });
+
+        } else {
+          bot.sendMessage(msg.sender, '`' + getConfig().trigger + 'osu` command usage: *[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]*');
+        }
+      }
+    },
+    "google": {
+      description: "Let me Google that for you",
+      fn: function(msg, suffix) {
+        if (!suffix) {
+          bot.sendMessage(msg, "<http://www.lmgtfy.com/?q=bot-chan+commands>");
+          return;
+        }
+        suffix = suffix.split(" ");
+        for (let i = 0; i < suffix.length; i++) suffix[i] = encodeURIComponent(suffix[i]);
+        bot.sendMessage(msg, `<http://www.lmgtfy.com/?q=${suffix.join("+")}>`);
+      }
+    },
+    "numberfacts": {
+      description: "Get facts about a number",
+      fn: function(msg, suffix) {
+        let number = "random";
+        if (suffix && /^\d+$/.test(suffix)) number = suffix;
+        request("http://numbersapi.com/" + number + "/trivia?json", function(error, response, body) {
+          if (error) bot.sendMessage(msg, "Error: " + error, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+          else if (response.statusCode != 200) bot.sendMessage(msg, "Got status code " + response.statusCode, function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+          else {
+            body = JSON.parse(body);
+            bot.sendMessage(msg, body.text);
+          }
+        });
+      }
+    },
+    "ratewaifu": {
+      description: "I'll rate your waifu",
+      //      usage: "<name> [--s[earch]]",
+      //      deleteCommand: false, cooldown: 5,
+      fn: function(msg, suffix) {
+        if (!suffix) {
+          correctUsage(msg.sender, "ratewaifu", "<name> [--s[earch]]");
+          return;
+        }
+        if (msg.everyoneMentioned) {
+          bot.sendMessage(msg, "Hey, " + msg.author.username.replace(/@/g, '@\u200b') + ", don't do that ok?", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+          return;
+        }
+        if (msg.mentions.length > 1) {
+          bot.sendMessage(msg, "Multiple mentions aren't allowed!", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+          return;
+        }
+        if (suffix.toLowerCase().replace("-", " ") == bot.user.username.toLowerCase().replace("-", " ")) {
+          bot.sendMessage(msg, "I'd rate myself **10/10**");
+          return;
+        }
+        let fullName = "",
+          user = false;
+        if (suffix.search(/--s(earch)?/i) > -1) {
+          let showBase = (suffix.search(/--b(ase)?/i) > -1) ? true : false;
+          let query = suffix.replace(/--s(earch)?/i, '').replace(/--b(ase)?/i, '').toLowerCase().trim();
+          let results = ["__Results:__"];
+          Object.keys(waifus).map(name => {
+            if (name.toLowerCase().includes(query)) { if(showBase) results.push(waifus[name] + ', ' + name); else results.push(name); }
+          });
+          if (results.length > 1) {
+            if (results.join('\n').length < 2000) bot.sendMessage(msg, results.join('\n'));
+            else bot.sendMessage(msg, results.join('\n').substr(0, 2000));
+          } else bot.sendMessage(msg, "No names found matching that in the database");
+        } else {
+          if (!msg.channel.isPrivate) {
+            user = msg.channel.server.members.find((member) => {
+              return (member === undefined || member.username === undefined) ? false : member.username.toLowerCase() == suffix.toLowerCase();
+            });
+          } else user = false;
+          if (!user && msg.mentions.length < 1) {
+            Object.keys(waifus).map(name => {
+              if (name.toLowerCase() == suffix.toLowerCase()) {
+                fullName = name;
+                return;
+              }
+            });
+            if (!fullName) {
+              Object.keys(waifus).map(name => {
+                if (name.split(" ")[0].toLowerCase() == suffix.toLowerCase()) {
+                  fullName = name;
+                  return;
+                }
+              });
+            }
+            if (!fullName) {
+              Object.keys(waifus).map(name => {
+                if (name.split(" ").length > 1) {
+                  for (let i = 1; i < name.split(" ").length; i++) {
+                    if (name.split(" ")[i].toLowerCase() == suffix.toLowerCase()) {
+                      fullName = name;
+                      return;
+                    }
+                  }
+                }
+              });
+            }
+          } else {
+            if (msg.mentions.length > 0) {
+              fullName = msg.mentions[0].username;
+              if (msg.mentions[0].username == bot.user.username) {
+                bot.sendMessage(msg, "I'd rate myself **10/10**");
+                return;
+              }
+            } else if (user) fullName = user.username;
+          }
+          if (fullName) {
+            if (Ratings.hasOwnProperty(fullName.toLowerCase())) bot.sendMessage(msg, "I gave " + fullName + " a **" + Ratings[fullName.toLowerCase()] + "/10**"); //already rated
+            else {
+              if (user || msg.mentions.length > 0) bot.sendMessage(msg, "I'd rate " + fullName.replace(/@/g, '@\u200b') + " **" + generateUserRating(msg, fullName) + "/10**");
+              else bot.sendMessage(msg, `I'd rate ${fullName.replace(/@/g, '@\u200b')} **${generateJSONRating(fullName)}/10**`);
+            }
+          } else {
+            if (Ratings.hasOwnProperty(suffix.toLowerCase())) bot.sendMessage(msg, `I gave ${suffix} a **${Ratings[suffix.toLowerCase()]}/10**`); //already rated
+            else bot.sendMessage(msg, `I give ${suffix.replace(/@/g, '@\u200b')} a **${generateRandomRating(suffix.toLowerCase(), true)}/10**`);
+          }
+        }
+      }
+    },
+    "shared": {
+      description: "Get a list of servers that the bot sees a user in.",
+      //      usage: "<user>",
+      //      deleteCommand: true, cooldown: 7,
+      fn: function(msg, suffix) {
+        if (!msg.channel.isPrivate) {
+          if (msg.mentions.length > 0) {
+            let ss = "none";
+            bot.servers.map(server => {
+              if (server.members.includes(msg.mentions[0])) ss += ", " + server.name;
+            });
+            if (ss != "none") bot.sendMessage(msg, "**Shared Servers for " + msg.mentions[0].username.replace(/@/g, '@\u200b') + ":** `" + ss.substring(6).replace(/@/g, '@\u200b') + "`");
+            else bot.sendMessage(msg, "Somehow I don't share any servers with that user", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+          } else if (suffix) {
+            let usr = findUser(msg.channel.server.members, suffix);
+            if (usr) {
+              let ss = "none";
+              bot.servers.map((server) => {
+                if (server.members.includes(usr)) ss += ", " + server.name;
+              });
+              if (ss != "none") bot.sendMessage(msg, "**Shared Servers for " + usr.username.replace(/@/g, '@\u200b') + ":** `" + ss.substring(6).replace(/@/g, '@\u200b') + "`");
+              else bot.sendMessage(msg, "Somehow I don't share any servers with that user", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+            } else bot.sendMessage(msg, "User not found", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+          } else {
+            correctUsage(msg.sender, "shared", "<user>");
+          }
+        } else bot.sendMessage(msg, "This command can't be used in a PM", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+      }
+    },
+    "image": {
+      description: "Get an image from Imgur",
+      //      usage: "<subreddit> [--nsfw] [--day | --week | --month | --year | --all]",
+      //      deleteCommand: false, cooldown: 10,
+      //      info: "Avalible parameters are:\n\t`--nsfw` for getting NSFW images\n\t`--month` or other ranges for time ranges",
+      fn: function(msg, suffix) {
+        let IMGUR_CLIENT_ID = getConfig().weeb.imgur_client_id;
+        if (!IMGUR_CLIENT_ID || IMGUR_CLIENT_ID === "") {
+          bot.sendMessage(msg, "No API key defined by bot owner", function(erro, wMessage) { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+          return;
+        }
+        if (/[\uD000-\uF8FF]/g.test(suffix)) {
+          bot.sendMessage(msg, "Search cannot contain unicode characters.", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 8000 }); });
+          return;
+        }
+        if (suffix && /^[^-].*/.test(suffix)) {
+          let time = (/(--day|--week|--month|--year|--all)/i.test(suffix)) ? /(--day|--week|--month|--year|--all)/i.exec(suffix)[0] : '--week';
+          let sendNSFW = (/ ?--nsfw/i.test(suffix)) ? true : false;
+          if (!msg.channel.isPrivate && sendNSFW && !getConfig().weeb.allowNSFW) {
+            bot.sendMessage(msg, "This server doesn't have NSFW images allowed");
+            return;
+          }
+          request({
+            url: `https://api.imgur.com/3/gallery/r/${suffix.replace(/(--day|--week|--month|--year|--all|--nsfw|\/?r\/| )/gi, '')}/top/${time.substring(2)}/50`,
+            headers: { 'Authorization': 'Client-ID ' + IMGUR_CLIENT_ID }
+          }, (error, response, body) => {
+            if (error) {
+              console.log(error);
+              bot.sendMessage(msg, "Oh no! There was an error!");
+            } else if (response.statusCode != 200) bot.sendMessage(msg, "Got status code " + response.statusCode, (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+            else if (body) {
+              body = JSON.parse(body);
+              if (body.hasOwnProperty("data") && body.data !== undefined && body.data.length !== 0) {
+                for (let i = 0; i < 100; i++) {
+                  let toSend = body.data[Math.floor(Math.random() * (body.data.length))];
+                  if (!sendNSFW && !toSend.nsfw) {
+                    if (toSend.title) bot.sendMessage(msg, `${toSend.link} ${toSend.title}`);
+                    else bot.sendMessage(msg, toSend.link);
+                    break;
+                  } else if (sendNSFW && toSend.nsfw === true) {
+                    if (toSend.title) bot.sendMessage(msg, `${toSend.link} **(NSFW)** ${toSend.title}`);
+                    else bot.sendMessage(msg, toSend.link + " **(NSFW)**");
+                    break;
+                  }
+                }
+              } else bot.sendMessage(msg, "Nothing found!", (erro, wMessage) => { bot.deleteMessage(wMessage, { "wait": 10000 }); });
+            }
+          });
+        } else {
+          correctUsage(msg.sender, "image", "<subreddit> [--nsfw] [--day | --week | --month | --year | --all]");
+        }
+      }
+    },
+    "fortune": {
+      description: "Get a fortune. The available categories are: all, computers, cookie, definitions, miscellaneous, people, platitudes, politics, science, and wisdom.",
+      //      usage: "[category]",
+      //      info: "Get a fortune from `yerkee.com/api`.\nThe avalible categories are: all, computers, cookie, definitions, miscellaneous, people, platitudes, politics, science, and wisdom.",
+      //      deleteCommand: false,
+      //      cooldown: 10,
+      fn: function(msg, suffix) {
+        let cat = 'wisdom';
+        if (suffix && /^(all|computers|cookie|definitions|miscellaneous|people|platitudes|politics|science|wisdom)$/i.test(suffix.trim())) cat = suffix.trim();
+        request.get('http://www.yerkee.com/api/fortune/' + cat, (e, r, b) => {
+          if (e) bot.sendMessage(msg, 'Got an error: ' + e);
+          else if (r.statusCode !== 200) bot.sendMessage(msg, 'Got status code ' + r.statusCode);
+          else {
+            b = JSON.parse(b);
+            if (b.hasOwnProperty('fortune') && b.fortune !== undefined) bot.sendMessage(msg, "" + msg.author.username.replace(/@/g, '@\u200b') + ',\n' + b.fortune);
+            else bot.sendMessage(msg, 'No data was returned from the API');
+          }
+        });
+      }
+    },
+    "inrole": {
+      description: "Get a list of the users in a role",
+      //      usage: "<role name>",
+      //      deleteCommand: true, cooldown: 3,
+      fn: function(msg, suffix) {
+        if (msg.channel.isPrivate) {
+          bot.sendMessage(msg, "Maybe try that in a server?");
+          return;
+        }
+        if (msg.everyoneMentioned || suffix == "everyone") bot.sendMessage(msg, "Yeah right, like I'd let you do that", (e, m) => { bot.deleteMessage(m, { "wait": 6000 }); });
+        else if (suffix) {
+          let role = msg.channel.server.roles.find(r => suffix.toLowerCase() == r.name.toLowerCase());
+          if (!role) bot.sendMessage(msg, "Role not found", (e, m) => { bot.deleteMessage(m, { "wait": 6000 }); });
+          else {
+            let withRole = msg.channel.server.usersWithRole(role);
+            if (withRole.length > 0) bot.sendMessage(msg, "Users in role \"" + suffix.replace(/@/g, '@\u200b') + "\":" + withRole.map(u => " " + u.username.replace(/@/g, '@\u200b')));
+            else bot.sendMessage(msg, "No users in that role!", (e, m) => { bot.deleteMessage(m, { "wait": 6000 }); });
+          }
+        } else bot.sendMessage(msg, "Please specify a role", (e, m) => { bot.deleteMessage(m, { "wait": 6000 }); });
+      }
+    },
+    "currency": {
+      description: "Convert between currencies",
+//      usage: "<amount> <CODE> to <CODE>",
+//      deleteCommand: true, cooldown: 6,
+      fn: function(msg, suffix) {
+        if (!suffix)
+          correctUsage(msg.sender, "currency", "<amount> <CODE> to <CODE>");
+        else {
+          let parsed = suffix.match(/(\d+\.?\d?\d?) ?([a-zA-Z]{3}).*([a-zA-Z]{3})$/);
+          if (!parsed || parsed.length !== 4) correctUsage(msg.sender, "currency", "<amount> <CODE> to <CODE>");
+          else {
+            request(`https://www.google.com/finance/converter?a=${parsed[1]}&from=${parsed[2]}&to=${parsed[3]}`, (err, res, body) => {
+              if (err) bot.sendMessage(msg, err);
+              if (res.statusCode != 200) bot.sendMessage(msg, `Got response code ${res.statusCode}`);
+              else
+                bot.sendMessage(msg, `${parsed[1]} ${parsed[2]} is equal to ${body.match(/<span class=bld>(.+?)<\/span>/gmi)[0].replace(/<\/?span( class=bld)?>/g, '')}`);
+            });
+          }
+        }
+      }
+    }
+  }
+};

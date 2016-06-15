@@ -18,7 +18,7 @@ function OnEvent_Uninitialize() { // TODO - Missing polyfill
 }
 
 var settings = {
-	LoadScript: function () {
+	LoadScript: function() {
 		for (f in settings.LoadFile) {
 			settings.LoadFile[f]();
 		}
@@ -34,24 +34,24 @@ var settings = {
 		settings.Debug(global.obConf.Pref);
 	},
 	LoadFile: {
-		Conf: function () {
+		Conf: function() {
 			global.obConf = iniIntf.ToObject("settings");
 			global.obConf.Pref.msgFormat = iniIntf.ReadIni("settings", "Pref", "msgFormat", "$MSG").split("$MSG");
 			//global.obConf.Pref.msgFormat = ["[c=3]","[\/c]"];
 		},
-		Cmd: function () {
+		Cmd: function() {
 			global.obCmds = iniIntf.ToObject("settings").Commands;
 		},
-		Equip: function () {
+		Equip: function() {
 			global.obEquipDB = iniIntf.ToObject("equipDB");
 		},
-		Item: function () {
+		Item: function() {
 			global.obItemDB = iniIntf.ToObject("itemDB");
 		},
-		Move: function () {
+		Move: function() {
 			global.obMoveDB = iniIntf.ToObject("moveDB");
 		},
-		Mon: function () {
+		Mon: function() {
 			global.obMonParty = iniIntf.ToObject("monParty");
 			for (p in global.obMonParty) {
 				if (typeof (global.obMonParty[p].Type) === "string" && global.obMonParty[p].Type.split(",").length > 1) {
@@ -63,7 +63,7 @@ var settings = {
 			}
 		}
 	},
-	Save: function (header, key, value, isInt) {
+	Save: function(header, key, value, isInt) {
 		if (isInt === true) {
 			value = parseInt(value);
 			if (header === "OccRate") {
@@ -78,7 +78,7 @@ var settings = {
 		// Debug.Trace(header + ": " + key + "; Setting saved");
 		return true;
 	},
-	Backup: function () {
+	Backup: function() {
 		try {
 			var fso = w32Factory("Scripting.FileSystemObject");
 			fso.CopyFolder(MsgPlus.ScriptFilesPath + "\\config", MsgPlus.ScriptFilesPath + "\\configbackup");
@@ -88,7 +88,7 @@ var settings = {
 			Debug.Trace("BACKUP FAILED; catch: " + e);
 		}
 	},
-	Restore: function () {
+	Restore: function() {
 		try {
 			var fso = w32Factory("Scripting.FileSystemObject");
 			fso.CopyFolder(MsgPlus.ScriptFilesPath + "\\configbackup", MsgPlus.ScriptFilesPath + "\\config");
@@ -98,16 +98,16 @@ var settings = {
 			Debug.Trace("RESTORE FAILED; catch: " + e);
 		}
 	},
-	SetLanguage: function (str) {
+	SetLanguage: function(str) {
 		global.obTrans = new Translation(str);
 		global.obTrans.TranslateFile(MsgPlus.ScriptFilesPath + "\\XMLWindows.xml");
 		settings.Save("Pref", "lang", str);
 	},
-	UpdateRecord: function (prop) {
+	UpdateRecord: function(prop) {
 		global.obConf.Record[prop] += 1;
 		iniIntf.WriteIni("settings", "record", prop, global.obConf.Record[prop]);
 	},
-	Debug: function (global.ob) {
+	Debug: function(global.ob) {
 		for(var p in global.ob) {
 			Debug.Trace(p + ": " + global.ob[p]);
 		}
