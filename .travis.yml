@@ -8,6 +8,10 @@ node_js:
   - "4.1"
   - "4.0"
 
+before_install:
+  - rm ./package.json
+  - mv ./package-linux.json package.json
+
 cache:
   directories:
     - node_modules
