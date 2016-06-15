@@ -1,0 +1,32 @@
+{
+  "name": "CommunityBot",
+  "version": "1.0.0",
+  "description": "A Discord bot",
+  "readme": "README.md",
+  "maintainers": [
+    "Remco (Dougley@wildbeast.space)",
+    "OneMansGlory (onemansglory15@gmail.com)",
+    "Literally everyone in the CommunityBot project"
+  ],
+  "author": "Discord Community",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OneMansGlory/CommunityBot.git"
+  },
+  "scripts": {
+    "start": "node bot",
+	  "test": "mv config-travis.json config.json && node bot"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "discord.js": "git://github.com/hydrabolt/discord.js#indev",
+    "babel-cli": "^6.3.17",
+    "babel-preset-es2015": "^6.3.13",
+    "chalk": "^1.1.1",
+    "jsonfile": "^2.2.3",
+    "request": "^2.67.0",
+    "semver-compare": "^1.0.0",
+    "cleverbot-node": "fojas/cleverbot-node"
+  },
+  "main": "bot.js"
+}
