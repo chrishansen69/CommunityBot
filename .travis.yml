@@ -11,6 +11,7 @@ node_js:
 before_install:
   - rm ./package.json
   - mv ./package-linux.json package.json
+  - mv ./xdata-base.json xdata.json
 
 cache:
   directories:
