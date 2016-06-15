@@ -34,7 +34,8 @@ bot.on("disconnected", function() {
   
   // FIXME is it not reconnecting?
   
-	//process.exit(0); //exit node.js without an error cuz CI will complain if we don't use valid credentials
+  if (process.env.CI)
+    process.exit(0); //exit node.js without an error cuz CI will complain if we don't use valid credentials
 });
 
 bot.on("error", function(error) {
