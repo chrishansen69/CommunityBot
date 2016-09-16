@@ -1,0 +1,53 @@
+{
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    "quotes": [
+      2,
+      "single",
+      "avoid-escape"
+    ],
+    "no-var": "error",
+    "prefer-const": "warn",
+    "strict": [
+      "warn",
+      "global"
+    ],
+    "no-confusing-arrow": "warn",
+    "no-constant-condition": [
+      "warn",
+      {
+        "checkLoops": false
+      }
+    ],
+    "no-warning-comments": "warn",
+    "no-eq-null": "error",
+    "no-else-return": "warn",
+    "dot-notation": "error",
+    "no-mixed-requires": "error",
+    "no-void": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "after-used"
+      }
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "no-sparse-arrays": "error",// blocks ,,,, in arrays
+    "use-isnan": "error",
+    "no-obj-calls": "error", // Some of these objects look as if they could be constructors due their capitalization (such as Math and JSON) but will throw an error if you try to execute them as functions.
+    "class-methods-use-this": "error", //If a class method does not use this, it can safely be made a static function.
+    "valid-typeof": "error", // This rule enforces comparing typeof expressions to valid string literals.
+    "dot-location": [ // Consistency in placing a newline before or after the dot can greatly increase readability.
+      "warn",
+      "object" // the dot in a member expression should be on the same line as the object portion. 
+    ],
+    "no-extra-label": "warn"
+  }
+}
