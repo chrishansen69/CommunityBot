@@ -21,13 +21,10 @@
   "license": "GPL-3.0",
   "dependencies": {
     "chalk": "^1.1.1",
-    "cleverbot-node": "fojas/cleverbot-node",
-    "discord.js": "git://github.com/hydrabolt/discord.js#indev",
-    "entities": ">=1.1.1",
+    "discord.js": "^9.2.0",
+    "feedparser": "^1.1.4",
     "imgflipper": "^1.0.1",
-    "is-property": "^1.0.2",
-    "jsonfile": "^2.2.3",
-    "leetspeak": "0.0.1",
+    "jsdom": "^9.4.1",
     "longjohn": "^0.2.11",
     "mkdirp": "git://github.com/substack/node-mkdirp.git",
     "needle": "^1.0.0",
@@ -35,7 +32,7 @@
     "python-shell": "^0.4.0",
     "request": "^2.72.0",
     "unirest": "^0.5.0",
-    "xml2js": "^0.4.16"
+    "url-unshort": "^2.1.0"
   },
   "main": "bot.js"
 }

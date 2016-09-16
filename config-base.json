@@ -1,14 +1,31 @@
 {
-  >>> You can set up your bot using email/password
-  "email" : "foo@bar.net",
-  "password" : "foo",
-  >>> Or you can use a bot token
+  >>> Since discord.js 9.0.0, using a token is pretty much mandatory.
   "token": "qwertyuiopasdfghi123"
   >>> Use one of the two, and not both!
-  "plugins": [],
+  "plugins": [
+    "bare-minimum",
+    "bot-management",
+    "cards",
+    "dice",
+    "eliza",
+    "fun",
+    "fun-2",
+    "gabenizer",
+    "hansen-fun",
+    "hansen-mod-tools",
+    "hansen-weeb",
+    "lastfm-nowplaying",
+    "memes",
+    "mod-tools",
+    "rss",
+    "weeb",
+    "swearify-stuff",
+    "text-fucker"
+  ],
   "trigger": "=",
   "customCommands": [],
   "r9kEnabled": {},
   "r9kMessages": {},
+  >>> Only required with token
   "oauthlink": "oAuth link unavaliable as of the moment, my owner hasn't configured that yet."
 }
