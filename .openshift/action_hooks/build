@@ -1,0 +1,14 @@
+#!/bin/bash
+
+INIT_DIR=`pwd`
+
+cd ${OPENSHIFT_REPO_DIR}
+rm -rf ./node_modules/
+npm prune --production
+npm i --production --no-optional
+npm uninstall node-opus
+cd ${INIT_DIR}
+
+echo 'Node.js modules installed (2).'
+
+exit 0
