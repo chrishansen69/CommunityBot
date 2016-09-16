@@ -21,3 +21,9 @@ start.js
 xdata.json
 -package.json
 .openshift/markers/NODEJS_VERSION
+
+!.gitignore
+/.idea/
+*.iml
+/bonzibot.7z
+/pingpong.js
