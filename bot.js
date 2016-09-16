@@ -144,4 +144,9 @@ console.log('logging with ' + getConfig().token);
 bot.login(getConfig().token).then(() => {
   console.log('logged in');
   initRoles();
+}).catch(err => {
+  if (process.env.CI)
+    process.exit(0);
+  else
+    console.error(err);
 }); // login with token
