@@ -1,0 +1,49 @@
+{
+  "author": {
+    "name": "Anthony U Fojas",
+    "email": "developer@fojasaur.us"
+  },
+  "bugs": {
+    "url": "https://github.com/fojas/cleverbot-node/issues"
+  },
+  "contributors": [
+    {
+      "name": "Christopher Chapman",
+      "email": "cchapman@fullsail.com"
+    },
+    {
+      "name": "Evan Coury",
+      "email": "me@evancoury.com"
+    },
+    {
+      "name": "Mike Burke",
+      "email": "mburke@phpmonkeys.com"
+    }
+  ],
+  "dependencies": {
+    "crypto": "*",
+    "http": "*"
+  },
+  "description": "Cleverbot client for node.js",
+  "devDependencies": {},
+  "directories": {
+    "lib": "./lib",
+    "example": "./examples"
+  },
+  "gitHead": "7c1876bc73c4268c3ec493848d625343267cb82b",
+  "homepage": "https://github.com/fojas/cleverbot-node#readme",
+  "keywords": [
+    "cleverbot"
+  ],
+  "main": "./lib/cleverbot.js",
+  "name": "cleverbot-node",
+  "optionalDependencies": {},
+  "readme": "# Cleverbot-node\r\n\r\nA node.js client for talking to cleverbot.\r\n\r\nBased on the [Cleverbot ruby gem](https://github.com/benmanns/cleverbot)\r\nForked from https://github.com/fojas/cleverbot-node\r\n\r\nBasic usage:\r\n\r\n```\r\n    var Cleverbot = require('cleverbot-node');\r\n    cleverbot = new Cleverbot;\r\n    Cleverbot.prepare(function(){\r\n      cleverbot.write(cleverMessage, function (response) {\r\n           alert(response.message);\r\n      });\r\n    });\r\n```\r\n\r\nSee 'examples' for more usage.\r\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fojas/cleverbot-node.git"
+  },
+  "url": "https://github.com/fojas/cleverbot-node/",
+  "version": "0.2.2"
+}
