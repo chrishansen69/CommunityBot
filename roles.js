@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 //const unirest = require('unirest');
 const needle = require('needle');
@@ -13,7 +13,7 @@ const Role = exports.Role = function(body) {
 exports.servers = {};
 
 exports.initialize = function() {
-  bot.servers.forEach(function(serv, id) {
+  bot.guilds.forEach(function(serv, id) {
     exports.servers[id] = {};
     
     serv.roles.forEach(function(role, aid) {
@@ -27,11 +27,11 @@ exports.initialize = function() {
  */
 exports.createRole = function(serverID, callback) {
   checkRS(function() {
-    req('post', "https://discordapp.com/api/guilds/" + serverID + "/roles", function(err, res) {
+    req('post', 'https://discordapp.com/api/guilds/' + serverID + '/roles', function(err, res) {
       try {
         exports.servers[serverID].roles[res.body.id] = new Role(res.body);
       } catch(e) {}
-      handleResCB("Unable to create role", err, res, callback);
+      handleResCB('Unable to create role', err, res, callback);
     });
   });
 };
@@ -66,10 +66,10 @@ exports.editRole = function(input, callback) {
         hoist: role.hoist
       };
 
-      for (let key in input) {
+      for (const key in input) {
         if (Object.keys(payload).indexOf(key) === -1) continue;
         if (key === 'permissions') {
-          for (let perm in input[key]) {
+          for (const perm in input[key]) {
             role[perm] = input[key][perm];
             payload.permissions = role.permissions;
           }
@@ -82,8 +82,8 @@ exports.editRole = function(input, callback) {
         }
         payload[key] = input[key];
       }
-      req('patch', "https://discordapp.com/api/guilds/" + input.server + "/roles/" + input.role, payload, function(err, res) {
-        handleResCB("Unable to edit role", err, res, callback);
+      req('patch', 'https://discordapp.com/api/guilds/' + input.server + '/roles/' + input.role, payload, function(err, res) {
+        handleResCB('Unable to edit role', err, res, callback);
       });
     } catch(e) {return handleErrCB(e, callback);}
   });
@@ -97,8 +97,8 @@ exports.editRole = function(input, callback) {
  */
 exports.deleteRole = function(input, callback) {
   checkRS(function() {
-    req('delete', "https://discordapp.com/api/guilds/" + input.server + "/roles/" + input.role, function(err, res) {
-      handleResCB("Could not remove role", err, res, callback);
+    req('delete', 'https://discordapp.com/api/guilds/' + input.server + '/roles/' + input.role, function(err, res) {
+      handleResCB('Could not remove role', err, res, callback);
     });
   });
 };
@@ -115,10 +115,10 @@ exports.addToRole = function(input, callback) {
     let roles;
     try {
       roles = JSON.parse(JSON.stringify(exports.servers[input.server].members[input.user].roles));
-      if (roles.indexOf(input.role) > -1) return handleErrCB((input.user + " already has the role " + input.role), callback);
+      if (roles.indexOf(input.role) > -1) return handleErrCB((input.user + ' already has the role ' + input.role), callback);
       roles.push(input.role);
-      req('patch', "https://discordapp.com/api/guilds/" + input.server + "/members/" + input.user, {roles: roles}, function(err, res) {
-        handleResCB("Could not add role", err, res, callback);
+      req('patch', 'https://discordapp.com/api/guilds/' + input.server + '/members/' + input.user, {roles: roles}, function(err, res) {
+        handleResCB('Could not add role', err, res, callback);
       });
     } catch(e) {return handleErrCB(e, callback);}
   });
@@ -136,10 +136,10 @@ exports.removeFromRole = function(input, callback) {
     let roles;
     try {
       roles = JSON.parse(JSON.stringify(exports.servers[input.server].members[input.user].roles));
-      if (roles.indexOf(input.role) === -1) return handleErrCB(("Role " + input.role + " not found for user " + input.user), callback);
+      if (roles.indexOf(input.role) === -1) return handleErrCB(('Role ' + input.role + ' not found for user ' + input.user), callback);
       roles.splice(roles.indexOf(input.role), 1);
-      req('patch', "https://discordapp.com/api/guilds/" + input.server + "/members/" + input.user, {roles: roles}, function(err, res) {
-        handleResCB("Could not remove role", err, res, callback);
+      req('patch', 'https://discordapp.com/api/guilds/' + input.server + '/members/' + input.user, {roles: roles}, function(err, res) {
+        handleResCB('Could not remove role', err, res, callback);
       });
     } catch(e) {return handleErrCB(e, callback);}
   });
@@ -154,13 +154,13 @@ exports.removeFromRole = function(input, callback) {
  */
 exports.editNickname = function(input, callback) {
   checkRS(function() {
-    let payload = {nick: String( input.nick ? input.nick : "" )};
-    let url = input.userID === bot.user.id ?
+    const payload = {nick: String( input.nick ? input.nick : '' )};
+    const url = input.userID === bot.user.id ?
       'https://discordapp.com/api/guilds/' + input.serverID + '/members/@me/nick':
       'https://discordapp.com/api/guilds/' + input.serverID + '/members/' + input.userID;
 
     req('patch', url, payload, function(err, res) {
-      handleResCB("Could not change nickname", err, res, callback);
+      handleResCB('Could not change nickname', err, res, callback);
     });
   });
 };
@@ -236,18 +236,18 @@ exports.editNickname = function(input, callback) {
 
 
 function messageHeaders() {
-	return {
-		"Accept": "*/*",
-		"Accept-Encoding": "gzip, deflate",
-		"Accept-Language": "en-US;q=0.8",
-		"DNT": "1",
-		"User-Agent": bot.internal.userAgentInfo.full,
-    "authorization": bot.internal.token
-	};
+  return {
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US;q=0.8',
+    'DNT': '1',
+    'User-Agent': bot.internal.userAgentInfo.full,
+    'authorization': bot.internal.token
+  };
 }
 
 function checkStatus(response) {
-	return (response.statusCode / 100 | 0) === 2;
+  return (response.statusCode / 100 | 0) === 2;
 }
 
 function checkRS(callback) {
@@ -255,21 +255,21 @@ function checkRS(callback) {
 }
 
 function handleErrCB(err, callback) {
-	if (typeof(callback) !== 'function') return;
-	return callback({message: err});
+  if (typeof(callback) !== 'function') return;
+  return callback({message: err});
 }
 
 function handleResCB(errMessage, err, res, callback) {
-	if (typeof(callback) !== 'function') return;
-	if (!res) res = {};
-	let e = {
-		message: err || errMessage,
-		statusCode: res.statusCode,
-		statusMessage: res.statusMessage,
-		response: res.body
-	};
-	if (err || !checkStatus(res)) return callback(e);
-	return callback(null, res.body);
+  if (typeof(callback) !== 'function') return;
+  if (!res) res = {};
+  const e = {
+    message: err || errMessage,
+    statusCode: res.statusCode,
+    statusMessage: res.statusMessage,
+    response: res.body
+  };
+  if (err || !checkStatus(res)) return callback(e);
+  return callback(null, res.body);
 }
 
 /**
@@ -290,13 +290,18 @@ function req(method, url, _dataCallback, _callback) {
   //  callback(null, response);
   //});
   
-	let data, callback, isJSON;
-	if (typeof(_dataCallback) === 'function') { callback = _dataCallback; } else { data = _dataCallback; callback = _callback; }
-	isJSON = (function() {
-		if (typeof(data) === 'object') if (data.qs) return (delete data.qs, false); else return true;
-		return false;
-	})();
-	return needle.request(method, url, data, {
+  let data, callback;
+  if (typeof(_dataCallback) === 'function') { callback = _dataCallback; } else { data = _dataCallback; callback = _callback; }
+  const isJSON = (function() {
+    if (typeof(data) === 'object') {
+      if (data.qs)
+        return (delete data.qs, false);
+      return true;
+    }
+
+    return false;
+  })();
+  return needle.request(method, url, data, {
     multipart: (typeof(data) === 'object' && !!data.file),
     /* jshint validthis: true */
     headers: messageHeaders.call(this),
@@ -309,9 +314,9 @@ function req(method, url, _dataCallback, _callback) {
 }
 
 function copyKeys(from, to, omit) {
-	if (!omit) omit = [];
-	for (let key in from) {
-		if (omit.indexOf(key) > -1) continue;
-		to[key] = from[key];
-	}
+  if (!omit) omit = [];
+  for (const key in from) {
+    if (omit.indexOf(key) > -1) continue;
+    to[key] = from[key];
+  }
 }

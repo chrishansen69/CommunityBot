@@ -3,5 +3,5 @@
 *.pyo
 *~
 config.py
-*.png
-gabenizer.egg-info
+#*.png
+#gabenizer.egg-info

@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
 /** utility constants */
 const RUNNING_ON_OPENSHIFT = exports.RUNNING_ON_OPENSHIFT = process.env.OPENSHIFT_APP_NAME !== undefined;
 const dataFolder = exports.dataFolder = RUNNING_ON_OPENSHIFT ? './../../data/' : './'; // there's an extra folder to go back, /runtime/
 
-const jsonfile = require('jsonfile');
+const jsonfile = require('./lib/jsonfile.js');
 const fs = require('fs');
 
 /// Create config.json if not exists
@@ -13,7 +13,7 @@ try {
 } catch (e) {
   console.error(e);
   
-  console.log("config.json not found. Copying from config-my-base.json...");
+  console.log('config.json not found. Copying from config-my-base.json...');
   //fs.unlinkSync('./config.json');
   fs.writeFileSync('./config.json', RUNNING_ON_OPENSHIFT ? fs.readFileSync('./config-my-base.json') : fs.readFileSync('./config-base.json'));
 }
@@ -24,7 +24,7 @@ try {
 } catch (e) {
   console.error(e);
   
-  console.log("ops.json not found. Copying from existing one...");
+  console.log('ops.json not found. Copying from existing one...');
   //fs.unlinkSync(dataFolder + 'ops.json');
   fs.writeFileSync(dataFolder + 'ops.json', fs.readFileSync('./ops.json'));
 }
@@ -35,18 +35,45 @@ try {
 } catch (e) {
   console.error(e);
   
-  console.log("xdata.json not found. Copying from xdata-base.json...");
+  console.log('xdata.json not found. Copying from xdata-base.json...');
   //fs.unlinkSync(dataFolder + 'xdata.json');
   fs.writeFileSync(dataFolder + 'xdata.json', fs.readFileSync('./xdata-base.json'));
 }
 
 const permissions = require('./permissions.js');
 
-let xdata = require(dataFolder + 'xdata.json'); // TODO replace r9k, lastfm and custom commands config with xdata
+const xdata = require(dataFolder + 'xdata.json');
 let config = require('./config.json');
 
-let commands = {};
-let commandDescriptions = {}; // this is not saved
+const commands = {};
+const commandDescriptions = {}; // this is not saved
+
+/** @type {Object} For storing server-local data that doesn't persist */
+const pseudoServers = {};
+/** @type {Object} For storing channel-local data that doesn't persist */
+const pseudoChannels = {};
+
+exports.getPseudoServers = function() {
+  return pseudoServers;
+};
+
+exports.getPseudoChannels = function() {
+  return pseudoChannels;
+};
+
+exports.getPseudoServer = function(s) {
+  if (!pseudoServers[s.id]) {
+    pseudoServers[s.id] = {};
+  }
+  return pseudoServers[s.id];
+};
+
+exports.getPseudoChannel = function(s) {
+  if (!pseudoChannels[s.id]) {
+    pseudoChannels[s.id] = {};
+  }
+  return pseudoChannels[s.id];
+};
 
 /**
  * registers a bot command
@@ -58,6 +85,7 @@ exports.registerCommand = function(cmd, action, description) {
   commands[cmd] = action;
   commandDescriptions[cmd] = description || '*No description available.*';
 };
+
 /**
  * registers multiple bot commands
  * 
@@ -66,16 +94,17 @@ exports.registerCommand = function(cmd, action, description) {
  */
 exports.registerCommands = function(cmds, actions, descriptions) {
   if (descriptions) {
-    for (let i in actions) {
+    for (const i in actions) {
       commands[cmds[i]] = actions[i];
       commandDescriptions[cmds[i]] = descriptions[i];
     }
   } else {
-    for (let i in actions) {
+    for (const i in actions) {
       commands[cmds[i]] = actions[i];
     }
   }
 };
+
 /**
  * convenience method for custom chat commands
  * includes fun parameters
@@ -84,18 +113,24 @@ exports.registerCommands = function(cmds, actions, descriptions) {
  * execute: code to eval (String)
  */
 exports.registerEval = function(cmd, execute) {
-  commands[cmd] = new Function("message", "suffix", "bot", execute);
+  commands[cmd] = new Function('message', 'suffix', 'bot', 'print', 'file', execute);
   commandDescriptions[cmd] = 'User-created command';
 };
+
 /**
- * returns registered bot commands
+ * @return {Object.<Function>} registered bot commands
  */
 exports.getCommands = function() {
   return commands;
 };
+
+/**
+ * @return {Object.<String>} registered bot command descriptions
+ */
 exports.getCommandDescriptions = function() {
   return commandDescriptions;
 };
+
 /**
  * returns true if an user has operator rights
  * 
@@ -126,6 +161,8 @@ exports.deop = function(user) {
 };
 /**
  * get an object containing persistent data
+ *
+ * @return {Object} the persistent data file; read-write.
  */
 exports.getXData = function() {
   return xdata;

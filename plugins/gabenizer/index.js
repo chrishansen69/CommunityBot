@@ -1,6 +1,6 @@
-// Discord Bot API
 'use strict';
-const bot = require('../../bot.js');
+// Discord Bot API
+
 const PythonShell = require('python-shell');
 
 function gabe(_message, suffix) {
@@ -14,9 +14,9 @@ function gabe(_message, suffix) {
       args: [message]
     };
 
-    PythonShell.run('mentions.py', options, function(err, results) {
+    PythonShell.run('mentions.py', options, function(err) {
       if (err) {
-        bot.sendMessage(_message.channel, ['Error creating Gaben!', 'Please check if your image has a face in it.', '`' + err.toString() + '`']);
+        _message.channel.sendMessage(['Error creating Gaben!', 'Please check if your image has a face in it.', '`' + err.toString() + '`']);
         console.error(err);
         return;
         //throw err;
@@ -24,7 +24,7 @@ function gabe(_message, suffix) {
       // results is an array consisting of messages collected during execution
       //console.log('results: %j', results);
       
-      bot.sendFile(_message.channel, './plugins/gabenizer/whatfuck.png');
+      _message.channel.sendFile('./plugins/gabenizer/whatfuck.png');
     });
 }
 

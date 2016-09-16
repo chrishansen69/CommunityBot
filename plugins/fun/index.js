@@ -5,7 +5,7 @@ const bot = require('../../bot.js');
 
 const botStartTime = new Date();
 
-const cenaFolder = "./plugins/fun/cena/";
+const cenaFolder = './plugins/fun/cena/';
 const cenaImages = fs.readdirSync(cenaFolder); //Loops through a given folder and creates an array of file names
 
 const ROCK = 0;
@@ -13,31 +13,31 @@ const PAPER = 0;
 const SCISSORS = 0;
 
 let inRPS = false;
-let RPS1 = "";
-let RPS2 = "";
+let RPS1 = '';
+let RPS2 = '';
 let RPS1choice = 0;
 let RPS2choice = 0;
 
-function fuptime(message, suffix) { // Stolen from SDG-Discord-Bot
-    let botUptime = Math.abs(new Date() - botStartTime);
-		let x = botUptime / 1000;
-		let uptimeSeconds = Math.floor(x % 60);
-		x /= 60;
-		let uptimeMinutes = Math.floor(x % 60);
-		x /= 60;
-		let uptimeHours = Math.floor(x % 24);
-		x /= 24;
-		let uptimeDays = Math.floor(x);
-		bot.sendMessage(message.channel, uptimeDays + " days, " + uptimeHours + " hours, " + uptimeMinutes + " minutes and " + uptimeSeconds + " seconds");
+function fuptime(message) { // Stolen from SDG-Discord-Bot
+    const botUptime = Math.abs(new Date() - botStartTime);
+    let x = botUptime / 1000;
+    const uptimeSeconds = Math.floor(x % 60);
+    x /= 60;
+    const uptimeMinutes = Math.floor(x % 60);
+    x /= 60;
+    const uptimeHours = Math.floor(x % 24);
+    x /= 24;
+    const uptimeDays = Math.floor(x);
+    message.channel.sendMessage(uptimeDays + ' days, ' + uptimeHours + ' hours, ' + uptimeMinutes + ' minutes and ' + uptimeSeconds + ' seconds');
 }
 
-function fcena(message, suffix) { // Stolen from SDG-Discord-Bot
+function fcena(message) { // Stolen from SDG-Discord-Bot
   //\uD83C is the unicode trumpet
-  bot.sendMessage(message.channel, "\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA**JOHN CENA!**\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA");
+  message.channel.sendMessage('\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA**JOHN CENA!**\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA\uD83C\uDFBA');
   
   const cenaImage = cenaImages[Math.floor(Math.random() * cenaImages.length)];
   
-  bot.sendFile(message.channel, cenaFolder + cenaImage,"jonny.png", (err, message) => {
+  message.channel.sendFile(cenaFolder + cenaImage,'jonny.png', (err) => {
     if(err)
       console.error("couldn't send image: " + err);
   });
@@ -45,7 +45,7 @@ function fcena(message, suffix) { // Stolen from SDG-Discord-Bot
 
 //KoolAid reply function
 function fkoolaid(message) {
-  bot.sendFile(message.channel, "./plugins/fun/meme/koolaid.jpg", "koolaid.jpg", (err, message) => {
+  message.channel.sendFile('./plugins/fun/meme/koolaid.jpg', 'koolaid.jpg', (err) => {
     if(err)
       console.error("couldn't send image: " + err);
   });
@@ -53,8 +53,8 @@ function fkoolaid(message) {
 
 //Macho Man function
 function fmachoman(message) {
-  bot.sendMessage(message.channel, "**OOOOOH YEAH BROTHER**");
-  bot.sendFile(message.channel, "./plugins/fun/meme/savage.jpg", "savage.jpg", (err, message) => {
+  message.channel.sendMessage('**OOOOOH YEAH BROTHER**');
+  message.channel.sendFile('./plugins/fun/meme/savage.jpg', 'savage.jpg', (err) => {
     if(err)
       console.error("Couldn't send image: " + err);
   });
@@ -64,13 +64,18 @@ function frps(message) {
   if (!inRPS) {
     RPS1choice = -1;
     RPS2choice = -1;
-    RPS1 = message.sender.id;
+    RPS1 = message.author.id;
     console.log('length is ' + message.mentions.length);
-    RPS2 = message.mentions[0].id;
+    if (message.mentions[0])
+      RPS2 = message.mentions[0].id;
+    else {
+      message.channel.sendMessage('Please @mention someone to challenge them!');
+      return;
+    }
     inRPS = true;
-    bot.sendMessage(message.channel, message.sender.mention() + ' challenges ' + message.mentions[0].mention() + ' to a game of Rock, Paper, Scissors! Type `rock` `paper` or `scissors`!')
+    message.channel.sendMessage(message.author.toString() + ' challenges ' + message.mentions[0].toString() + ' to a game of Rock, Paper, Scissors! Type `rock` `paper` or `scissors`!');
   } else {
-    bot.sendMessage(message.channel, 'A game has already started!');
+    message.channel.sendMessage('A game has already started!');
   }
 }
 
@@ -86,23 +91,23 @@ function endrps(message) {
   } else winner = 2;
   
   if (winner === -1) {
-    bot.sendMessage(message.channel, bot.messages.get("id", RPS1).mention() + " " + bot.messages.get("id", RPS2).mention() + " it's a tie, nobody wins!");
+    message.channel.sendMessage(bot.messages.get(RPS1).toString() + ' ' + bot.messages.get(RPS2).toString() + " it's a tie, nobody wins!");
   } else if (winner === 1) {
-    bot.sendMessage(message.channel, bot.messages.get("id", RPS1).mention() + " wins!");
+    message.channel.sendMessage(bot.messages.get(RPS1).toString() + ' wins!');
   } else {
-    bot.sendMessage(message.channel, bot.messages.get("id", RPS2).mention() + " wins!");
+    message.channel.sendMessage(bot.messages.get(RPS2).toString() + ' wins!');
   }
   
   RPS1choice = -1;
   RPS2choice = -1;
-  RPS1 = "";
-  RPS2 = "";
+  RPS1 = '';
+  RPS2 = '';
   inRPS = false;
 }
 
-bot.on("message", function(message) {
+bot.on('message', function(message) {
   if (inRPS) {
-    if (message.sender.id === RPS1) {
+    if (message.author.id === RPS1) {
       if (message.contents === 'rock') {
         RPS1choice = ROCK;
       } else if (message.contents === 'paper') {
@@ -113,7 +118,7 @@ bot.on("message", function(message) {
       if (RPS1choice !== -1 && RPS2choice !== -1) {
         endrps(message);
       }
-    } else if (message.sender.id === RPS2) {
+    } else if (message.author.id === RPS2) {
       if (message.contents === 'rock') {
         RPS2choice = ROCK;
       } else if (message.contents === 'paper') {

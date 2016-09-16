@@ -1,0 +1,5 @@
+praw
+unirest
+Pillow
+requests
+numpy

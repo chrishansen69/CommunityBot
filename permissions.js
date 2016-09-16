@@ -1,19 +1,19 @@
-"use strict";
+'use strict';
 
 const rights = {
-  "minimod": "manageMessages",
-  "mod": "kickMembers",
-  "globalmod": "banMembers",
-  "admin": "administrator",
-  "op": "~op"
+  'minimod': 'MANAGE_MESSAGES',
+  'mod': 'KICK_MEMBERS',
+  'globalmod': 'BAN_MEMBERS',
+  'admin': 'ADMINISTRATOR',
+  'op': '~op'
 };
 
-const jsonfile = require('jsonfile');
+const jsonfile = require('./lib/jsonfile.js');
 const chalk = require('chalk');
 
 const utility = require('./utility.js');
 const ops = require(utility.dataFolder + 'ops.json');
-const bot = require('./bot.js');
+//const bot = require('./bot.js');
 
 /**
  * Checks if an user has a right
@@ -26,13 +26,13 @@ exports.hasRight = function(msg, right) {
   if (msg.username) {
     return ops.indexOf(msg.id) !== -1; // we don't want to stay in the function if this is true
   }
-  if (ops.indexOf(msg.sender.id) !== -1) return true; // if is OP you got all permissions
+  if (ops.indexOf(msg.author.id) !== -1) return true; // if is OP you got all permissions
   if (right == 'op') return false; // is not OP but we want OP, so nah
 
   if (rights[right]) {
-    return msg.channel.permissionsOf(msg.sender).hasPermission(rights[right]);
+    return msg.channel.permissionsFor(msg.author).hasPermission(rights[right]);
   }
-  return msg.channel.permissionsOf(msg.sender).hasPermission(right);
+  return msg.channel.permissionsFor(msg.author).hasPermission(right);
 };
 
 /**
@@ -43,8 +43,8 @@ exports.hasRight = function(msg, right) {
  * @return {Boolean} true if the user has a right
  */
 exports.has = function(msg, right) {
-  let b = exports.hasRight(msg, right);
-  if (!b) bot.sendMessage(msg.channel, "You don't have permission to use this command!");
+  const b = exports.hasRight(msg, right);
+  if (!b) msg.channel.sendMessage("You don't have permission to use this command!");
   return b;
 };
 

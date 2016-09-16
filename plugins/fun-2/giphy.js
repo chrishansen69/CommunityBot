@@ -1,30 +1,32 @@
-var qs = require('querystring')
+'use strict';
+
+const qs = require('querystring');
 
 exports.get_gif = function(tags, func) {
-  var params = {
+  const params = {
     'api_key': 'dc6zaTOxFJmzC',
     'rating': 'r',
     'format': 'json',
     'limit': 1
-  }
-  var query = qs.stringify(params)
+  };
+  let query = qs.stringify(params);
 
   if (tags !== null) {
-    query += '&tag=' + tags.join('+')
+    query += '&tag=' + tags.join('+');
   }
 
-  var request = require('request')
+  const request = require('request');
 
   request('http://api.giphy.com/v1/gifs/random' + '?' + query, function(error, response, body) {
     if (error || response.statusCode !== 200) {
       // Logger.log('debug', response)
     } else {
-      var responseObj = JSON.parse(body)
+      const responseObj = JSON.parse(body);
       if (responseObj.data) {
-        func(responseObj.data.id)
+        func(responseObj.data.id);
       } else {
-        func(undefined)
+        func(undefined);
       }
     }
-  })
-}
+  });
+};
