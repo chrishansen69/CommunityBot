@@ -22,7 +22,7 @@
   "dependencies": {
     "chalk": "^1.1.1",
     "discord.js": "^9.2.0",
-    "feedparser": "^1.1.4",
+    "feedparser": "^1.1.5",
     "imgflipper": "^1.0.1",
     "jsdom": "^9.4.1",
     "longjohn": "^0.2.11",
