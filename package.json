@@ -24,7 +24,7 @@
     "discord.js": "^9.2.0",
     "feedparser": "^1.1.4",
     "imgflipper": "^1.0.1",
-    "jsdom": "^9.4.1",
+    "jsdom": "^9.6.0",
     "longjohn": "^0.2.11",
     "mkdirp": "git://github.com/substack/node-mkdirp.git",
     "needle": "^1.0.0",
