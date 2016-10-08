@@ -1,0 +1,204 @@
+{
+  "customCommands": [{
+    "name": "hi",
+    "action": "message.channel.sendMessage(\"Hello Expand Dong\");"
+  }, {
+    "name": "howdy",
+    "action": "message.channel.sendMessage(\"Hello Expand Dong\");"
+  }, {
+    "name": "activate",
+    "action": "message.channel.sendMessage('Activation level: ' + (Math.floor(Math.random() * 100) + 1) + '%');"
+  }, {
+    "name": "dubs",
+    "action": "message.channel.sendMessage('**CHECK \\'EM**');"
+  }, {
+    "name": "quote",
+    "action": "message.channel.sendMessage(`\"For Moon Man so loved the world, that He helped Hitler enact the Holocaust, that everyone who isn't White should perish. Amen.\" --Zyklon Ben Garrison`)"
+  }, {
+    "name": "thrillride",
+    "action": "message.channel.sendMessage('http://prntscr.com/b8dukk');"
+  }, {
+    "name": "moonman",
+    "action": "message.channel.sendMessage(`http://vignette1.wikia.nocookie.net/le-miiverse-resource/images/5/5b/Moonmanhimselfladehsandgentlemens.jpeg/revision/latest?cb=20151104231650`);"
+  }, {
+    "name": "succ",
+    "action": "message.channel.sendMessage(`https://images-1.discordapp.net/.eJwFwdENhCAMANBdGIBSQEC3IUjQnLYEavy43O733lc941KbOkT63AD2cxYeu57CI7eqG3O7au7n1IVvyCK5HHclmYBhRRuNszGi9z66AJiW1WMKCZOxcbHGwUMf4pd0p6Z-fwdRItw.EZYSkYuAczi7klgy9eIZXe11puM.png`);"
+  }, {
+    "name": "wtfpl",
+    "action": "message.channel.sendMessage(`You know what? Fuck your stance on profanity. Fuck your priorities in life. The WTFPL is about fucking freedom and we mean it. Freedom means freedom to copy and modify and share works of art and science with the rest of mankind, but also freedom to be gay and marry and have crazy gay sex, freedom to have tattoos, freedom to say there is no God, freedom to take the pill, freedom to have an abortion. People die for being gay or atheists. Donâ€™t tell me that there is something sacred enough that it must be protected from the mere existence of the word â€œfuckâ€. If the F in WTFPL offends you, then fuck you and your beliefs. Triple fuck you.`);"
+  }],
+  "r9kMessages": {
+    "179725130996383746": [],
+    "185220982821093376": [
+      "Enabled R9K mode", "=purge 50",
+      "?purge 50",
+      ":fire: `Purged the last '50' messages.`",
+      "now, lads",
+      "now the shit goes down",
+      "the bot will eventually be improved to parse special characters",
+      "test", "?purge 100",
+      ":fire: `Purged the last '100' messages.`",
+      "ORIG",
+      "what happened to the channel",
+      "the old msgs are still in the bot kek",
+      "._.", "wew",
+      "the bot is quick",
+      "the bot is quickthe bot is quickthe botis quickthe bot is quick"
+    ]
+  },
+  "lastfm": {
+    "users": {
+      "Test server": {
+        "lastfm": [
+          ["159546753182466048",
+            "RickyTiger",
+            "Tool - Jerk-Off"
+          ]
+        ]
+      },
+      "AIM": {
+        "feeds": [
+          ["159546753182466048",
+            "RickyTiger",
+            "Tool - Jerk-Off"
+          ]
+        ]
+      }
+    }
+  },
+  "feedList": {
+    "3817930119": {
+      "url": "https://www.reddit.com/r/aww.rss",
+      "readEntries": [1948559391,
+        345191246, 655263784,
+        1144084683, 1740356221,
+        2905055697, 239956478,
+        2899631083, 861812820,
+        3840727297, 1972475118,
+        150236349, 2572012428,
+        154806202, 3927906139,
+        2961039781, 3676566969,
+        2947471167, 578134439,
+        1180193597, 2844784090,
+        723611153, 2626011234,
+        733859282, 4025080988,
+        1829432654, 2353581235,
+        319018887, 2762245025,
+        4274306714, 884822923,
+        4059963323, 2956548991,
+        525489035, 629305631,
+        2411012694, 2480185725,
+        1634453025, 2849038725,
+        819840283, 3322981132,
+        1698246717, 573790697,
+        881774437, 2267615145,
+        973136017, 2346613686,
+        2414346240, 86519971,
+        2519882258, 3762057519,
+        1943358283, 1516154978,
+        2264487097, 2560939983,
+        2878865628, 499922179,
+        2130814470, 2986300096,
+        3827745956, 399886966,
+        179095178, 1879686589,
+        1791193617, 1676887179,
+        1798097951, 2096497631,
+        3250686576, 1364886268,
+        1848382360, 3127246625,
+        1077512890, 495708381,
+        248393264, 4034006866,
+        2149762313, 3784885593,
+        1662498247, 3559725785,
+        465125586, 2139103943,
+        3162896566, 2544175126,
+        590670065, 3678855667,
+        4185261428, 1481821653,
+        3823714910, 1071330393,
+        2840457564, 3573420010,
+        4039045474, 293241931,
+        1304484876, 1383067286,
+        835390887, 1010002252,
+        3067551311, 97705387,
+        3778837556, 916809072,
+        3267679597, 3254475270,
+        3192237240, 3257849135,
+        3294572019, 455742502,
+        3386314314, 2992737548,
+        622744564, 1966061115,
+        2707433843, 3883421135,
+        1108904899, 2989622529,
+        432969794, 3720871510,
+        394985988, 1934402225,
+        3662317071, 4195618430,
+        1507916921, 2733747483,
+        1268411595, 558017495,
+        4131225785, 2477977756,
+        3687218428, 2054263685,
+        2764350725, 3437794474,
+        3376376262, 2107373695,
+        2907384235, 939281379,
+        2002632230, 3570169755,
+        1245267055, 1344230369,
+        1184342280, 495479572,
+        2532717101, 2941451401,
+        3036234125, 3088651934,
+        3742198281, 2486849306,
+        4289159726, 3912737922,
+        3600313425, 789632233,
+        1243910272, 2927093789,
+        1659918183, 2976144833,
+        243522960, 2940762002,
+        126530397, 3896536075,
+        665181871, 1926767716,
+        3409775447, 2185148125,
+        1299288591, 1497582451,
+        2935204998, 2765733105,
+        3546017202, 2125447727,
+        3775011656, 2462845658,
+        1581896621, 4187105762,
+        2887316714, 1943342920,
+        577286286, 2219694728,
+        514359919, 415125190,
+        2490930106, 1443142303,
+        1041187782, 699546455,
+        654245706, 4180598550,
+        3722657321, 1490196837,
+        1417050707, 1267671903,
+        1672197552, 46198505,
+        3312629352, 3270201992,
+        1827787116, 3173112107,
+        1981305994, 2157909498,
+        480328999, 3623627862,
+        1934972320, 2547142484,
+        771011566, 62844684,
+        4016182869, 390554275,
+        1691410312, 2904144071,
+        2408783018, 2673064893,
+        2096985914, 3562270484,
+        3080854753, 45159222,
+        2246699709, 1408282568,
+        191583923, 2780528942,
+        1615013524, 2749480062,
+        2309743332, 3845705877,
+        3653248246, 4265041701,
+        4214701859, 2706611489,
+        2871123372, 1734936843,
+        695895723, 916216246,
+        2486330325, 2869557891,
+        838848133, 3106001631,
+        4103296397, 3148403587,
+        1403995957, 1104720838,
+        1728664389, 2923224840,
+        1623300451, 251155935,
+        2371036710, 1162297991,
+        2301839205, 3856449839,
+        2775616526, 2706907735,
+        2804709946, 972289718,
+        3051010504, 797984265,
+        558817465
+      ],
+      "channels": ["231186606919254018"],
+      "raw": true
+    }
+  }
+}

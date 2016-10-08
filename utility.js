@@ -2,51 +2,56 @@
 
 /** utility constants */
 const RUNNING_ON_OPENSHIFT = exports.RUNNING_ON_OPENSHIFT = process.env.OPENSHIFT_APP_NAME !== undefined;
-const dataFolder = exports.dataFolder = RUNNING_ON_OPENSHIFT ? './../../data/' : './'; // there's an extra folder to go back, /runtime/
+const dataFolder = exports.dataFolder = RUNNING_ON_OPENSHIFT ? './../../data/' : './data/'; // there's an extra folder to go back, /runtime/
 
 const jsonfile = require('./lib/jsonfile.js');
 const fs = require('fs');
 
-/// Create config.json if not exists
-try {
-  require('./config.json');
-} catch (e) {
-  console.error(e);
-  
-  console.log('config.json not found. Copying from config-my-base.json...');
-  //fs.unlinkSync('./config.json');
-  fs.writeFileSync('./config.json', RUNNING_ON_OPENSHIFT ? fs.readFileSync('./config-my-base.json') : fs.readFileSync('./config-base.json'));
+/**
+ * Load a file into the require cache, copying it from a default file if it doesn't exist
+ * 
+ * @param  {String} file the file to require
+ * @param  {String} defFile the default file to copy from
+ * @return {void}
+ */
+function attemptRequire(file, defFile) {
+  try {
+    require(file);
+  } catch (e) {
+    console.error(e);
+
+    console.log(file + 'not found. Copying from ' + defFile);
+
+    fs.writeFileSync(file, fs.readFileSync(defFile));
+  }
 }
+
+/// Create config.json if not exists
+attemptRequire('./data/config.json', RUNNING_ON_OPENSHIFT ? './data/config-my-base.json' : './data/config-base.json');
 
 /// Create ops.json if not exists
-try {
-  require(dataFolder + 'ops.json');
-} catch (e) {
-  console.error(e);
-  
-  console.log('ops.json not found. Copying from existing one...');
-  //fs.unlinkSync(dataFolder + 'ops.json');
-  fs.writeFileSync(dataFolder + 'ops.json', fs.readFileSync('./ops.json'));
-}
+attemptRequire(dataFolder + 'ops.json', './data/ops.json');
 
 /// Create xdata.json if not exists
-try {
-  require(dataFolder + 'xdata.json');
-} catch (e) {
-  console.error(e);
-  
-  console.log('xdata.json not found. Copying from xdata-base.json...');
-  //fs.unlinkSync(dataFolder + 'xdata.json');
-  fs.writeFileSync(dataFolder + 'xdata.json', fs.readFileSync('./xdata-base.json'));
-}
+attemptRequire(dataFolder + 'xdata.json', './data/xdata-base.json');
 
 const permissions = require('./permissions.js');
 
-const xdata = require(dataFolder + 'xdata.json');
-let config = require('./config.json');
+/** @type {Object<?>} an object containing persistent data */
+exports.xdata = require(dataFolder + 'xdata.json');
+/** @type {Object<?>} an object containing non-persistent, hand-crafted settings */
+exports.config = require('./data/config.json');
 
-const commands = {};
-const commandDescriptions = {}; // this is not saved
+/**
+ * {Object<Function>} registered bot commands
+ */
+const commands = exports.commands = {};
+
+exports.replies = require('./data/replies.json');
+exports.memeText = require('./data/memeText.json');
+exports.memeFiles = require('./data/memeFiles.json');
+// this goes unused
+//const commandDescriptions = exports.commandDescriptions = {}; // this is not save
 
 /** @type {Object} For storing server-local data that doesn't persist */
 const pseudoServers = {};
@@ -83,7 +88,7 @@ exports.getPseudoChannel = function(s) {
  */
 exports.registerCommand = function(cmd, action, description) {
   commands[cmd] = action;
-  commandDescriptions[cmd] = description || '*No description available.*';
+  //commandDescriptions[cmd] = description || '*No description available.*';
 };
 
 /**
@@ -96,7 +101,7 @@ exports.registerCommands = function(cmds, actions, descriptions) {
   if (descriptions) {
     for (const i in actions) {
       commands[cmds[i]] = actions[i];
-      commandDescriptions[cmds[i]] = descriptions[i];
+      //commandDescriptions[cmds[i]] = descriptions[i];
     }
   } else {
     for (const i in actions) {
@@ -114,21 +119,7 @@ exports.registerCommands = function(cmds, actions, descriptions) {
  */
 exports.registerEval = function(cmd, execute) {
   commands[cmd] = new Function('message', 'suffix', 'bot', 'print', 'file', execute);
-  commandDescriptions[cmd] = 'User-created command';
-};
-
-/**
- * @return {Object.<Function>} registered bot commands
- */
-exports.getCommands = function() {
-  return commands;
-};
-
-/**
- * @return {Object.<String>} registered bot command descriptions
- */
-exports.getCommandDescriptions = function() {
-  return commandDescriptions;
+  //commandDescriptions[cmd] = 'User-created command';
 };
 
 /**
@@ -160,34 +151,20 @@ exports.deop = function(user) {
   return permissions.deop(user);
 };
 /**
- * get an object containing persistent data
- *
- * @return {Object} the persistent data file; read-write.
- */
-exports.getXData = function() {
-  return xdata;
-};
-/**
  * saves persistent data
  */
 exports.saveXData = function() {
-  jsonfile.writeFileSync(dataFolder + 'xdata.json', xdata, {spaces: 2});
-};
-/**
- * get an object containing non-persistent, hand-crafted settings
- */
-exports.getConfig = function() {
-  return config;
+  jsonfile.writeFileSync(dataFolder + 'xdata.json', exports.xdata, {spaces: 2});
 };
 /**
  * sets the config object (you don't need to use this unless you've changed the object reference by, for example, parsing it again)
  */
 exports.setConfig = function(_conf) {
-  config = _conf;
+  exports.config = _conf;
 };
 /**
  * saves the config object to disk (not really useful since it will be overriden after a git update)
  */
 exports.saveConfig = function() {
-  jsonfile.writeFileSync('./config.json', config, {spaces: 2});
+  jsonfile.writeFileSync('./data/config.json', exports.config, {spaces: 2});
 };

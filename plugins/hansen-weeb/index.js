@@ -6,18 +6,22 @@ function stack(e) {
 }
 
 const jsdom = require('jsdom');
-const unirest = require('unirest');
+const unirestHelper = require('../../lib/unirest-helper.js');
+const getPage = unirestHelper.getPage;
+const getPageB = unirestHelper.getPageB;
+
 const xml2js = require('../../lib/xml2js');
 const rand = require('../../lib/rand.js');
+
 
 /**
  * An ass function for ass substrings
  * 
- * @param  {[type]} regex
- * @param  {[type]} string
- * @param  {String} start
- * @param  {String} end
- * @return {[type]}
+ * @param  {RegExp} regex the regex to match with
+ * @param  {String} string the string to match against
+ * @param  {String} start a substring to be cut from the start of the string
+ * @param  {String} end a substring to be cut from the end of the string
+ * @return {Array<String>} the array of matches
  */
 function assMatch(regex, string, start = '', end = '') {
   const arr = string.match(regex);
@@ -103,28 +107,28 @@ function getSingleVNData(document) {
 
   for (let j = 0, itm = tableis[0]; j < tableis.length - 1; j++, itm = tableis[j]) {
     lines.push(
-      itm.textContent // textContent abuse
-      .replace(/^Title/, 'Title: ')
-      .replace(/^Original title/, 'Original title: ')
-      .replace(/^Aliases/, 'Aliases: ')
-      .replace(/^Length/, 'Length: ')
-      .replace(/^Developer/, 'Developer: ')
-      .replace(/^Publishers/, 'Publishers: ')
-      .replace(/^Related anime/, 'Related anime: ')
-      .replace(/^Available at/, 'Available at: ')
+      itm.textContent. // textContent abuse
+      replace(/^Title/, 'Title: ').
+      replace(/^Original title/, 'Original title: ').
+      replace(/^Aliases/, 'Aliases: ').
+      replace(/^Length/, 'Length: ').
+      replace(/^Developer/, 'Developer: ').
+      replace(/^Publishers/, 'Publishers: ').
+      replace(/^Related anime/, 'Related anime: ').
+      replace(/^Available at/, 'Available at: ')
     );
   }
   // add description
   lines.push(
-    tableis[tableis.length - 1].children[0].innerHTML // might not work due to innerHTML
+    tableis[tableis.length - 1].children[0].innerHTML. // might not work due to innerHTML
 
-    .replace('<h2>Description</h2>', '')
-    .replace(/<br>/g, '\n')
-    .replace(/<br\/>/g, '\n') // replace newlines
-    .replace(/<br \/>/g, '\n') // replace newlines
-    .replace(/<\/br>/g, '') // not \n
+    replace('<h2>Description</h2>', '').
+    replace(/<br>/g, '\n').
+    replace(/<br\/>/g, '\n'). // replace newlines
+    replace(/<br \/>/g, '\n'). // replace newlines
+    replace(/<\/br>/g, ''). // not \n
 
-    .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
+    replace(/<(?:.|\n)*?>/gm, '') // strip html tags
   );
   lines = lines.join('\n');
   if (lines.length > 1990) {
@@ -141,10 +145,7 @@ module.exports = {
     'novel': {
       fn: function (message, suffix) {
 
-        unirest.get('https://vndb.org/v/all?sq=' + suffix.replace(/ /g, '+'))
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('https://vndb.org/v/all?sq=' + suffix.replace(/ /g, '+'), function(result) {
             try {
               //msg.reply('```' + result.body + '```');
               console.log('RESPONSEd');
@@ -161,10 +162,7 @@ module.exports = {
                 }
 
                 console.log('RESPONSE to 2:https://vndb.org' + otlink);
-                unirest.get('https://vndb.org' + otlink)
-                  .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-                  .header('Accept', 'text/html,application/xhtml+xml')
-                  .end(function(result) {
+                getPage('https://vndb.org' + otlink, function(result) {
 
                     try {
                       console.log('RESPONSE 2: '/* + result.body*/);
@@ -196,10 +194,7 @@ module.exports = {
     'vndb-search': {
       fn: function (message, suffix) {
 
-        unirest.get('https://vndb.org/v/all?sq=' + suffix.replace(/ /g, '+'))
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('https://vndb.org/v/all?sq=' + suffix.replace(/ /g, '+'), function(result) {
             try {
               //msg.reply('```' + result.body + '```');
               console.log('RESPONSE BODY: ' + result.body);
@@ -237,10 +232,7 @@ module.exports = {
     },
     'gelbooru': {
       fn: function (message, suffix) {
-        unirest.get('http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags=' + suffix.replace(/ /g, '+'))
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('http://gelbooru.com/index.php?page=dapi&s=post&q=index&tags=' + suffix.replace(/ /g, '+'), function(result) {
             xml2js.parseString(result.body, function(err, xresult) {
               if (err) {
                 message.error.sendMessage('It errored: ' + err);
@@ -270,10 +262,7 @@ module.exports = {
     },
     'danbooru': {
       fn: function (message, suffix) {
-        unirest.get('http://danbooru.donmai.us/posts.json?tags=' + suffix.replace(/ /g, '+'))
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml') // */*
-          .end(function(result) {
+        getPage('http://danbooru.donmai.us/posts.json?tags=' + suffix.replace(/ /g, '+'), function(result) {
             const xresult = result.body;//JSON.parse(result.body);
 
             if (!xresult.length) {
@@ -287,7 +276,7 @@ module.exports = {
             } else {
               FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
             }
-            FurryArray.push('http://danbooru.donmai.us' + xresult[Math.floor(Math.random() * xresult.length)].file_url);
+            FurryArray.push('http://danbooru.donmai.us' + rand.choose(xresult).file_url);
 
             message.channel.sendMessage(FurryArray);
 
@@ -297,10 +286,7 @@ module.exports = {
     },
     'boobs': {
       fn: function(message) {
-        unirest.get('http://api.oboobs.ru/boobs/' + rand(9955))
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', '*/*') // */*
-          .end(function(result) {
+        getPageB('http://api.oboobs.ru/boobs/' + rand(9955), '*/*', function(result) {
             if (result.body[0].preview)
               message.channel.sendMessage('http://media.oboobs.ru/' + result.body[0].preview);
             else
@@ -311,10 +297,7 @@ module.exports = {
     },
     'butts': {
       fn: function(message) {
-        unirest.get('http://api.obutts.ru/butts/' + rand(3940))
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', '*/*') // */*
-          .end(function(result) {
+        getPageB('http://api.obutts.ru/butts/' + rand(3940), '*/*', function(result) {
             if (result.body[0].preview)
               message.channel.sendMessage('http://media.obutts.ru/' + result.body[0].preview);
             else
@@ -325,10 +308,7 @@ module.exports = {
     },
     'safebooru': {
       fn: function (message, suffix) {
-        unirest.get('http://safebooru.org/index.php?page=dapi&s=post&q=index&limit=100&tags=' + suffix.replace(/ /g, '+')) // maybe tags system is different?
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('http://safebooru.org/index.php?page=dapi&s=post&q=index&limit=100&tags=' + suffix.replace(/ /g, '+'), function(result) { // maybe tags system is different?
             
             const xresult = assMatch(/file_url=\"([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\%]+)\"/g,
               result.raw_body, 'file_url="', '"');
@@ -344,7 +324,7 @@ module.exports = {
             } else {
               FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
             }
-            FurryArray.push(xresult[Math.floor(Math.random() * xresult.length)]);
+            FurryArray.push(rand.choose(xresult));
 
             message.channel.sendMessage(FurryArray);
 
@@ -354,17 +334,15 @@ module.exports = {
     },
     'sankaku-channel': {
       fn: function (message, suffix) {
-        unirest.get('https://chan.sankakucomplex.com/?tags=' + suffix.replace(/ /g, '+') + '&commit=Search')
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('https://chan.sankakucomplex.com/?tags=' + suffix.replace(/ /g, '+') + '&commit=Search', function(result) {
             try {
 
               let document = jsdom.jsdom(result.body);
               //const window = document.defaultView;
 
               const _preview = document.getElementById('popular-preview');
-              _preview.parentNode.removeChild(_preview);
+              if (_preview !== null)
+                _preview.parentNode.removeChild(_preview);
 
               // https://c.sankakucomplex.com/data/preview/3b/ac/3bac5a04879531932ed4a38866a4064d.jpg
               // https://cs.sankakucomplex.com/data/sample/3b/ac/sample-3bac5a04879531932ed4a38866a4064d.jpg
@@ -384,10 +362,7 @@ module.exports = {
                 FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
               }
 
-              unirest.get('https://chan.sankakucomplex.com' + xresult[Math.floor(Math.random() * xresult.length)].parentNode.href)
-                .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-                .header('Accept', 'text/html,application/xhtml+xml')
-                .end(function(bresult) {
+              getPage('https://chan.sankakucomplex.com' + rand.choose(xresult).parentNode.href, function(bresult) {
                   document = jsdom.jsdom(bresult.body);
 
                   FurryArray.push('https:' + document.getElementById('image').src);
@@ -406,17 +381,15 @@ module.exports = {
     },
     'sankaku-idol': {
       fn: function (message, suffix) {
-        unirest.get('https://idol.sankakucomplex.com/?tags=' + suffix.replace(/ /g, '+') + '&commit=Search')
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('https://idol.sankakucomplex.com/?tags=' + suffix.replace(/ /g, '+') + '&commit=Search', function(result) {
             try {
 
               let document = jsdom.jsdom(result.body);
               //const window = document.defaultView;
 
               const _preview = document.getElementById('popular-preview');
-              _preview.parentNode.removeChild(_preview);
+              if (_preview !== null)
+                _preview.parentNode.removeChild(_preview);
 
               // https://c.sankakucomplex.com/data/preview/3b/ac/3bac5a04879531932ed4a38866a4064d.jpg
               // https://cs.sankakucomplex.com/data/sample/3b/ac/sample-3bac5a04879531932ed4a38866a4064d.jpg
@@ -436,10 +409,7 @@ module.exports = {
                 FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
               }
 
-              unirest.get('https://idol.sankakucomplex.com' + xresult[Math.floor(Math.random() * xresult.length)].parentNode.href)
-                .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-                .header('Accept', 'text/html,application/xhtml+xml')
-                .end(function(bresult) {
+              getPage('https://idol.sankakucomplex.com' + rand.choose(xresult).parentNode.href, function(bresult) {
                   document = jsdom.jsdom(bresult.body);
 
                   FurryArray.push('https:' + document.getElementById('image').src);
@@ -458,10 +428,7 @@ module.exports = {
     },
     'konachan': {
       fn: function (message, suffix) {
-        unirest.get('http://konachan.com/post.json?tags=' + suffix.replace(/ /g, '+')) // maybe tags system is different?
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('http://konachan.com/post.json?tags=' + suffix.replace(/ /g, '+'), function(result) { // maybe tags system is different?
 
             
             const xresult = assMatch(/\"file_url\":\"([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\%]+)\"/g,
@@ -478,7 +445,7 @@ module.exports = {
             } else {
               FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
             }
-            FurryArray.push(xresult[Math.floor(Math.random() * xresult.length)]);
+            FurryArray.push(rand.choose(xresult));
 
             message.channel.sendMessage(FurryArray);
 
@@ -488,10 +455,7 @@ module.exports = {
     },
     'yande.re': {
       fn: function (message, suffix) {
-        unirest.get('https://yande.re/post.json?tags=' + suffix.replace(/ /g, '+')) // maybe tags system is different?
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('https://yande.re/post.json?tags=' + suffix.replace(/ /g, '+'), function(result) { // maybe tags system is different?
             
             const xresult = assMatch(/\"file_url\":\"([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\%]+)\"/g,
               result.raw_body, '"file_url":"', '"');
@@ -507,7 +471,7 @@ module.exports = {
             } else {
               FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
             }
-            FurryArray.push(xresult[Math.floor(Math.random() * xresult.length)]);
+            FurryArray.push(rand.choose(xresult));
 
             message.channel.sendMessage(FurryArray);
 
@@ -517,10 +481,7 @@ module.exports = {
     },
     'ichijou': {
       fn: function (message, suffix) {
-        unirest.get('http://ichijou.org/post/index.json?tags=' + suffix.replace(/ /g, '+')) // maybe tags system is different?
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
+        getPage('http://ichijou.org/post/index.json?tags=' + suffix.replace(/ /g, '+'), function(result) { // maybe tags system is different?
             
             const xresult = assMatch(/\"file_url\":\"([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\%]+)\"/g,
               result.raw_body, '"file_url":"', '"');
@@ -536,7 +497,7 @@ module.exports = {
             } else {
               FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
             }
-            FurryArray.push(xresult[Math.floor(Math.random() * xresult.length)]);
+            FurryArray.push(rand.choose(xresult));
 
             message.channel.sendMessage(FurryArray);
 
@@ -544,34 +505,220 @@ module.exports = {
       },
       description: 'Vector porn!'
     },
-    'behoimi': {
+    'catgirls': {
       fn: function (message, suffix) {
-        unirest.get('http://behoimi.org/post/index.json?tags=' + suffix.replace(/ /g, '+')) // maybe tags system is different?
-          .header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36')
-          .header('Accept', 'text/html,application/xhtml+xml')
-          .end(function(result) {
-            
-            const xresult = assMatch(/\"file_url\":\"([ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\%]+)\"/g,
-              result.raw_body, '"file_url":"', '"');
+        getPage('http://catgirls.booru.org/index.php?page=post&s=list' + (suffix ? '&tags=' + suffix.replace(/ /g, '+') : ''), function(result) {
+            try {
 
-            if (!xresult.length) {
-              message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
-              return;
+              let document = jsdom.jsdom(result.body);
+              //const window = document.defaultView;
+
+              const xresult = document.querySelectorAll('img[alt=post]');
+
+              if (!xresult.length) {
+                message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
+                return;
+              }
+
+              const FurryArray = [];
+              if (!suffix) {
+                FurryArray.push(message.author.toString() + ", you've searched for `random`");
+              } else {
+                FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
+              }
+
+              message.channel.sendMessage(rand.choose(xresult).src.replace(/http:\/\/thumbs\.booru\.org\/catgirls\/thumbnails\/\/(.*?)\/thumbnail_/, 'http://img.booru.org/catgirls//images/$1/'));
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
             }
-
-            const FurryArray = [];
-            if (!suffix) {
-              FurryArray.push(message.author.toString() + ", you've searched for `random`");
-            } else {
-              FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
-            }
-            FurryArray.push(xresult[Math.floor(Math.random() * xresult.length)]);
-
-            message.channel.sendMessage(FurryArray);
-
           });
       },
-      description: 'More 3D porn!'
+      description: 'Your new homepage.'
+    },
+    'neko': {
+      fn: function (message, suffix) {
+        getPage('http://nekochu.booru.org/index.php?page=post&s=list' + (suffix ? '&tags=' + suffix.replace(/ /g, '+') : ''), function(result) {
+            try {
+
+              let document = jsdom.jsdom(result.body);
+              //const window = document.defaultView;
+
+              const xresult = document.querySelectorAll('img[alt=post]');
+
+              if (!xresult.length) {
+                message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
+                return;
+              }
+
+              const FurryArray = [];
+              if (!suffix) {
+                FurryArray.push(message.author.toString() + ", you've searched for `random`");
+              } else {
+                FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
+              }
+
+              message.channel.sendMessage(rand.choose(xresult).src.replace(/http:\/\/thumbs\.booru\.org\/nekochu\/thumbnails\/\/(.*?)\/thumbnail_/, 'http://img.booru.org/nekochu//images/$1/'));
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
+            }
+          });
+      },
+      description: 'Your new fetish.'
+    },
+    'saibooru': {
+      fn: function (message, suffix) {
+        getPage('http://sai.booru.org/index.php?page=post&s=list' + (suffix ? '&tags=' + suffix.replace(/ /g, '+') : ''), function(result) {
+            try {
+
+              let document = jsdom.jsdom(result.body);
+              //const window = document.defaultView;
+
+              const xresult = document.querySelectorAll('img[alt=post]');
+
+              if (!xresult.length) {
+                message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
+                return;
+              }
+
+              const FurryArray = [];
+              if (!suffix) {
+                FurryArray.push(message.author.toString() + ", you've searched for `random`");
+              } else {
+                FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
+              }
+
+              message.channel.sendMessage(rand.choose(xresult).src.replace(/http:\/\/thumbs\.booru\.org\/sai\/thumbnails\/\/(.*?)\/thumbnail_/, 'http://img.booru.org/sai//images/$1/'));
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
+            }
+          });
+      },
+      description: 'Fetch an image from Saibooru.'
+    },
+    'boob3d': {
+      fn: function (message, suffix) {
+        getPage('http://b00b3d.booru.org/index.php?page=post&s=list' + (suffix ? '&tags=' + suffix.replace(/ /g, '+') : ''), function(result) {
+            try {
+
+              let document = jsdom.jsdom(result.body);
+              //const window = document.defaultView;
+
+              const xresult = document.querySelectorAll('img[alt=post]');
+
+              if (!xresult.length) {
+                message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
+                return;
+              }
+
+              const FurryArray = [];
+              if (!suffix) {
+                FurryArray.push(message.author.toString() + ", you've searched for `random`");
+              } else {
+                FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
+              }
+
+              message.channel.sendMessage(rand.choose(xresult).src.replace(/http:\/\/thumbs\.booru\.org\/b00b3d\/thumbnails\/\/(.*?)\/thumbnail_/, 'http://img.booru.org/b00b3d//images/$1/'));
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
+            }
+          });
+      },
+      description: 'Fetch an image from the b00b3d booru.'
+    },
+    'allgirl': {
+      fn: function (message, suffix) {
+        getPage('http://allgirl.booru.org/index.php?page=post&s=list' + (suffix ? '&tags=' + suffix.replace(/ /g, '+') : ''), function(result) {
+            try {
+
+              let document = jsdom.jsdom(result.body);
+              //const window = document.defaultView;
+
+              const xresult = document.querySelectorAll('img[alt=post]');
+
+              if (!xresult.length) {
+                message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
+                return;
+              }
+
+              const FurryArray = [];
+              if (!suffix) {
+                FurryArray.push(message.author.toString() + ", you've searched for `random`");
+              } else {
+                FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
+              }
+
+              message.channel.sendMessage(rand.choose(xresult).src.replace(/http:\/\/thumbs\.booru\.org\/allgirl\/thumbnails\/\/(.*?)\/thumbnail_/, 'http://img.booru.org/allgirl//images/$1/'));
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
+            }
+          });
+      },
+      description: 'Fetch an image from the all-girl booru.'
+    },
+    'realbooru': {
+      fn: function (message, suffix) {
+        getPage('http://rb.booru.org/index.php?page=post&s=list' + (suffix ? '&tags=' + suffix.replace(/ /g, '+') : ''), function(result) {
+            try {
+
+              let document = jsdom.jsdom(result.body);
+              //const window = document.defaultView;
+
+              const xresult = document.querySelectorAll('img[alt=post]');
+
+              if (!xresult.length) {
+                message.channel.sendMessage(message.author.toString() + ', no results for `' + (suffix || 'random') + '`');
+                return;
+              }
+
+              const FurryArray = [];
+              if (!suffix) {
+                FurryArray.push(message.author.toString() + ", you've searched for `random`");
+              } else {
+                FurryArray.push(message.author.toString() + ", you've searched for `" + suffix + '`');
+              }
+
+              message.channel.sendMessage(rand.choose(xresult).src.replace(/http:\/\/thumbs\.booru\.org\/rb\/thumbnails\/\/(.*?)\/thumbnail_/, 'http://img.booru.org/rb//images/$1/'));
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
+            }
+          });
+      },
+      description: 'Fetch an image from realbooru.'
+    },
+    'json-porn': {
+      fn: function (message, suffix) {
+        getPage('https://raw.githubusercontent.com/json-porn-api/demo/gh-pages/js/demo.js', function(result) {
+            try {
+
+              const apiKey = /var DEMO_API_KEY = \"(.*?)\";/.match(result.raw_body)[0];
+              unirestHelper.getMashape('https://steppschuh-json-porn-v1.p.mashape.com/porn/', apiKey, 'application/json', function(res) {
+                try {
+                  
+                } catch (err) {
+                  message.channel.sendMessage('ERROR: `' + err + '`');
+                  console.error(err);
+                }
+              });
+
+            } catch (err) {
+              message.channel.sendMessage('ERROR: `' + err + '`');
+              console.error(err);
+            }
+          });
+      },
+      description: 'Fetch porn data from the JSON Porn API.'
     },
   }
 };

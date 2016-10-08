@@ -4,7 +4,6 @@ const perms = require('../../permissions.js');
 
 const bot = require('../../bot.js');
 const utility = require('../../utility.js');
-const getConfig = utility.getConfig;
 const nbsp = ' 👌🏻';
 
 const confirmCodes = [];
@@ -16,7 +15,7 @@ const announceMessages = [];
  * @param  {String} usage
  */
 function correctUsage(sender, command, usage) {
-  sender.sendMessage('`' + getConfig().trigger + command + '` command usage: `' + usage + '`');
+  sender.sendMessage('`' + utility.config.trigger + command + '` command usage: `' + usage + '`');
 }
 
 function unMute(msg, users, time, role) {
@@ -40,9 +39,9 @@ module.exports = {
         if (msg.channel.isPrivate) return;
         if (!perms.has(msg, 'mod')) return;
 
-        if (suffix && msg.mentions.length > 0) {
+        if (suffix && msg.mentions.size > 0) {
           const kickMessage = suffix.replace(/<@\d+>/g, '').trim();
-          msg.mentions.map(unlucky => {
+          msg.mentionsArr.map(unlucky => {
             if (!kickMessage) msg.channel.guild.kickMember(unlucky);
             else {
               unlucky.sendMessage('You were kicked from ' + msg.channel.guild.name + ' for reason: ' + kickMessage).then(() => msg.channel.guild.kickMember(unlucky));
@@ -65,9 +64,9 @@ module.exports = {
         if (msg.channel.isPrivate) return;
         if (!perms.has(msg, 'globalmod')) return;
 
-        if (suffix && msg.mentions.length > 0) {
+        if (suffix && msg.mentions.size > 0) {
           const banMessage = suffix.replace(/<@\d+>/g, '').trim();
-          msg.mentions.map(unlucky => {
+          msg.mentionsArr.map(unlucky => {
             if (!banMessage) msg.channel.guild.banMember(unlucky, 1);
             else {
               unlucky.sendMessage('You were banned from ' + msg.channel.guild.name + ' for reason: ' + banMessage).then(() => msg.channel.guild.banMember(unlucky, 1));
@@ -90,18 +89,18 @@ module.exports = {
         if (msg.channel.isPrivate) return;
         if (!perms.has(msg, 'minimod')) return;
 
-        if (suffix && msg.mentions.length > 0 && /^(<@\d+>( ?)*)*( ?)*(\d+(.\d+)?)$/.test(suffix.trim())) {
+        if (suffix && msg.mentions.size > 0 && /^(<@\d+>( ?)*)*( ?)*(\d+(.\d+)?)$/.test(suffix.trim())) {
           let time = parseFloat(suffix.replace(/<@\d+>/g, '').trim());
           if (time)
             if (time > 60) time = 60;
             else time = 5;
           const role = msg.channel.guild.roles.find(r => r.name.toLowerCase() === 'muted');
           if (role) {
-            msg.mentions.map(user => {
+            msg.mentionsArr.map(user => {
               if (!bot.memberHasRole(user, role))
                 bot.addMemberToRole(user, role);
             });
-            unMute(msg, msg.mentions, time, role);
+            unMute(msg, msg.mentionsArr, time, role);
             msg.channel.sendMessage(msg.author.username + nbsp, (e, m) => {
               bot.deleteMessage(m, {
                 'wait': 10000
@@ -124,10 +123,10 @@ module.exports = {
         if (msg.channel.isPrivate) return;
         if (!perms.has(msg, 'minimod')) return;
 
-        if (suffix && msg.mentions.length > 0) {
+        if (suffix && msg.mentions.size > 0) {
           const role = msg.channel.guild.roles.find(r => r.name.toLowerCase() === 'muted');
           if (role) {
-            msg.mentions.map(user => {
+            msg.mentionsArr.map(user => {
               if (bot.memberHasRole(user, role))
                 bot.removeMemberFromRole(user, role);
             });
@@ -190,7 +189,7 @@ module.exports = {
             announceMessages.push(suffix);
             const code = Math.floor(Math.random() * 100000);
             confirmCodes.push(code);
-            msg.channel.sendMessage("⚠ This will send a message to **all** users in this server. If you're sure you want to do this say `" + getConfig().trigger + 'announce ' + code + '`');
+            msg.channel.sendMessage("⚠ This will send a message to **all** users in this server. If you're sure you want to do this say `" + utility.config.trigger + 'announce ' + code + '`');
           }
         } else {
           if (/^\d+$/.test(suffix)) {
@@ -224,7 +223,7 @@ module.exports = {
             announceMessages.push(suffix);
             const code = Math.floor(Math.random() * 100000);
             confirmCodes.push(code);
-            msg.channel.sendMessage("⚠ This will send a message to **all** servers where I can speak in general. If you're sure you want to do this say `" + getConfig().trigger + 'announce ' + code + '`');
+            msg.channel.sendMessage("⚠ This will send a message to **all** servers where I can speak in general. If you're sure you want to do this say `" + utility.config.trigger + 'announce ' + code + '`');
           }
         }
       }
@@ -299,7 +298,7 @@ module.exports = {
           });
           return;
         }
-        if (msg.mentions.length < 1) {
+        if (msg.mentions.size < 1) {
           msg.channel.sendMessage('You must mention the users you want to change the color of!', (e, m) => {
             bot.deleteMessage(m, {
               'wait': 10000
@@ -310,7 +309,7 @@ module.exports = {
 
         let role = msg.channel.guild.roles.get('name', '#' + suffix.replace(/(.*) #?/, '').toLowerCase());
         let currentColors2;
-        msg.mentions.map(user => {
+        msg.mentionsArr.map(user => {
           const currentColors = msg.channel.guild.rolesOfUser(user).filter(r => /^#[a-f0-9]{6}$/i.test(r.name));
           if (currentColors && currentColors.length > 0) {
             currentColors2 = [];
@@ -437,9 +436,9 @@ module.exports = {
           });
           return;
         }
-        if (msg.mentions.length > 0) {
+        if (msg.mentions.size > 0) {
 
-          msg.mentions.map(user => {
+          msg.mentionsArr.map(user => {
             const colorroles = msg.channel.guild.rolesOfUser(user).filter(r => /^#[a-f0-9]{6}$/.test(r.name));
             const notEmpty = [];
             if (colorroles && colorroles.length > 0) {

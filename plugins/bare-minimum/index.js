@@ -3,7 +3,6 @@
 // Discord Bot API
 const bot = require('../../bot.js');
 const utility = require('../../utility.js');
-const getConfig = utility.getConfig;
 
 module.exports = {
   name: 'bare-minimum',
@@ -36,18 +35,20 @@ module.exports = {
     },
     'help': {
       fn: function(message) {
+        const config = utility.config;
+
         // this tries to print 3729+ chars. the max is 2000.
         // what do we do about that? we gotta split it into pages.
         
         //console.log('hiiii');
-        const tr = '\u200b' + getConfig().trigger;
+        const tr = '\u200b' + config.trigger;
         const tcmds = ['Here are my commands: ', ''];
 
         // load plugin commands
 
         const loadPlugins = require('../../plugins.js');
-        if (getConfig().plugins && getConfig().plugins.length > 0) {
-          const plugins = loadPlugins(getConfig().plugins);
+        if (config.plugins && config.plugins.length > 0) {
+          const plugins = loadPlugins(config.plugins);
           
           
           Object.keys(plugins).forEach(function(i) {
@@ -76,8 +77,8 @@ module.exports = {
         }
 
         // load user commands
-        if (utility.getXData().customCommands) {
-          for (const i of utility.getXData().customCommands) {
+        if (utility.xdata.customCommands) {
+          for (const i of utility.xdata.customCommands) {
             tcmds.push(tr + i.name + ' - User-created command');
             //utility.registerEval(i.name, i.action);
           }
@@ -124,7 +125,7 @@ module.exports = {
         chan.topicstring = suffix;
         chan.voteStarterId = msg.author.id;
 
-        msg.channel.sendMessage('New Vote started: `' + suffix + '`\nTo vote say `' + getConfig().trigger + 'vote +/-`');
+        msg.channel.sendMessage('New Vote started: `' + suffix + '`\nTo vote say `' + utility.config.trigger + 'vote +/-`');
       },
       description: 'Start a vote.'
     },
@@ -133,7 +134,7 @@ module.exports = {
         if (!suffix) { msg.channel.sendMessage('Gotta vote for something!'); return; }
 
         const chan = utility.getPseudoChannel(msg.channel);
-        if (!chan.votebool) { msg.channel.sendMessage('There are no votes in progress. Start one with the `' + getConfig().trigger + 'newvote` command.'); return; }
+        if (!chan.votebool) { msg.channel.sendMessage('There are no votes in progress. Start one with the `' + utility.config.trigger + 'newvote` command.'); return; }
         if (chan.voter.indexOf(msg.author.id) != -1) { return; }
 
         chan.voter.push(msg.author.id);

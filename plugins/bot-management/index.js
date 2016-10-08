@@ -4,7 +4,6 @@
 const bot = require('../../bot.js');
 const perms = require('../../permissions.js');
 const utility = require('../../utility.js');
-const getConfig = utility.getConfig;
 
 const jsonfile = require('../../lib/jsonfile.js');
 const chalk = require('chalk');
@@ -23,7 +22,7 @@ module.exports = {
     // Bot management
     'setgame': {
       fn: function(msg, suffix) {
-        if (!utility.isOpped(msg.author)) { msg.channel.sendMessage("You don't have permission to use this command!"); return; }
+        if (!perms.has(msg, 'op')) return;
         
         bot.user.setStatus('online', suffix).then(() => msg.channel.sendMessage('Done! Now playing: ' + suffix)).catch(err => {
           msg.channel.sendMessage('It failed: ```' + err + '```');
@@ -36,7 +35,7 @@ module.exports = {
     },
     'setgame-idle': {
       fn: function(msg, suffix) {
-        if (!utility.isOpped(msg.author)) { msg.channel.sendMessage("You don't have permission to use this command!"); return; }
+        if (!perms.has(msg, 'op')) return;
         
         bot.user.setStatus('idle', suffix).then(() => msg.channel.sendMessage('Done! Now playing: ' + suffix + 'Idle!')).catch(err => {
           msg.channel.sendMessage('It failed: ```' + err + '```');
@@ -47,8 +46,7 @@ module.exports = {
     },
     'join': {
       fn: function(message, suffix) {
-        const config = getConfig();
-        message.channel.sendMessage('I can\'t accept invites, please go to my oAuth 2 link at ' + config.oauthlink);
+        message.channel.sendMessage('I can\'t accept invites, please go to my oAuth 2 link at ' + utility.config.oauthlink);
       },
       description: 'Join a server through an invite link.'
     },
@@ -56,7 +54,7 @@ module.exports = {
       fn: function(message, suffix) {
         if (!perms.has(message, 'op')) return;
         
-        const config = getConfig();
+        const config = utility.config;
         const path = suffix.split(' ')[0];
         
         if (path.length < 1) {
@@ -67,7 +65,7 @@ module.exports = {
         const oldAvatar = config.avatar;
         config.avatar = path;
 
-        jsonfile.writeFile('./config.json', config, {spaces: 2}, function(err) {
+        jsonfile.writeFile('./data/config.json', config, {spaces: 2}, function(err) {
           if (err) { // if failed
             console.error(err);
             config.avatar = oldAvatar;
@@ -100,22 +98,22 @@ module.exports = {
         if (!suffix) { message.channel.sendMessage('Mention someone to op them'); return; }
         
         let opped;
-        if (message.mentions.length > 0) { // get by mention
-          opped = message.mentions[0];
+        if (message.mentions.users.size > 0) { // get by mention
+          opped = message.mentionsArr[0];
         } else { // get by name
           const name = suffix.split(' ')[0];
           
           opped = message.channel.guild.members.get('name', name);
-          if (opped === null) {
+          if (!opped || !opped.username) {
             message.channel.sendMessage('Could not find user ' + name + '!');
             return;
           }
         }
         
         if (!utility.op(opped))
-          message.channel.sendMessage(opped.name + ' is already an operator');
+          message.channel.sendMessage(opped.toString() + ' is already an operator');
         else
-          message.channel.sendMessage('Opped user ' + opped.name);
+          message.channel.sendMessage('Opped user ' + opped.toString());
       },
       description: 'Gives an user Operator rights. Only bot operators can use this command.'
     },
@@ -125,22 +123,22 @@ module.exports = {
         if (!suffix) { message.channel.sendMessage('Mention someone to deop them'); return; }
         
         let opped;
-        if (message.mentions.length > 0) { // get by mention
-          opped = message.mentions[0];
+        if (message.mentions.users.size > 0) { // get by mention
+          opped = message.mentionsArr[0];
         } else { // get by name
           const name = suffix.split(' ')[0];
           
           opped = message.channel.guild.members.get('name', name);
-          if (opped === null) {
+          if (!opped || !opped.username) {
             message.channel.sendMessage('Could not find user ' + name + '!');
             return;
           }
         }
         
         if (utility.deop(opped))
-          message.channel.sendMessage('De-opped user ' + opped.name);
+          message.channel.sendMessage('De-opped user ' + opped.username);
         else
-          message.channel.sendMessage(opped.name + ' is not an operator');
+          message.channel.sendMessage(opped.username + ' is not an operator');
       },
       description: 'Takes an user\'s Operator rights. Only bot operators can use this command.'
     },
@@ -238,7 +236,7 @@ module.exports = {
       /*jslint evil: true */
       fn: function(message, suffix, bot, utility_cmd_print, utility_cmd_file) {
         if (!perms.has(message, 'op')) return;
-        const c = utility.getCommands();
+        const c = utility.commands;
         Object.keys(c).forEach(function(v) {
           if (v == 'kill' || v == 'exit' || v == 'stress') return;
           console.log('trying ' + v);
@@ -254,7 +252,7 @@ module.exports = {
         const index = suffix.indexOf(' | ');
         if (index !== -1) {
             try {
-              const xdata = utility.getXData();
+              const xdata = utility.xdata;
               
               // register command
               const cmd = suffix.substr(0, index);

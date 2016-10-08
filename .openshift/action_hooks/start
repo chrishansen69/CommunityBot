@@ -1,0 +1,60 @@
+#!/bin/bash
+
+export NODE_EXE="${OPENSHIFT_DATA_DIR}.nodejs/bin/node"  
+export NPM_EXE="${OPENSHIFT_DATA_DIR}.nodejs/bin/node ${OPENSHIFT_DATA_DIR}.nodejs/lib/node_modules/npm/bin/npm-cli.js"
+export PATH=${OPENSHIFT_DATA_DIR}.nodejs/bin:${HOME}/usr/bin:$PATH
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+source $OPENSHIFT_REPO_DIR/util
+source $OPENSHIFT_REPO_DIR/funcs
+
+client_result "Welcome to zombocom"
+
+#case ${1} in
+#  pre-repo-archive) pre-repo-archive ;;
+#  build)            build            ;;
+#  start)            start            ;;
+#  stop)             stop             ;;
+#  restart)          restart          ;;
+#  status)           status           ;;
+#  tidy)             tidy             ;;
+#  *)                exit 0
+#esac
+
+
+# Add environment variables
+echo production                                > $OPENSHIFT_REPO_DIR/.openshift/NODE_ENV
+echo ${OPENSHIFT_DIY_IP}                       > $OPENSHIFT_REPO_DIR/.openshift/NODE_IP
+echo ${OPENSHIFT_DIY_PORT}                     > $OPENSHIFT_REPO_DIR/.openshift/NODE_PORT
+echo ${OPENSHIFT_DATA_DIR}                     > $OPENSHIFT_REPO_DIR/.openshift/DATA_DIR
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npm         > $OPENSHIFT_REPO_DIR/.openshift/npm_config_cache
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npmrc       > $OPENSHIFT_REPO_DIR/.openshift/npm_config_userconfig
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npmignore   > $OPENSHIFT_REPO_DIR/.openshift/npm_config_userignorefile
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npm-init.js > $OPENSHIFT_REPO_DIR/.openshift/npm_config_init_module
+echo ${TMP}                                    > $OPENSHIFT_REPO_DIR/.openshift/npm_config_tmp
+echo production                                > $OPENSHIFT_REPO_DIR/.openshift/markers/NODE_ENV
+echo ${OPENSHIFT_DIY_IP}                       > $OPENSHIFT_REPO_DIR/.openshift/markers/NODE_IP
+echo ${OPENSHIFT_DIY_PORT}                     > $OPENSHIFT_REPO_DIR/.openshift/markers/NODE_PORT
+echo ${OPENSHIFT_DATA_DIR}                     > $OPENSHIFT_REPO_DIR/.openshift/markers/DATA_DIR
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npm         > $OPENSHIFT_REPO_DIR/.openshift/markers/npm_config_cache
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npmrc       > $OPENSHIFT_REPO_DIR/.openshift/markers/npm_config_userconfig
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npmignore   > $OPENSHIFT_REPO_DIR/.openshift/markers/npm_config_userignorefile
+echo ${OPENSHIFT_DATA_DIR}.nodejs/.npm-init.js > $OPENSHIFT_REPO_DIR/.openshift/markers/npm_config_init_module
+echo ${TMP}                                    > $OPENSHIFT_REPO_DIR/.openshift/markers/npm_config_tmp
+export OPENSHIFT_NODEJS_IP=${OPENSHIFT_DIY_IP}
+export OPENSHIFT_NODEJS_PORT=${OPENSHIFT_DIY_PORT}
+export NODE_IP=${OPENSHIFT_DIY_IP}
+export NODE_PORT=${OPENSHIFT_DIY_PORT}
+
+# already called?
+#update_nodejs
+
+client_result "Node.js $(node --version) and NPM $(npm --version) installed."
+
+client_result "Archiving repo..."
+pre-repo-archive
+
+client_result "Building..."
+build
+
+start

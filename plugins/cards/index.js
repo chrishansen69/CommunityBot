@@ -2,6 +2,7 @@
 
 const bot = require('../../bot.js');
 const utility = require('../../utility.js');
+const perms = require('../../permissions.js');
 //const rand = require('../../lib/rand.js');
 
 // I am the constructor function.
@@ -428,10 +429,10 @@ const mCommands = {
     }
   },
   'player': function (message) {
-    if (message.mentions.length != 1) {
+    if (message.mentions.users.size != 1) {
       message.channel.sendMessage('Please mention only one user.');
     } else {
-      message.channel.sendMessage(message.mentions[0].toString() + ' has ' + utility.getPseudoChannel(message.channel).blackjack[message.mentions[0].id].cards.length + ' cards.');
+      message.channel.sendMessage(message.mentionsArr[0].toString() + ' has ' + utility.getPseudoChannel(message.channel).blackjack[message.mentionsArr[0].id].cards.length + ' cards.');
     }
   },
   'deck': function (message) {
@@ -448,7 +449,7 @@ const mCommands = {
     );
   },
   'game': function (message) {
-    if (!utility.isOpped(message.author)) { message.channel.sendMessage("You don't have permission to use this command!"); return; }
+    if (!perms.has(message, 'op')) return;
 
     const pc = utility.getPseudoChannel(message.channel);
 
@@ -471,7 +472,7 @@ const mCommands = {
     delete pc.blackjack;
   },
   'reset': function (message) {
-    if (!utility.isOpped(message.author)) { message.channel.sendMessage("You don't have permission to use this command!"); return; }
+    if (!perms.has(message, 'op')) return;
 
     const pc = utility.getPseudoChannel(message.channel);
     if (pc.blackjack)

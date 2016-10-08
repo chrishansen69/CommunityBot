@@ -1,0 +1,15 @@
+{
+  >>> You can set up your bot using email/password
+  "email" : "foo@bar.net",
+  "password" : "foo",
+  >>> Or you can use a bot token
+  "token": "qwertyuiopasdfghi123"
+  >>> Use one of the two, and not both!
+  "plugins": [],
+  "trigger": "=",
+  "customCommands": [],
+  "r9kEnabled": {},
+  "r9kMessages": {},
+  >>> Only required with token
+  "oauthlink": "oAuth link unavaliable as of the moment, my owner hasn't configured that yet."
+}

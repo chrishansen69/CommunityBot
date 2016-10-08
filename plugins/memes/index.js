@@ -1,10 +1,7 @@
 ﻿'use strict';
 
-const utility = require('../../utility.js');
-
 const emotes = require('./twitch-emotes.json');
 const swearifyEmotes = require('./swearify-emotes.json');
-const _descdupe = "it's a meme";
 
 // FFZ emote url:
 // https://cdn.frankerfacez.com/emoticon/NUMBER/1
@@ -63,19 +60,5 @@ module.exports = {
     },
   }
 };
-
-/// Load emotes n memes
-
-const _emotes = require('./emotes.js');
-
-Object.keys(_emotes).forEach(function(v) {
-  utility.registerCommand(v, _emotes[v].fn, _descdupe);
-});
-
-const _memes = require('./memes.js');
-
-Object.keys(_memes).forEach(function(v) {
-  utility.registerCommand(v, _memes[v].fn, _descdupe);
-});
 
 //module.exports.commands = Object.assign(module.exports.commands, o2, o3);

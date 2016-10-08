@@ -62,7 +62,7 @@ exports.op = function(user) {
   
   ops.push(user.id);
   jsonfile.writeFileSync(utility.dataFolder + 'ops.json', ops, {spaces: 2});
-  console.log(chalk.red('Opped user ' + user.name));
+  console.log(chalk.red('Opped user ' + user.username));
   return true;
 };
 
@@ -78,7 +78,7 @@ exports.deop = function(user) {
   if (index !== -1) {
     ops.splice(index, 1);
     jsonfile.writeFileSync(utility.dataFolder + 'ops.json', ops, {spaces: 2});
-    console.log(chalk.red('De-opped user ' + user.name));
+    console.log(chalk.red('De-opped user ' + user.username));
     return true;
   }
   

@@ -1,15 +1,12 @@
 'use strict';
 // TODO:
-// - Permissions - DONE
-// - More evalwhitelist.json stuff - DONE
 // - Command descriptions - PARTLY DONE
 // - Save setgame output
 
-
+const zlib = require('zlib');
 
 const bot = require('./bot.js');
 const utility = require('./utility.js');
-const getConfig = utility.getConfig;
 const perms = require('./permissions.js');
 
 const fs = require('fs');
@@ -72,11 +69,11 @@ process.on('exit', function() { // save r9kMessages (and possibly other settings
 });
 
 exports.r9kEnabled = function(channel) {
-  return getConfig().r9kEnabled[channel.id];
+  return utility.config.r9kEnabled[channel.id];
 };
 
 exports.r9k = function(msg) { // r9k mode
-  const xdata = utility.getXData();
+  const xdata = utility.xdata;
   const id = msg.channel.id; // unique-ish channel id
   console.info(xdata.r9kMessages);
   
@@ -95,8 +92,8 @@ exports.commands = {
       if (!perms.has(message, 'mod')) return;
       
       const id = message.channel.id; // unique-ish channel id
-      const config = getConfig();
-      const xdata = utility.getXData();
+      const config = utility.config;
+      const xdata = utility.xdata;
       
       if (!xdata.r9kMessages[id]) // make channel slot if not exists
         xdata.r9kMessages[id] = [];
@@ -116,10 +113,11 @@ exports.commands = {
   'getconf': {
     process: function(message) {
       if (message.author.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
-      
+      const config = utility.config;
+
       try {
-        message.channel.sendMessage('```' + JSON.stringify(getConfig()) + '```');
-        console.log(JSON.stringify(getConfig()));
+        message.channel.sendMessage('```' + JSON.stringify(config) + '```');
+        console.log(JSON.stringify(config));
       } catch (e) {
         console.error(e);
         message.channel.sendMessage('It failed: ' + e);
@@ -131,15 +129,54 @@ exports.commands = {
       if (message.author.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
       
       try {
-
-        sendSplitMessage(message.channel, JSON.stringify(utility.getXData()));
-
+        sendSplitMessage(message.channel, JSON.stringify(utility.xdata));
       } catch (e) {
         console.error(e);
         message.channel.sendMessage('It failed: ' + e);
       }
     }
   },
+  'getxdatacompressed': {
+    process: function(message) {
+      if (message.author.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
+      
+      try {
+        bot.sendMessage(message.channel, zlib.deflateSync(JSON.stringify(utility.xdata)).toString('base64'));
+      } catch (e) {
+        console.error(e);
+        message.channel.sendMessage('It failed: ' + e);
+      }
+    }
+  },
+// invalid api key
+//  'getxdatapaste': {
+//    process: function(message) {
+//      if (message.author.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
+//      
+//      try {
+//        request({
+//          url: 'https://paste.scratchbook.ch/api/create',
+//          headers: {
+//            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+//            'Accept': 'text/html,application/xhtml+xml,application/json'
+//          },
+//          method: 'POST',
+//          form: {
+//            text: JSON.stringify(utility.xdata),
+//            title: 'ul',
+//            name: 'hansen',
+//            private: 1,
+//            expire: 30
+//          },
+//          followRedirect: true,
+//          maxRedirects: 10
+//        }).then(body => message.channel.sendMessage(body)).catch(err => message.channel.sendMessage(err));
+//      } catch (e) {
+//        console.error(e);
+//        message.channel.sendMessage('It failed: ' + e);
+//      }
+//    }
+//  },
   'setconf': {
     process: function(message) {
       if (message.author.id !== '170382670713323520') return; // ONLY rafa1231518 can use this command
@@ -175,9 +212,9 @@ exports.commands = {
       
       try {
         console.log('resetting config.json...');
-        fs.writeFileSync('./config.json', fs.readFileSync('./config-my-base.json'));
-        delete require.cache['./config.json'];
-        utility.setConfig(require('./config.json'));
+        fs.writeFileSync('./data/config.json', fs.readFileSync('./data/config-my-base.json'));
+        delete require.cache['./data/config.json'];
+        utility.setConfig(require('./data/config.json'));
         console.log('resaving config.json...');
         utility.saveConfig();
         

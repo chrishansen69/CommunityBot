@@ -11,20 +11,24 @@ const Discord = require('discord.js');
 
 const bot = module.exports = new Discord.Client();
 // legacy methods
-bot.sendMessage = function(ch, msg) {
-  ch.sendMessage(msg);
+bot.sendMessage = function(chan, str) {
+  if (chan.channel)
+    chan.channel.sendMessage(str);
+  else
+    chan.sendMessage(str);
 };
-bot.sendFile = function(ch, att, n, con, callback) {
-  ch.sendFile(att, n, con).then(callback);
+bot.sendFile = function(chan, att) {
+  if (chan.channel)
+    chan.channel.sendFile(att);
+  else
+    chan.sendFile(att);
 };
 
 // LOAD CONFIG
 
 const utility = require('./utility.js');
 
-const getConfig = utility.getConfig;
-const getXData = utility.getXData;
-const trigger = getConfig().trigger;
+const trigger = utility.config.trigger;
 
 // ADD HANDLERS
 
@@ -54,7 +58,10 @@ bot.on('error', error => {
  * @param  {String} str
  */
 function utility_cmd_print(chan, str) {
-  chan.sendMessage(str);
+  if (chan.channel)
+    chan.channel.sendMessage(str);
+  else
+    chan.sendMessage(str);
 }
 /**
  * utility command to send file to chat
@@ -63,54 +70,70 @@ function utility_cmd_print(chan, str) {
  * @param  {String} str
  */
 function utility_cmd_file(chan, str) {
-  chan.sendFile(str);
+  if (chan.channel)
+    chan.channel.sendFile(str);
+  else
+    chan.sendFile(str);
 }
 
 bot.on('message', function(message) { // MAIN MESSAGE HANDLER
+  message.mentionsArr = 
+    message.mentions.users.size > 0 ? message.mentions.users.array() : [];
+
   if (cmds.r9kEnabled(message.channel)) { // r9k mode (deletes non-unique messages)
     cmds.r9k(message);
   }
 
+  // handle invite links
   if (message.channel.isPrivate && (message.content.indexOf('discord.gg') > -1 || message.content.indexOf('discordapp.com') > -1)) {
 
-    const config = getConfig();
+    const config = utility.config;
     message.channel.sendMessage('I can\'t accept invites, please go to my oAuth 2 link at ' + config.oauthlink);
 
     return;
   }
   
+  // handle commands
   const msg = message.content;
+  const lomsg = msg.toLowerCase();
   if (msg[0] === trigger) {
-    const command = msg.toLowerCase().split(' ')[0].substring(1);
+    const command = lomsg.split(' ')[0].substring(1);
     const suffix = msg.substring(command.length + 2);
     if (commands[command]) { // original commands
       commands[command].process(message, suffix);
-    } else if (utility.getCommands()[command]) { // custom commands registered through utility.js
+    } else if (utility.commands[command]) { // custom commands registered through utility.js
       console.log('found ' + command);
-      utility.getCommands()[command](message, suffix, bot, utility_cmd_print, utility_cmd_file); //bot is last, for cleans. unused params are ignored
+      utility.commands[command](message, suffix, bot, utility_cmd_print, utility_cmd_file); //bot is last, for cleans. unused params are ignored
+    } else if (utility.memeText[command]) { // meme commands
+      message.channel.sendMessage(utility.memeText[command]);
+    } else if (utility.memeFiles[command]) { // meme file images
+      message.channel.sendFile(utility.memeFiles[command]);
     }
+  } else if (utility.replies[lomsg]) { // meme replies
+    message.channel.sendMessage(utility.replies[lomsg]);
   }
 });
 
 bot.on('guildBanAdd', (server, user) => {
-  server.general.sendMessage(user.toString() + ' has been banned from this server.');
+  server.defaultChannel.sendMessage(user.toString() + ' has been banned from this server.');
 });
 
 bot.on('guildBanRemove', (server, user) => {
-  server.general.sendMessage(user.toString() + ' has been unbanned.');
+  server.defaultChannel.sendMessage(user.toString() + ' has been unbanned.');
 });
 
 bot.on('guildMemberAdd', (server, user) => {
-  server.general.sendMessage(user.toString() + ' has joined the server. Welcome!');
+  server.defaultChannel.sendMessage(user.toString() + ' has joined the server. Welcome!');
 });
 
 bot.on('guildMemberRemove', (server, user) => {
-  server.general.sendMessage(user.toString() + ' has left (or was kicked) from this server.');
+  server.defaultChannel.sendMessage(user.toString() + ' has left (or was kicked) from this server.');
 });
 
 const loadPlugins = require('./plugins.js');
-if (getConfig().plugins && getConfig().plugins.length > 0) {
-  const plugins = loadPlugins(getConfig().plugins);
+
+if (utility.config.plugins && utility.config.plugins.length > 0) {
+  const plugins = loadPlugins(utility.config.plugins);
   
   Object.keys(plugins).forEach(function(i) {
     const plugin = plugins[i];
@@ -120,6 +143,7 @@ if (getConfig().plugins && getConfig().plugins.length > 0) {
       
       utility.registerCommand(name, command.fn, command.description); // register
       console.log('registered: ' + name);
+
       if (command.synonyms) {
         command.synonyms.forEach(function(aliasName) {
           utility.registerCommand(aliasName, command.fn); // register
@@ -127,26 +151,22 @@ if (getConfig().plugins && getConfig().plugins.length > 0) {
         });
       }
     });
+    
   });
 }
 // load user commands from saved
-if (getXData().customCommands) {
-  for (const i of getXData().customCommands) {
+if (utility.xdata.customCommands) {
+  for (const i of utility.xdata.customCommands) {
     utility.registerEval(i.name, i.action);
   }
 }
 
-function initRoles() {
-  roles.initialize();
-}
+console.log('logging with ' + utility.config.token);
+if (process.env.CI)
+  process.exit(0); //exit node.js without an error cuz CI will complain if we don't use valid credentials
 
-console.log('logging with ' + getConfig().token);
-bot.login(getConfig().token).then(() => {
+// login with token
+bot.login(utility.config.token).then(() => {
   console.log('logged in');
-  initRoles();
-}).catch(err => {
-  if (process.env.CI)
-    process.exit(0);
-  else
-    console.error(err);
-}); // login with token
+  roles.initialize();
+}).catch(console.error);

@@ -1,29 +1,47 @@
-#node_modules/
-#config.json
+# logging output
 npm-debug.log
-#ops.json
+
+# files that are far too large to include
 Battler5.02.plsc
-#plugins/gabenizer/secret.py
 plugins/gabenizer/numpy-1.10.4+mkl-cp27-cp27m-win32.whl
 plugins/gabenizer/numpy-1.10.4+mkl-cp27-cp27m-win_amd64.whl
 plugins/gabenizer/dist/gabenizer-1.0-py2.7.egg
 node_modules/
 
-config.json
-ops.json
+# stuff that should not be leaked
+/data/config.json
+/data/ops.json
+/data/config-my-base.json
+/data/xdata.json
 plugins/gabenizer/secret.py
+
+# qualifies for the two previous categories
+/bonzibot.7z
+/misc crap/
+
+# openshift detritus
 app.js
 bot-package.json
-config-my-base.json
-start.js
+
 /static/
 /utils/
-xdata.json
+/openshiftStatic/
+/openshiftUtils/
+
+/openshiftStart.js
+/start.js
+
+# qualifies for the two previous categories
+/pingpong.js
+/testBot.js
+
+# unknown
 -package.json
 .openshift/markers/NODEJS_VERSION
 
-!.gitignore
+# IntelliJ project
 /.idea/
 *.iml
-/bonzibot.7z
-/pingpong.js
+
+# make sure that .gitignore is never ignored
+!.gitignore

@@ -97,22 +97,11 @@ module.exports = {
       fn: function(message, suffix) {
         if (!perms.has(message, 'globalmod')) return;
         
-        if (message.mentions.length > 0) {
-          message.mentions.forEach(function(el) {
-            roles.editNickname({
-              userID: el.id, 
-              serverID: message.channel.guild.id,
-              nick: suffix.substr(suffix.indexOf(' | ') + 3)
-            }, function(e) {
-              if (e) {
-                message.channel.sendMessage('Error: ' + JSON.stringify(e));
-                console.log('Failed with userID ' + el.id);
-                console.log('serverID ' + message.channel.guild.id);
-                console.log('nick ' + suffix.substr(suffix.indexOf(' | ') + 3));
-                console.log('token ' + bot.internal.token);
-                console.error(e);
-              }
-            });
+        if (message.mentions.users.size > 0) {
+          const suff = suffix.substr(suffix.indexOf(' | ') + 3);
+
+          message.mentionsArr.forEach(function(el) {
+            message.guild.member(el).setNickname(suff).catch(message.channel.sendMessage);
           });
         }
       },

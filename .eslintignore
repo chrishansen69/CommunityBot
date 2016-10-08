@@ -1,0 +1,8 @@
+# /node_modules/* and /bower_components/* ignored by default
+
+**/node_modules/**
+battler/*.js
+/misc crap/
+!battler/ABattler.js
+plugins/hansen-battler/
+plugins/rss/fasthash-test.js

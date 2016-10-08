@@ -1,15 +1,15 @@
 'use strict';
 
+const bot = require('../../bot.js');
 const perms = require('../../permissions.js');
 const utility = require('../../utility.js');
-const getXData = utility.getXData;
+const htmlCleaner = require('../../lib/html-cleaner.js');
 
 const hash = require('./fasthash.js');
 
 const FeedParser = require('feedparser');
 const zlib = require('zlib');
 const request = require('request');
-const toMarkdown = require('../../lib/to-markdown.js');
 
 const SECONDS = 1000;
 const MINUTES = 60 * SECONDS;
@@ -43,18 +43,21 @@ const feedList = {
 };
 */
 
-if (!getXData().feedList) {
-  getXData().feedList = {};
-}
-
-// Migration from old version of the plugin
-// Creates .channels array if .channel exists
 (function() {
+  const xdata = utility.xdata;
+
+  // Create list if not exists
+  if (!xdata.feedList) {
+    xdata.feedList = {};
+  }
+
+  // Migration from old version of the plugin
+  // Creates .channels array if .channel exists
   let save = false;
-  Object.keys(getXData().feedList).forEach(function(v) {
-    if (getXData().feedList[v].channel) {
-      getXData().feedList[v].channels = [ getXData().feedList[v].channel ];
-      delete getXData().feedList[v].channel;
+  Object.keys(xdata.feedList).forEach(function(v) {
+    if (xdata.feedList[v].channel) {
+      xdata.feedList[v].channels = [ xdata.feedList[v].channel ];
+      delete xdata.feedList[v].channel;
       save = true;
     }
   });
@@ -145,72 +148,9 @@ function done(err) {
   }
 }
 
-function stripTags(str) {
-  return str
-
-  .replace(/<br>/g, '\n') // replace newlines
-  .replace(/<br\/>/g, '\n') // replace newlines
-  .replace(/<br \/>/g, '\n') // replace newlines
-  .replace(/<\/br>/g, '') // not \n
-
-  .replace(/<img src="(.*?)".*?(>.*?<\/img>|\/>)/gi, '$1') // replace image links
-
-  .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
-
-  //.replace(/\[link\] \[comments\]/g, '') // reddit [link] and [comments] at the end of post
-
-  .replace(/&#32;/g, ' ') // space bug
-
-  .replace(/  +/g, ' ') // dupe spaces
-  .trim() // remove leading and trailing whitespace
-
-  .replace(/\[link\] \[comments\]/g, '') // reddit [link] and [comments] at the end of post
-  ;
-}
-
-function fixTags(adesc) {
-  return toMarkdown(adesc)
-
-  .replace(/<table>/gi, '')
-  .replace(/<tbody>/gi, '')
-  .replace(/<tr>/gi, '')
-  .replace(/<td>/gi, '')
-  .replace(/<\/table>/gi, '')
-  .replace(/<\/tbody>/gi, '')
-  .replace(/<\/tr>/gi, '')
-  .replace(/<\/td>/gi, '')
-
-  .replace(/\n\n/g, '\n')
-
-  .replace(/<b>/gi, '**')
-  .replace(/<\/b>/gi, '**')
-  .replace(/<i>/gi, '*')
-  .replace(/<\/i>/gi, '*')
-
-  .replace(/<small>/gi, '`')
-  .replace(/<\/small>/gi, '`')
-
-  .replace(/\[!\[(.*?)]\((.*?) \"(.*?)\"\)\]\((.*?)\)/gi, '<Embedded image link: $2 Links to: $4 Hover text: $3') //image+link (weird format)
-
-  .replace(/\[!\[(.*?)]\((.*?)\)\]\((.*?)\)/gi, '<Embedded image link: $2 Links to: $3 Hover text: $1') //image+link (reg)
-
-  .replace(/!\[(.*?)\]\((.*?) \"(.*?)\"\)/gi, '<Embedded image: $2 Hover text: $3>') // image link (weird format)
-
-  .replace(/!\[(.*?)\]\((.*?)\)/gi, '<Embedded image: $2 Hover text: $1>') // image link
-
-  .replace(/\[(.*?)\]\((.*?)\)/gi, '<Link: $2 Text: $1>') // link
-
-  .replace(/<div class="md">/g, '')
-  .replace(/<\/div>/g, '')
-
-  .replace(/<span>/gi, '')
-  .replace(/<\/span>/gi, '')
-
-  ;
-}
-
 function checkRSS() {
-  const feedList = getXData().feedList;
+  const xdata = utility.xdata;
+  const feedList = xdata.feedList;
 
   Object.keys(feedList).forEach(function(v, k) {
 
@@ -234,12 +174,14 @@ function checkRSS() {
         let adesc = post.description || '';
 
         if (feedList[v].raw) {
-          adesc = stripTags(adesc); // remove all html tags
+          adesc = htmlCleaner.stripTags(adesc); // remove all html tags
         } else {
-          adesc = fixTags(adesc); // convert to markdown
+          adesc = htmlCleaner.fixTags(adesc); // convert to markdown
         }
 
-        feedList[v].channels.forEach(function(chan, i) {
+        let chan;
+        feedList[v].channels.forEach(function(_chan, i) {
+          chan = bot.channels.get(_chan);
           setTimeout(function() {
             chan.sendMessage('>>> Feed from **' + meta.title + '**:\n' + post.title + ' (' + post.link + ')\n\n' + adesc);
           }, 250 * (nPost + i)); // send a message every 250 ms
@@ -259,15 +201,16 @@ setInterval(checkRSS, 30 * MINUTES);
 checkRSS();
 
 function addFeed(_url, _channel, _raw) {
+  const xdata = utility.xdata;
   const hashed = hash(_url);
 
-  if (getXData().feedList[hashed]) { // feed is in queue
+  if (xdata.feedList[hashed]) { // feed is in queue
 
-    if (getXData().feedList[hashed].channels.indexOf(_channel) == -1) // feed is not in channel queue
-      getXData().feedList[hashed].channels.push(_channel); // add to channel queue
+    if (xdata.feedList[hashed].channels.indexOf(_channel) == -1) // feed is not in channel queue
+      xdata.feedList[hashed].channels.push(_channel); // add to channel queue
 
   } else {
-    getXData().feedList[hashed] = { // add to queue
+    xdata.feedList[hashed] = { // add to queue
       url: _url,
       readEntries: [
       ],
@@ -313,16 +256,17 @@ module.exports = {
         if (!suffix) return;
         if (message.channel.isPrivate) return;
         if (!perms.has(message, 'minimod')) return;
+        const xdata = utility.xdata;
         const hashed = hash(suffix);
 
-        if (!getXData().feedList[hashed] || getXData().feedList[hashed].channels.indexOf(message.channel.id) == -1) {
+        if (!xdata.feedList[hashed] || xdata.feedList[hashed].channels.indexOf(message.channel.id) == -1) {
           message.channel.sendMessage('That feed is not being tracked!');
           return;
         }
 
-        const c = getXData().feedList[hashed].channels;
+        const c = xdata.feedList[hashed].channels;
         if (!c) {
-          message.channel.sendMessage('Error `getXData().feedList[hashed].channels is not defined`');
+          message.channel.sendMessage('Error `xdata.feedList[hashed].channels is not defined`');
           return;
         }
 
@@ -333,7 +277,7 @@ module.exports = {
         }
         delete c[i];
         if (c.length === 0) {
-          delete getXData().feedList[hashed];
+          delete xdata.feedList[hashed];
         }
         message.channel.sendMessage('Removed feed URL `' + suffix + '`');
 
@@ -344,7 +288,7 @@ module.exports = {
     },
     'rss-list': {
       fn: function (message) {
-        message.channel.sendMessage('List of RSS feeds being tracked (across all servers):\n' + (Object.keys(getXData().feedList).join('\n')));
+        message.channel.sendMessage('List of RSS feeds being tracked (across all servers):\n' + (Object.keys(utility.xdata.feedList).join('\n')));
       },
       description: 'Show a list of tracked RSS feeds'
     },

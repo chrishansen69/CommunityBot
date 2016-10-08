@@ -3,10 +3,11 @@
 // pretty much completely stolen from SteamingMutt/WildBeast, with a few edits
 // so credit where credit's due
 
-const getConfig = require('../../utility.js').getConfig;
+const utility = require('../../utility.js');
 
 const Giphy = require('./giphy.js');
 const leetspeak = require('../../lib/leetspeak.js');
+const unirestHelper = require('../../lib/unirest-helper.js');
 
 const unirest = require('unirest');
 const request = require('request');
@@ -37,32 +38,36 @@ const meme = require('./memes.json');
 
 */
 
-if (!getConfig().fun2) {
-  getConfig().fun2 = {};
-  getConfig().fun2.apiKeys = {};
-  getConfig().fun2.apiKeys.mashape = '';
-  
-  getConfig().fun2.apiKeys.imgflip = {};
-  
-  getConfig().fun2.apiKeys.imgflip.username = '';
-  getConfig().fun2.apiKeys.imgflip.password = '';
-} else {
-  if (!getConfig().fun2.apiKeys) {
-    getConfig().fun2.apiKeys = {};
+(function() {
+  const config = utility.config;
+
+  if (!config.fun2) {
+    config.fun2 = {};
+    config.fun2.apiKeys = {};
+    config.fun2.apiKeys.mashape = '';
+    
+    config.fun2.apiKeys.imgflip = {};
+    
+    config.fun2.apiKeys.imgflip.username = '';
+    config.fun2.apiKeys.imgflip.password = '';
+  } else {
+    if (!config.fun2.apiKeys) {
+      config.fun2.apiKeys = {};
+    }
+    if (!config.fun2.apiKeys.mashape) {
+      config.fun2.apiKeys.mashape = '';
+    }
+    if (!config.fun2.apiKeys.imgflip) {
+      config.fun2.apiKeys.imgflip = {};
+    }
+    if (!config.fun2.apiKeys.imgflip.username) {
+      config.fun2.apiKeys.imgflip.username = '';
+    }
+    if (!config.fun2.apiKeys.imgflip.password) {
+      config.fun2.apiKeys.imgflip.password = '';
+    }
   }
-  if (!getConfig().fun2.apiKeys.mashape) {
-    getConfig().fun2.apiKeys.mashape = '';
-  }
-  if (!getConfig().fun2.apiKeys.imgflip) {
-    getConfig().fun2.apiKeys.imgflip = {};
-  }
-  if (!getConfig().fun2.apiKeys.imgflip.username) {
-    getConfig().fun2.apiKeys.imgflip.username = '';
-  }
-  if (!getConfig().fun2.apiKeys.imgflip.password) {
-    getConfig().fun2.apiKeys.imgflip.password = '';
-  }
-}
+})();
 
 module.exports = {
   commands: {}
@@ -87,10 +92,7 @@ module.exports.commands.fortunecow = {
   description: "I'll get a random fortunecow!",
   synonyms: ['cow'],
   fn: function(msg) {
-    unirest.get('https://thibaultcha-fortunecow-v1.p.mashape.com/random')
-      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
-      .header('Accept', 'text/plain')
-      .end(function(result) {
+    unirestHelper.getMashape('https://thibaultcha-fortunecow-v1.p.mashape.com/random', utility.config.fun2.apiKeys.mashape, 'text/plain', function(result) {
         msg.reply('```' + result.body + '```');
       });
   }
@@ -100,10 +102,7 @@ module.exports.commands.randomcat = {
   description: "I'll get a random cat image for you!",
   synonyms: ['cat'],
   fn: function(msg) {
-    unirest.get('https://nijikokun-random-cats.p.mashape.com/random')
-      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
-      .header('Accept', 'application/json')
-      .end(function(result) {
+    unirestHelper.getMashape('https://nijikokun-random-cats.p.mashape.com/random', utility.config.fun2.apiKeys.mashape, 'application/json', function(result) {
         try {
           msg.reply(result.body.source);
         } catch (e) {
@@ -397,7 +396,7 @@ module.exports.commands.meme = {
   fn: function(msg, suffix, bot) {
     const tags = suffix.split('"');
     const memetype = tags[0].split(' ')[0];
-    const imgflipper = new Imgflipper(getConfig().fun2.apiKeys.imgflip.username, getConfig().fun2.apiKeys.imgflip.password);
+    const imgflipper = new Imgflipper(utility.config.fun2.apiKeys.imgflip.username, utility.config.fun2.apiKeys.imgflip.password);
     imgflipper.generateMeme(meme[memetype], tags[1] ? tags[1] : '', tags[3] ? tags[3] : '', (err, image) => {
       if (err) {
         msg.reply('Please try again.');
@@ -421,12 +420,9 @@ module.exports.commands.yoda = {
   description: 'Turn your sentence into Yoda-speak!',
   fn: function(msg, suffix) {
     const sf = suffix ? suffix.replace(' ', '+') : 'You+will+learn+how+to+speak+like+me+someday.++Oh+wait';
-    unirest.get('https://yoda.p.mashape.com/yoda?sentence=' + sf)
-      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
-      .header('Accept', 'text/plain')
-      .end(function(result) {
-        msg.reply('```' + result.body + '```');
-      });
+    unirestHelper.getMashape('https://yoda.p.mashape.com/yoda?sentence=' + sf, utility.config.fun2.apiKeys.mashape, 'text/plain', function(result) {
+      msg.reply('```' + result.body + '```');
+    });
   }
 };
 
@@ -435,12 +431,9 @@ module.exports.commands.pokemon = {
   synonyms: ['pkmn'],
   fn: function(msg, suffix) {
     const sf = suffix ? suffix.replace(' ', '+') : 'mew';
-    unirest.get('https://phalt-pokeapi.p.mashape.com/pokemon/' + sf)
-      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
-      .header('Accept', 'text/plain')
-      .end(function(result) {
-        msg.reply('```' + result.body + '```');
-      });
+    unirestHelper.getMashape('https://phalt-pokeapi.p.mashape.com/pokemon/' + sf, utility.config.fun2.apiKeys.mashape, 'text/plain', function(result) {
+      msg.reply('```' + result.body + '```');
+    });
   }
 };
 
@@ -451,7 +444,7 @@ module.exports.commands.snapshot = {
   fn: function(msg, suffix) {
     const sf = suffix ? encodeURI(suffix) : 'http%3A%2F%2Fwww.twitter.com%2F';
     unirest.get('https://thumbnail-thumbnail-v1.p.mashape.com/get?delay=2500&url=' + sf + '&width=1024')
-      .header('X-Mashape-Key', getConfig().fun2.apiKeys.mashape)
+      .header('X-Mashape-Key', config.fun2.apiKeys.mashape)
       .end(function(result) {
         msg.channel.sendFile(result.body);
       });

@@ -1,7 +1,7 @@
 'use strict';
 
 // Discord Bot API
-const getConfig = require('../../utility.js').getConfig;
+const utility = require('../../utility.js');
 //import bot from '../../modules/bot';
 //import events from '../../modules/events';
 
@@ -21,52 +21,56 @@ const mkdirp = require('mkdirp');
 const fetchVideoInfo = require('youtube-info');
 const YoutubeMp3Downloader = require('youtube-mp3-downloader');
 
+let YD;
 // setup configs if not exists
-if (!getConfig()['music-bot']) {
-  getConfig()['music-bot'] = {};
-  getConfig()['music-bot'].library = '../music';
-  getConfig()['music-bot'].skipLimit = 1;
-  getConfig()['music-bot'].announceSongs = true;
-  getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
-  getConfig()['music-bot'].maxLength = 15;
-} else {
-  if (!getConfig()['music-bot'].library) {
-    getConfig()['music-bot'].library = '../music';
+(function() {
+  const config = utility.config;
+  if (!config['music-bot']) {
+    config['music-bot'] = {};
+    config['music-bot'].library = '../music';
+    config['music-bot'].skipLimit = 1;
+    config['music-bot'].announceSongs = true;
+    config['music-bot'].autoJoinVoiceChannel = 'General';
+    config['music-bot'].maxLength = 15;
+  } else {
+    if (!config['music-bot'].library) {
+      config['music-bot'].library = '../music';
+    }
+    if (!config['music-bot'].skipLimit) {
+      config['music-bot'].skipLimit = 1;
+    }
+    if (!config['music-bot'].announceSongs) {
+      config['music-bot'].announceSongs = true;
+    }
+    if (!config['music-bot'].autoJoinVoiceChannel) {
+      config['music-bot'].autoJoinVoiceChannel = 'General';
+    }
+    if (!config['music-bot'].maxLength) {
+      config['music-bot'].maxLength = 15;
+    }
   }
-  if (!getConfig()['music-bot'].skipLimit) {
-    getConfig()['music-bot'].skipLimit = 1;
-  }
-  if (!getConfig()['music-bot'].announceSongs) {
-    getConfig()['music-bot'].announceSongs = true;
-  }
-  if (!getConfig()['music-bot'].autoJoinVoiceChannel) {
-    getConfig()['music-bot'].autoJoinVoiceChannel = 'General';
-  }
-  if (!getConfig()['music-bot'].maxLength) {
-    getConfig()['music-bot'].maxLength = 15;
-  }
-}
 
-/*
-"music-bot": {
-    "commands": {
-        "add": {
-            "channel": "#music"
-        }
-    },
-    "commandPrefix": "music",
-    "library": "../music",
-    "skipLimit": 1,
-    "announceSongs": true,
-    "autoJoinVoiceChannel": "General",
-    "maxLength": 15
-}
-*/
+  /*
+  "music-bot": {
+      "commands": {
+          "add": {
+              "channel": "#music"
+          }
+      },
+      "commandPrefix": "music",
+      "library": "../music",
+      "skipLimit": 1,
+      "announceSongs": true,
+      "autoJoinVoiceChannel": "General",
+      "maxLength": 15
+  }
+  */
 
-const YD = new YoutubeMp3Downloader({
-  outputPath: getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
-  queueParallelism: 5,
-});
+  YD = new YoutubeMp3Downloader({
+    outputPath: config['music-bot'].library ? config['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'),
+    queueParallelism: 5,
+  });
+})();
 
 let playlist = []; // All requested songs will be saved in this array
 let voiceChannelID = null; // The ID of the voice channel the bot has entered will be saved in this variable
@@ -82,7 +86,7 @@ YD.on('finished', function(data) {
     title: data.videoTitle,
     file: data.file,
   });
-  downloadQueue['yt:' + data.videoId].bot.channels.get(channelID).sendMessage('`' + data.videoTitle + '` added to the playlist. Position: ' + playlist.length);
+  bot.channels.get(downloadQueue['yt:' + data.videoId]).sendMessage('`' + data.videoTitle + '` added to the playlist. Position: ' + playlist.length);
   delete downloadQueue['yt:' + data.videoId];
 });
 
@@ -108,7 +112,7 @@ function playLoop(channelID) {
       game: nextSong.title,
     });
 
-    const announceSongs = getConfig()['music-bot'].announceSongs === false ? false : true;
+    const announceSongs = utility.config['music-bot'].announceSongs === false ? false : true;
     if (announceSongs) {
       bot.channels.get(channelID).sendMessage('Now playing: ' + nextSong.url);
     }
@@ -169,6 +173,8 @@ function addCommand(_message, message) {
 
   // Fetch meta data from YouTube video
   fetchVideoInfo(youtubeID, function(error, videoInfo) {
+    const config = utility.config;
+
     if (error) {
       console.error(error, youtubeID);
       bot.channels.get(channelID).sendMessage('This seems to be an invalid link.');
@@ -176,7 +182,7 @@ function addCommand(_message, message) {
     }
 
     // Check length of video
-    const maxLength = getConfig()['music-bot'].maxLength;
+    const maxLength = config['music-bot'].maxLength;
     if (maxLength && isNaN(maxLength)) {
       console.log(chalk.styles.red.open + 'The max length of a song defined in your "config.json" is invalid. Therefore the download of ' + chalk.styles.red.close + videoInfo.url + chalk.styles.red.open + ' will be stopped.' + chalk.styles.red.close);
       bot.channels.get(channelID).sendMessage('The max length of a song defined in your "config.json" is invalid. Therefore the download will be stopped.');
@@ -192,7 +198,7 @@ function addCommand(_message, message) {
     }
 
     // Create download directory
-    mkdirp(getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
+    mkdirp(config['music-bot'].library ? config['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube'), function(error) {
       if (error) {
         console.error(error);
         bot.channels.get(channelID).sendMessage('There was a problem with downloading the video. Check out terminal of the bot to get more information.');
@@ -200,7 +206,7 @@ function addCommand(_message, message) {
       }
 
       // Check if already downloaded
-      fs.access((getConfig()['music-bot'].library ? getConfig()['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
+      fs.access((config['music-bot'].library ? config['music-bot'].library + '/youtube' : (os.platform() === 'win32' ? 'C:/Windows/Temp/youtube' : '/tmp/youtube')) + '/' + videoInfo.videoId + '.mp3', fs.F_OK, function(error) {
         if (error) {
           bot.channels.get(channelID).sendMessage('Downloading the requested video ...');
 
@@ -216,7 +222,7 @@ function addCommand(_message, message) {
             youtubeID: videoInfo.videoId,
             url: videoInfo.url,
             title: videoInfo.title,
-            file: getConfig()['music-bot'].library + '/youtube/' + videoInfo.videoId + '.mp3',
+            file: config['music-bot'].library + '/youtube/' + videoInfo.videoId + '.mp3',
           });
 
           bot.channels.get(channelID).sendMessage('`' + videoInfo.title + '` added to the playlist. Position: ' + playlist.length);
@@ -265,7 +271,9 @@ function skipCommand(_message) {
       usersWantToSkip.push(userID);
     }
 
-    const skipLimit = getConfig()['music-bot'].skipLimit ? getConfig()['music-bot'].skipLimit : 1;
+    const config = utility.config;
+    
+    const skipLimit = config['music-bot'].skipLimit ? config['music-bot'].skipLimit : 1;
     if (usersWantToSkip.length >= skipLimit) {
       bot.getAudioContext({
         channel: voiceChannelID,
@@ -362,8 +370,8 @@ function enter(_message, message, isID, callback) {
 }
 
 bot.on('ready', function() {
-  if (getConfig()['music-bot'].autoJoinVoiceChannel && getConfig()['music-bot'].autoJoinVoiceChannel.length > 0) {
-    enter(null, getConfig()['music-bot'].autoJoinVoiceChannel, false, function() {
+  if (config['music-bot'].autoJoinVoiceChannel && config['music-bot'].autoJoinVoiceChannel.length > 0) {
+    enter(null, config['music-bot'].autoJoinVoiceChannel, false, function() {
       console.log(chalk.red('The voice channel defined in autoJoinVoiceChannel could not be found.'));
     });
   }

@@ -8,7 +8,7 @@ const ent = require('../../lib/entities.js');
 const waifus = require('./waifus.json');
 
 const bot = require('../../bot.js');
-const getConfig = require('../../utility.js').getConfig;
+const utility = require('../../utility.js');
 
 const Ratings = {};
 
@@ -16,14 +16,17 @@ const Ratings = {};
 if (!Array.prototype.includes)
 Array.prototype.includes=function(a){return this.indexOf(a) !== -1;};
 
-if (!getConfig().weeb) {
-  getConfig().weeb = {};
-  getConfig().weeb.mal_pass = '';
-  getConfig().weeb.mal_user = '';
-  getConfig().weeb.osu_api_key = '';
-  getConfig().weeb.imgur_client_id = '';
-  getConfig().weeb.allowNSFW = true;
-}
+(function() {
+  const config = utility.config;
+  if (!config.weeb) {
+    config.weeb = {};
+    config.weeb.mal_pass = '';
+    config.weeb.mal_user = '';
+    config.weeb.osu_api_key = '';
+    config.weeb.imgur_client_id = '';
+    config.weeb.allowNSFW = true;
+  }
+})();
 
 /**
  * @param  {User} sender
@@ -31,7 +34,7 @@ if (!getConfig().weeb) {
  * @param  {String} usage
  */
 function correctUsage(sender, command, usage) {
-  sender.sendMessage('`' + getConfig().trigger + command + '` command usage: `' + usage + '`');
+  sender.sendMessage('`' + utility.config.trigger + command + '` command usage: `' + usage + '`');
 }
 
 function findUser(members, query) {
@@ -97,11 +100,14 @@ module.exports = {
       //      deleteCommand: true,
       //      cooldown: 6,
       fn: function(msg, suffix) {
-        const MAL_USER = getConfig().weeb.mal_user;
-        const MAL_PASS = getConfig().weeb.mal_pass;
+        const config = utility.config;
+
+        const MAL_USER = config.weeb.mal_user;
+        const MAL_PASS = config.weeb.mal_pass;
+
         if (suffix) {
           if (!MAL_USER || !MAL_PASS || MAL_USER === '' || MAL_PASS === '') {
-            msg.channel.sendMessage('MAL login not configured by bot owner', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+            msg.channel.sendMessage('MAL login not configured by bot owner');
             return;
           }
           if (/[\uD000-\uF8FF]/g.test(suffix)) {
@@ -109,7 +115,7 @@ module.exports = {
             return;
           }
           //bot.startTyping(msg.channel);
-          const rUrl = `http://myanimelist.net/api/anime/search.xml?q=${suffix}`;
+          const rUrl = 'http://myanimelist.net/api/anime/search.xml?q=' + suffix;
           request(rUrl, { 'auth': { 'user': MAL_USER, 'pass': MAL_PASS, 'sendImmediately': false } }, function(error, response, body) {
             if (error) console.log(error);
             else if (!error && response.statusCode == 200) {
@@ -127,11 +133,11 @@ module.exports = {
                   synopsis = synopsis.substring(0, 400) + '...';
                 msg.channel.sendMessage('**' + title + ' / ' + english + '**\n**Type:** ' + type + ' **| Episodes:** ' + ep + ' **| Status:** ' + status + ' **| Score:** ' + score + '\n' + synopsis + '\n**<http://www.myanimelist.net/anime/' + id + '>**');
               });
-            } else msg.channel.sendMessage('"' + suffix + '" not found.', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+            } else msg.channel.sendMessage('"' + suffix + '" not found. Info: ' + (error || response.statusCode));
           });
           //bot.stopTyping(msg.channel);
         } else {
-          msg.author.sendMessage('`' + getConfig().trigger + 'anime` command usage: `<anime name>`');
+          msg.author.sendMessage('`' + config.trigger + 'anime` command usage: `<anime name>`');
         }
       }
     },
@@ -141,11 +147,14 @@ module.exports = {
       //      deleteCommand: true,
       //      cooldown: 6,
       fn: function(msg, suffix) {
-        const MAL_USER = getConfig().weeb.mal_user;
-        const MAL_PASS = getConfig().weeb.mal_pass;
+        const config = utility.config;
+
+        const MAL_USER = config.weeb.mal_user;
+        const MAL_PASS = config.weeb.mal_pass;
+
         if (suffix) {
           if (!MAL_USER || !MAL_PASS || MAL_USER === '' || MAL_PASS === '') {
-            msg.channel.sendMessage('MAL login not configured by bot owner', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+            msg.channel.sendMessage('MAL login not configured by bot owner');
             return;
           }
           if (/[\uD000-\uF8FF]/g.test(suffix)) {
@@ -172,11 +181,11 @@ module.exports = {
                   synopsis = synopsis.substring(0, 400) + '...';
                 msg.channel.sendMessage(`**${title} / ${english}**\n**Type:** ${type} **| Chapters:** ${chapters} **| Volumes:** ${volumes} **| Status:** ${status} **| Score:** ${score}\n${synopsis}\n**<http://www.myanimelist.net/manga/${id}>**`);
               });
-            } else msg.channel.sendMessage('"' + suffix + '" not found', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+            } else msg.channel.sendMessage('"' + suffix + '" not found');
           });
           //bot.stopTyping(msg.channel);
         } else {
-          msg.author.sendMessage('`' + getConfig().trigger + 'manga` command usage: `<manga/novel name>`');
+          msg.author.sendMessage('`' + config.trigger + 'manga` command usage: `<manga/novel name>`');
         }
       }
     },
@@ -206,7 +215,7 @@ module.exports = {
             }
           });
         } else {
-          msg.author.sendMessage('`' + getConfig().trigger + 'maluser` command usage: `<username>`');
+          msg.author.sendMessage('`' + utility.config.trigger + 'maluser` command usage: `<username>`');
         }
       }
     },
@@ -223,11 +232,11 @@ module.exports = {
       //      deleteCommand: true, cooldown: 5,
       fn: function(msg, suffix) {
         if (!suffix) {
-          msg.author.sendMessage('`' + getConfig().trigger + 'osu` command usage: `[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]`');
+          msg.author.sendMessage('`' + utility.config.trigger + 'osu` command usage: `[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]`');
           return;
         }
 
-        const OSU_API_KEY = getConfig().weeb.osu_api_key;
+        const OSU_API_KEY = utility.config.weeb.osu_api_key;
 
         let osu;
         if (/^(osu!?)?(standard|mania|taiko|ctb|catch the beat) .{3,6} /i.test(suffix)) {
@@ -280,11 +289,11 @@ module.exports = {
           if (osu) url += '&mode=' + osu;
           request({ url: url, encoding: null }, (err, response, body) => {
             if (err) {
-              msg.channel.sendMessage('Error: ' + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+              msg.channel.sendMessage('Error: ' + err);
               return;
             }
             if (response.statusCode != 200) {
-              msg.channel.sendMessage('Got status code ' + response.statusCode, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+              msg.channel.sendMessage('Got status code ' + response.statusCode);
               return;
             }
             msg.channel.sendMessage("Here's your osu signature for **" + username.replace(/@/g, '@\u200b') + '**! Get a live version at `lemmmy.pw/osusig/`');
@@ -295,11 +304,11 @@ module.exports = {
 
           const username = (suffix.split(' ').length < 2) ? msg.author.username : suffix.substring(5);
           osu.getUser(username, (err, data) => {
-            if (err) msg.channel.sendMessage('Error: ' + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
-            if (!data) msg.channel.sendMessage('User "' + username + '" not found', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+            if (err) msg.channel.sendMessage('Error: ' + err);
+            if (!data) msg.channel.sendMessage('User "' + username + '" not found');
             else {
               if (data.playcount === null || data.playcount === 0) {
-                msg.channel.sendMessage('User has no data', (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+                msg.channel.sendMessage('User has no data');
                 return;
               }
               const toSend = [];
@@ -320,11 +329,11 @@ module.exports = {
           const username = (suffix.split(' ').length < 2) ? msg.author.username : suffix.substring(5);
           osu.getUserBest(username, function(err, data) {
             if (err) {
-              msg.channel.sendMessage('Error: ' + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+              msg.channel.sendMessage('Error: ' + err);
               return;
             }
             if (!data || !data[0] || !data[1] || !data[2] || !data[3] || !data[4]) {
-              msg.channel.sendMessage('User "' + username + "\" not found or user doesn't have 5 plays", function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+              msg.channel.sendMessage('User "' + username + "\" not found or user doesn't have 5 plays");
               return;
             }
             const toSend = [];
@@ -361,11 +370,11 @@ module.exports = {
           const username = (suffix.split(' ').length < 2) ? msg.author.username : suffix.substring(7);
           osu.getUserRecent(username, function(err, data) {
             if (err) {
-              msg.channel.sendMessage('Error: ' + err, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+              msg.channel.sendMessage('Error: ' + err);
               return;
             }
             if (!data || !data[0]) {
-              msg.channel.sendMessage('User "' + username + '" not found or no recent plays', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+              msg.channel.sendMessage('User "' + username + '" not found or no recent plays');
               return;
             }
             const toSend = [];
@@ -434,7 +443,7 @@ module.exports = {
           });
 
         } else {
-          msg.author.sendMessage('`' + getConfig().trigger + 'osu` command usage: *[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]*');
+          msg.author.sendMessage('`' + utility.config.trigger + 'osu` command usage: *[mode] sig [username] [hex color] | [mode] <user|best|recent> [username]*');
         }
       }
     },
@@ -456,8 +465,8 @@ module.exports = {
         let number = 'random';
         if (suffix && /^\d+$/.test(suffix)) number = suffix;
         request('http://numbersapi.com/' + number + '/trivia?json', function(error, response, body) {
-          if (error) msg.channel.sendMessage('Error: ' + error, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
-          else if (response.statusCode != 200) msg.channel.sendMessage('Got status code ' + response.statusCode, function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+          if (error) msg.channel.sendMessage('Error: ' + error);
+          else if (response.statusCode != 200) msg.channel.sendMessage('Got status code ' + response.statusCode);
           else {
             body = JSON.parse(body);
             msg.channel.sendMessage(body.text);
@@ -475,11 +484,11 @@ module.exports = {
           return;
         }
         if (msg.everyoneMentioned) {
-          msg.channel.sendMessage('Hey, ' + msg.author.username.replace(/@/g, '@\u200b') + ", don't do that ok?", function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+          msg.channel.sendMessage('Hey, ' + msg.author.username.replace(/@/g, '@\u200b') + ", don't do that ok?");
           return;
         }
-        if (msg.mentions.length > 1) {
-          msg.channel.sendMessage("Multiple mentions aren't allowed!", (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+        if (msg.mentions.size > 1) {
+          msg.channel.sendMessage("Multiple mentions aren't allowed!");
           return;
         }
         if (suffix.toLowerCase().replace('-', ' ') == bot.user.username.toLowerCase().replace('-', ' ')) {
@@ -505,7 +514,7 @@ module.exports = {
               return (member === undefined || member.username === undefined) ? false : member.username.toLowerCase() == suffix.toLowerCase();
             });
           } else user = false;
-          if (!user && msg.mentions.length < 1) {
+          if (!user && msg.mentions.size < 1) {
             Object.keys(waifus).map(name => {
               if (name.toLowerCase() == suffix.toLowerCase()) {
                 fullName = name;
@@ -533,9 +542,9 @@ module.exports = {
               });
             }
           } else {
-            if (msg.mentions.length > 0) {
-              fullName = msg.mentions[0].username;
-              if (msg.mentions[0].username == bot.user.username) {
+            if (msg.mentions.size > 0) {
+              fullName = msg.mentionsArr[0].username;
+              if (msg.mentionsArr[0].username == bot.user.username) {
                 msg.channel.sendMessage("I'd rate myself **10/10**");
                 return;
               }
@@ -544,7 +553,7 @@ module.exports = {
           if (fullName) {
             if (Ratings.hasOwnProperty(fullName.toLowerCase())) msg.channel.sendMessage('I gave ' + fullName + ' a **' + Ratings[fullName.toLowerCase()] + '/10**'); //already rated
             else {
-              if (user || msg.mentions.length > 0) msg.channel.sendMessage("I'd rate " + fullName.replace(/@/g, '@\u200b') + ' **' + generateUserRating(msg, fullName) + '/10**');
+              if (user || msg.mentions.size > 0) msg.channel.sendMessage("I'd rate " + fullName.replace(/@/g, '@\u200b') + ' **' + generateUserRating(msg, fullName) + '/10**');
               else msg.channel.sendMessage(`I'd rate ${fullName.replace(/@/g, '@\u200b')} **${generateJSONRating(fullName)}/10**`);
             }
           } else {
@@ -560,13 +569,13 @@ module.exports = {
       //      deleteCommand: true, cooldown: 7,
       fn: function(msg, suffix) {
         if (!msg.channel.isPrivate) {
-          if (msg.mentions.length > 0) {
+          if (msg.mentions.size > 0) {
             let ss = 'none';
             bot.guilds.map(server => {
-              if (server.members.includes(msg.mentions[0])) ss += ', ' + server.name;
+              if (server.members.includes(msg.mentionsArr[0])) ss += ', ' + server.name;
             });
-            if (ss != 'none') msg.channel.sendMessage('**Shared Servers for ' + msg.mentions[0].username.replace(/@/g, '@\u200b') + ':** `' + ss.substring(6).replace(/@/g, '@\u200b') + '`');
-            else msg.channel.sendMessage("Somehow I don't share any servers with that user", (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+            if (ss != 'none') msg.channel.sendMessage('**Shared Servers for ' + msg.mentionsArr[0].username.replace(/@/g, '@\u200b') + ':** `' + ss.substring(6).replace(/@/g, '@\u200b') + '`');
+            else msg.channel.sendMessage("Somehow I don't share any servers with that user");
           } else if (suffix) {
             const usr = findUser(msg.channel.guild.members, suffix);
             if (usr) {
@@ -575,12 +584,12 @@ module.exports = {
                 if (server.members.includes(usr)) ss += ', ' + server.name;
               });
               if (ss != 'none') msg.channel.sendMessage('**Shared Servers for ' + usr.username.replace(/@/g, '@\u200b') + ':** `' + ss.substring(6).replace(/@/g, '@\u200b') + '`');
-              else msg.channel.sendMessage("Somehow I don't share any servers with that user", (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
-            } else msg.channel.sendMessage('User not found', (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+              else msg.channel.sendMessage("Somehow I don't share any servers with that user");
+            } else msg.channel.sendMessage('User not found');
           } else {
             correctUsage(msg.author, 'shared', '<user>');
           }
-        } else msg.channel.sendMessage("This command can't be used in a PM", (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+        } else msg.channel.sendMessage("This command can't be used in a PM");
       }
     },
     'image': {
@@ -589,9 +598,9 @@ module.exports = {
       //      deleteCommand: false, cooldown: 10,
       //      info: "Avalible parameters are:\n\t`--nsfw` for getting NSFW images\n\t`--month` or other ranges for time ranges",
       fn: function(msg, suffix) {
-        const IMGUR_CLIENT_ID = getConfig().weeb.imgur_client_id;
+        const IMGUR_CLIENT_ID = utility.config.weeb.imgur_client_id;
         if (!IMGUR_CLIENT_ID || IMGUR_CLIENT_ID === '') {
-          msg.channel.sendMessage('No API key defined by bot owner', function(erro, wMessage) { bot.deleteMessage(wMessage, { 'wait': 8000 }); });
+          msg.channel.sendMessage('No API key defined by bot owner');
           return;
         }
         if (/[\uD000-\uF8FF]/g.test(suffix)) {
@@ -601,7 +610,7 @@ module.exports = {
         if (suffix && /^[^-].*/.test(suffix)) {
           const time = (/(--day|--week|--month|--year|--all)/i.test(suffix)) ? /(--day|--week|--month|--year|--all)/i.exec(suffix)[0] : '--week';
           const sendNSFW = (/ ?--nsfw/i.test(suffix)) ? true : false;
-          if (!msg.channel.isPrivate && sendNSFW && !getConfig().weeb.allowNSFW) {
+          if (!msg.channel.isPrivate && sendNSFW && !utility.config.weeb.allowNSFW) {
             msg.channel.sendMessage("This server doesn't have NSFW images allowed");
             return;
           }
@@ -612,7 +621,7 @@ module.exports = {
             if (error) {
               console.log(error);
               msg.channel.sendMessage('Oh no! There was an error!');
-            } else if (response.statusCode != 200) msg.channel.sendMessage('Got status code ' + response.statusCode, (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+            } else if (response.statusCode != 200) msg.channel.sendMessage('Got status code ' + response.statusCode);
             else if (body) {
               body = JSON.parse(body);
               if (body.hasOwnProperty('data') && body.data !== undefined && body.data.length !== 0) {
@@ -628,7 +637,7 @@ module.exports = {
                     break;
                   }
                 }
-              } else msg.channel.sendMessage('Nothing found!', (erro, wMessage) => { bot.deleteMessage(wMessage, { 'wait': 10000 }); });
+              } else msg.channel.sendMessage('Nothing found!');
             }
           });
         } else {

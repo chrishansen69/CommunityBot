@@ -1,47 +1,49 @@
 'use strict';
 
 const bot = require('../../bot.js');
-const getConfig = require('../../utility.js').getConfig;
-const saveConfig = require('../../utility.js').saveConfig;
-const getXData = require('../../utility.js').getXData;
-const saveXData = require('../../utility.js').saveXData;
+const utility = require('../../utility.js');
+const saveConfig = utility.saveConfig;
+const saveXData = utility.saveXData;
 
 const http = require('http');
 
-if (!getConfig().lastfm || !getXData().lastfm) {
-  getConfig().lastfm = {};
-  getXData().lastfm = {};
-  getConfig().lastfm.apiKey = '83a068985f1c01197759735f6cfaca92';
-  getConfig().lastfm.announceSongs = true;
-  getXData().lastfm.users = {
-    'exampleServer': {
-      'exampleChannel': [
-        ['userID', 'lastfmName', 'last played song']
-      ]
-    }
-  };
-} else {
-  if (!getConfig().lastfm.apiKey) {
-    getConfig().lastfm.apiKey = '83a068985f1c01197759735f6cfaca92';
-  }
-  if (!getConfig().lastfm.announceSongs) {
-    getConfig().lastfm.announceSongs = true;
-  }
-  if (!getXData().lastfm.users) {
-    getXData().lastfm.users = {
+(function() {
+  const config = utility.config;
+  if (!config.lastfm || !utility.xdata.lastfm) {
+    config.lastfm = {};
+    utility.xdata.lastfm = {};
+    config.lastfm.apiKey = '83a068985f1c01197759735f6cfaca92';
+    config.lastfm.announceSongs = true;
+    utility.xdata.lastfm.users = {
       'exampleServer': {
         'exampleChannel': [
           ['userID', 'lastfmName', 'last played song']
         ]
       }
     };
+  } else {
+    if (!config.lastfm.apiKey) {
+      config.lastfm.apiKey = '83a068985f1c01197759735f6cfaca92';
+    }
+    if (!config.lastfm.announceSongs) {
+      config.lastfm.announceSongs = true;
+    }
+    if (!utility.xdata.lastfm.users) {
+      utility.xdata.lastfm.users = {
+        'exampleServer': {
+          'exampleChannel': [
+            ['userID', 'lastfmName', 'last played song']
+          ]
+        }
+      };
+    }
   }
-}
+})();
 
 //let checkPlayingTimer;
 
 bot.on('ready', function() {
-  const xdata = getXData().lastfm;
+  const xdata = xdata.lastfm;
   
   /*checkPlayingTimer = */setInterval(function() {
     
@@ -49,7 +51,7 @@ bot.on('ready', function() {
 
     let server, channel, tuser;
 
-    const callback = function(res) {
+    function callback(res) {
 
       // response
       console.log('Got response: ' + res.statusCode);
@@ -83,7 +85,7 @@ bot.on('ready', function() {
           channel.sendMessage('Error: LastFM return body structure changed');
         }
       });
-    };
+    }
     
     const servers = Object.keys(xdata.users);
     for (let i = 0, il = servers.size; i < il; i++) {
@@ -98,7 +100,7 @@ bot.on('ready', function() {
           http.get({
             hostname: 'ws.audioscrobbler.com',
             port: 80,
-            path: '/2.0/?method=user.getRecentTracks&user=' + tuser[1] + '&api_key=' + getConfig().lastfm.apiKey + '&limit=1&format=json',
+            path: '/2.0/?method=user.getRecentTracks&user=' + tuser[1] + '&api_key=' + utility.config.lastfm.apiKey + '&limit=1&format=json',
             agent: false
           }, callback);
         }
@@ -113,11 +115,12 @@ function getUser(id) {
 }
 
 function removeMeCommand(message) { // TODO doesn't remove server / channel entries
+  const xdata = utility.xdata;
   try {
     const servername = message.channel.guild.id;
     const channelname = message.channel.id;
 
-    const chan = getXData().lastfm.users[servername][channelname];
+    const chan = xdata.lastfm.users[servername][channelname];
     for (let i = 0; i < chan.length; i++) {
       if (chan[i][0] == message.author.id) {
         chan.splice(i, 1);
@@ -134,16 +137,18 @@ function removeMeCommand(message) { // TODO doesn't remove server / channel entr
 }
 
 function addUserCommand(message, suffix) { // TODO doesn't create server / channel entries
+  const xdata = utility.xdata;
+  
   const servername = message.channel.guild.id;
   const channelname = message.channel.id;
   
-  if (!getXData().lastfm.users[servername])
-    getXData().lastfm.users[servername] = {};
+  if (!xdata.lastfm.users[servername])
+    xdata.lastfm.users[servername] = {};
   
-  if (!getXData().lastfm.users[servername][channelname])
-    getXData().lastfm.users[servername][channelname] = [];
+  if (!xdata.lastfm.users[servername][channelname])
+    xdata.lastfm.users[servername][channelname] = [];
   
-  const chan = getXData().lastfm.users[servername][channelname];
+  const chan = xdata.lastfm.users[servername][channelname];
   chan.push([
     message.author.id, // discord id
     suffix.split(' ')[0], // lastfm username
