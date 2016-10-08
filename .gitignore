@@ -45,3 +45,4 @@ bot-package.json
 
 # make sure that .gitignore is never ignored
 !.gitignore
+/--package.json
