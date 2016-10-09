@@ -1,11 +1,12 @@
 {
   "name": "CommunityBot",
-  "version": "1.0.0",
+  "version": "3.4.0",
   "description": "A Discord bot",
   "readme": "README.md",
   "maintainers": [
     "Remco (Dougley@wildbeast.space)",
     "OneMansGlory (onemansglory15@gmail.com)",
+    "rafa1231518 (chris331hansen@outlook.com)",
     "Literally everyone in the CommunityBot project"
   ],
   "author": "Discord Community",
@@ -15,23 +16,35 @@
   },
   "scripts": {
     "start": "node bot",
-	  "test": "mv config-travis.json config.json && node bot"
+    "test": "mv ./data/config-travis.json data/config.json && node bot"
   },
   "license": "GPL-3.0",
   "dependencies": {
     "chalk": "^1.1.1",
     "discord.js": "^9.2.0",
-    "feedparser": "^1.1.4",
+    "feedparser": "^1.1.5",
     "imgflipper": "^1.0.1",
-    "jsdom": "^9.4.1",
+    "jsdom": "^9.6.0",
     "longjohn": "^0.2.11",
     "mkdirp": "git://github.com/substack/node-mkdirp.git",
     "needle": "^1.0.0",
     "osu-api": "^0.0.3",
     "python-shell": "^0.4.0",
-    "request": "^2.72.0",
-    "unirest": "^0.5.0",
-    "url-unshort": "^2.1.0"
+    "request": "^2.75.0",
+    "request-promise": "^4.1.1",
+    "unirest": "rafa1231518/unirest-nodejs",
+    "url-unshort": "^2.1.0",
+    "webshot": "^0.18.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.5.0",
+    "eslint-plugin-classes": "^0.1.1",
+    "eslint-plugin-json": "^1.2.0",
+    "eslint-plugin-lodash": "^1.10.3",
+    "eslint-plugin-node": "^2.0.0"
   },
   "main": "bot.js"
 }
