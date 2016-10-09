@@ -8,8 +8,8 @@ node_js:
   - "6.5"
 
 before_install:
-  - rm ./data/package.json
-  - mv ./data/package-linux.json data/package.json
+  - rm ./package.json
+  - mv ./package-linux.json package.json
   - mv ./data/xdata-base.json data/xdata.json
 
 cache:
