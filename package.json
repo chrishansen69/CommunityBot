@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "node bot",
-    "test": "mv config-travis.json config.json && node bot",
+    "test": "mv ./data/config-travis.json data/config.json && node bot",
     "preinstall": "set VCTargetsPath=c:\\Program Files (x86)\\MSBuild\\Microsoft.Cpp\\v4.0\\v140"
   },
   "license": "GPL-3.0",
