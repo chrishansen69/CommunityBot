@@ -20,7 +20,7 @@ function attemptRequire(file, defFile) {
   } catch (e) {
     console.error(e);
 
-    console.log(file + 'not found. Copying from ' + defFile);
+    console.log(file + ' not found. Copying from ' + defFile);
 
     fs.writeFileSync(file, fs.readFileSync(defFile));
   }

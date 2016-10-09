@@ -10,7 +10,7 @@ node_modules/
 
 # stuff that should not be leaked
 /data/config.json
-/data/ops.json
+#/data/ops.json
 /data/config-my-base.json
 /data/xdata.json
 plugins/gabenizer/secret.py
@@ -22,6 +22,7 @@ plugins/gabenizer/secret.py
 # openshift detritus
 app.js
 bot-package.json
+/--package.json
 
 /static/
 /utils/
@@ -45,4 +46,3 @@ bot-package.json
 
 # make sure that .gitignore is never ignored
 !.gitignore
-/--package.json
