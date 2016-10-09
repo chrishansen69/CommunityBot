@@ -1,0 +1,37 @@
+environment:
+  matrix:
+    # node.js
+    - nodejs_version: "6"
+    - nodejs_version: "6.1"
+    - nodejs_version: "6.2"
+    - nodejs_version: "6.3"
+    - nodejs_version: "6.4"
+    - nodejs_version: "6.5"
+
+platform:
+  - x86
+  - x64
+
+# Install scripts. (runs after repo cloning)
+install:
+  # yes, you need to use package-linux even though it's windows
+  - rm ./package.json
+  - mv ./package-linux.json package.json
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version $env:platform
+  # install modules
+  - npm install
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  # run tests
+  - npm test
+
+# Modified build script
+# "to run your custom scripts instead of automatic MSBuild"
+build_script:
+  - mv ./data/xdata-base.json data/xdata.json
+#build: off
