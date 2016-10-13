@@ -44,7 +44,7 @@
     "eslint": "^3.5.0",
     "eslint-plugin-classes": "^0.1.1",
     "eslint-plugin-json": "^1.2.0",
-    "eslint-plugin-lodash": "^1.10.3",
+    "eslint-plugin-lodash": "^2.0.0",
     "eslint-plugin-node": "^2.0.0"
   },
   "main": "bot.js"
