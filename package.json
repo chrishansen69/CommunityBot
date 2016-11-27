@@ -34,7 +34,7 @@
     "request": "^2.75.0",
     "request-promise": "^4.1.1",
     "unirest": "rafa1231518/unirest-nodejs",
-    "url-unshort": "^2.1.0",
+    "url-unshort": "^3.0.0",
     "webshot": "^0.18.0"
   },
   "engines": {
