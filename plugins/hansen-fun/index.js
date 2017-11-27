@@ -716,13 +716,13 @@ module.exports = {
     'john-madden': {
       description: 'Get a picture of John Madden. Yep. That\'s all this does.',
       fn: function (message, suffix) {
-        message.channel.sendFile('https://rafa1231518.github.io/nfmm-addons/john-madden/madden' + (rand(372) + 1) + '.jpeg');
+        message.channel.sendFile('https://fallk.github.io/nfmm-addons/john-madden/madden' + (rand(372) + 1) + '.jpeg');
       }
     },
     'bob-ross': {
       description: 'Get a picture of Bob Ross. Yep. That\'s all this does.',
       fn: function (message, suffix) {
-        message.channel.sendFile('https://rafa1231518.github.io/nfmm-addons/bob-ross/b' + (rand(323) + 1) + '.jpeg');
+        message.channel.sendFile('https://fallk.github.io/nfmm-addons/bob-ross/b' + (rand(323) + 1) + '.jpeg');
       }
     },
     'giivasunner': {
