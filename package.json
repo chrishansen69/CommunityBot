@@ -28,7 +28,7 @@
     "jsdom": "^11.5.0",
     "longjohn": "^0.2.11",
     "mkdirp": "git://github.com/substack/node-mkdirp.git",
-    "needle": "^1.0.0",
+    "needle": "^2.1.0",
     "osu-api": "^0.0.3",
     "python-shell": "^0.4.0",
     "request": "^2.75.0",
