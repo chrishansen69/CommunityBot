@@ -30,7 +30,7 @@
     "mkdirp": "git://github.com/substack/node-mkdirp.git",
     "needle": "^2.1.0",
     "osu-api": "^0.0.3",
-    "python-shell": "^0.4.0",
+    "python-shell": "^0.5.0",
     "request": "^2.75.0",
     "request-promise": "^4.1.1",
     "unirest": "rafa1231518/unirest-nodejs",
