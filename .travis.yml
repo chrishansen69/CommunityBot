@@ -6,6 +6,7 @@ node_js:
   - "6.3"
   - "6.4"
   - "6.5"
+  - "10"
 
 before_install:
   - rm ./package.json
